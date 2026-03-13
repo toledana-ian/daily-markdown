@@ -1,12 +1,12 @@
-import type {FunctionComponent, ReactNode} from "react";
+import { Outlet } from '@tanstack/react-router'
 
-export const DefaultLayout: FunctionComponent<{ children: ReactNode }> = ({children}) => {
+export const DefaultLayout = () => {
     return <>
         <header>
             <h1>My App</h1>
         </header>
         <main>
-            {children}
+            <Outlet />
         </main>
     </>
 }
