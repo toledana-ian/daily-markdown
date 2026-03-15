@@ -1,173 +1,106 @@
-# React + TypeScript + Vite
+# daily-markdown
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A daily markdown journaling app built with React, TanStack Router, Supabase auth, and deployed to Cloudflare Workers.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** + **TypeScript**
+- **Vite** (build) + **SWC** (Fast Refresh)
+- **TanStack Router** (file-based routing)
+- **Supabase** (auth + database)
+- **Hono** (Cloudflare Worker server)
+- **Wrangler** (Cloudflare deployment)
+- **Tailwind CSS v4** + **shadcn/ui**
+- **Vitest** + **Testing Library** (tests)
 
-## React Compiler
+## Getting Started
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+bun install
+bun run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Scripts
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+| Command             | Description                          |
+| ------------------- | ------------------------------------ |
+| `bun run dev`       | Start Vite dev server                |
+| `bun run build`     | Type-check and build for production  |
+| `bun run preview`   | Build and run via Wrangler locally   |
+| `bun run deploy`    | Build and deploy to Cloudflare       |
+| `bun run test`      | Run tests in watch mode              |
+| `bun run test:run`  | Run tests once                       |
+| `bun run lint`      | Run ESLint                           |
+| `bun run format`    | Format with Prettier                 |
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
-
-## Recommended File Structure:
+## File Structure
 
 ```text
-my-app/
+daily-markdown/
 ├─ public/
 ├─ src/
 │  ├─ app/
-│  │  ├─ router/
-│  │  ├─ providers/
-│  │  ├─ layouts/
-│  │  └─ index.tsx
+│  │  └─ layouts/
+│  │     ├─ DefaultLayout.tsx
+│  │     └─ ProtectedLayout.tsx
 │  │
 │  ├─ components/
-│  │  ├─ ui/               # shadcn/ui generated components
-│  │  └─ shared/           # reusable app components
+│  │  └─ ui/                   # shadcn/ui components
+│  │
+│  ├─ context/
+│  │  └─ auth.tsx              # Supabase auth context
 │  │
 │  ├─ features/
 │  │  ├─ auth/
-│  │  │  ├─ api/
-│  │  │  ├─ components/
-│  │  │  ├─ hooks/
-│  │  │  ├─ schemas/
-│  │  │  ├─ types/
 │  │  │  └─ pages/
+│  │  │     ├─ index.tsx
+│  │  │     ├─ login.tsx
+│  │  │     └─ callback.tsx
 │  │  │
-│  │  ├─ profile/
-│  │  │  ├─ api/
-│  │  │  ├─ components/
-│  │  │  ├─ hooks/
-│  │  │  ├─ schemas/
-│  │  │  ├─ types/
+│  │  ├─ dashboard/
 │  │  │  └─ pages/
+│  │  │     └─ index.tsx
 │  │  │
-│  │  ├─ home/
-│  │  │  ├─ components/
-│  │  │  │  ├─ hero-section.tsx
-│  │  │  │  ├─ featured-projects-section.tsx
-│  │  │  │  └─ cta-section.tsx
-│  │  │  │
-│  │  │  └─ pages/
-│  │  │     └─ home-page.tsx
-│  │  │
-│  │  └─ projects/
-│  │     ├─ api/
-│  │     │  ├─ get-projects.ts
-│  │     │  ├─ create-project.ts
-│  │     │  └─ update-project.ts
-│  │     │
-│  │     ├─ components/
-│  │     ├─ hooks/
-│  │     ├─ schemas/
-│  │     ├─ types/
+│  │  └─ home/
 │  │     └─ pages/
+│  │        ├─ index.tsx
+│  │        └─ 404.tsx
 │  │
 │  ├─ lib/
 │  │  ├─ supabase/
-│  │  │  ├─ client.ts
-│  │  │  ├─ types.ts
-│  │  │  ├─ queries.ts
-│  │  │  └─ auth.ts
-│  │  │
-│  │  ├─ utils.ts
-│  │  ├─ constants.ts
-│  │  └─ env.ts
+│  │  │  └─ client.ts
+│  │  └─ utils.ts
 │  │
-│  ├─ hooks/
-│  │  └─ use-mobile.ts
+│  ├─ routes/                  # TanStack Router file-based routes
+│  │  ├─ (protected)/
+│  │  │  └─ _protected/
+│  │  │     ├─ route.tsx       # Auth guard
+│  │  │     └─ dashboard.tsx
+│  │  ├─ auth/
+│  │  │  └─ callback.tsx
+│  │  ├─ __root.tsx
+│  │  ├─ index.tsx
+│  │  └─ login.tsx
 │  │
-│  ├─ stores/              # Zustand or other global state
-│  ├─ types/
-│  ├─ styles/
-│  │  ├─ globals.css
-│  │  └─ tailwind.css
+│  ├─ test/                    # Mirrors src structure
+│  │  ├─ mocks/
+│  │  │  └─ supabase-auth.ts
+│  │  └─ setup.ts
 │  │
-│  ├─ test/
-│  │  ├─ setup.ts
-│  │  └─ utils.tsx
-│  │
+│  ├─ index.css
 │  ├─ main.tsx
-│  └─ vite-env.d.ts
+│  ├─ routeTree.gen.ts         # Auto-generated by TanStack Router
+│  └─ worker.ts                # Hono Cloudflare Worker entry
 │
 ├─ supabase/
-│  ├─ migrations/
-│  ├─ functions/
-│  │  ├─ create-payment/
-│  │  └─ webhook-stripe/
 │  └─ config.toml
 │
 ├─ docs/
-├─ .env
-├─ .env.example
-├─ components.json         # shadcn/ui
-├─ eslint.config.js
-├─ prettier.config.js
-├─ tailwind.config.js
-├─ tsconfig.json
+│  └─ plans/
+│
+├─ components.json             # shadcn/ui config
+├─ index.html
 ├─ vite.config.ts
-└─ vitest.config.ts
+├─ wrangler.jsonc
+└─ tsconfig.json
 ```
