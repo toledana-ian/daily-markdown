@@ -4,7 +4,8 @@ import type { Env } from '../types'
 const health = new Hono<{ Bindings: Env }>()
 
 health.get('/', (c) => {
-  return c.json({ status: 'ok' })
+  console.log('Health check requested')
+  return c.json({ status: 'ok', message: 'Service is healthy' })
 })
 
 export default health

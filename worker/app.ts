@@ -8,7 +8,7 @@ import webhooks from './routes/webhooks'
 
 const app = new Hono<{ Bindings: Env }>()
 
-app.use('/api/*', corsMiddleware)
+// app.use('/api/*', corsMiddleware)
 
 app.route('/api/health', health)
 app.route('/api/auth', auth)
