@@ -38,7 +38,7 @@ vi.mock("@tanstack/react-router", () => ({
 let ProtectedLayout: ComponentType;
 
 beforeAll(async () => {
-  const module = await import("./ProtectedLayout");
+  const module = await import("@/app/layouts/ProtectedLayout");
   ProtectedLayout = module.ProtectedLayout;
 });
 

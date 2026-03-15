@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 let DashboardPage: ComponentType;
 
 beforeAll(async () => {
-  const module = await import("./index");
+  const module = await import("@/features/dashboard/pages/index");
   DashboardPage = module.DashboardPage ?? module.default;
 });
 

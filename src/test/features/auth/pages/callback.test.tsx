@@ -23,7 +23,7 @@ vi.mock("@tanstack/react-router", () => ({
 let CallbackPage: ComponentType;
 
 beforeAll(async () => {
-  const module = await import("./callback");
+  const module = await import("@/features/auth/pages/callback");
   CallbackPage = module.CallbackPage ?? module.default;
 });
 

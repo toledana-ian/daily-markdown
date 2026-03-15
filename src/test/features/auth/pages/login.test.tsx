@@ -43,7 +43,7 @@ vi.mock("@tanstack/react-router", () => ({
 let LoginPage: ComponentType;
 
 beforeAll(async () => {
-  const module = await import("./login");
+  const module = await import("@/features/auth/pages/login");
   LoginPage = module.LoginPage ?? module.default;
 });
 

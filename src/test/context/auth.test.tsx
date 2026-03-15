@@ -16,7 +16,7 @@ let AuthProvider: ComponentType<PropsWithChildren<unknown>>;
 let useAuth: () => { session: Session | null; loading: boolean };
 
 beforeAll(async () => {
-  const authModule = await import("./auth");
+  const authModule = await import("@/context/auth");
   AuthProvider = authModule.AuthProvider;
   useAuth = authModule.useAuth;
 });
