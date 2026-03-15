@@ -41,6 +41,7 @@ const bootstrapSession: Session = {
   user: {
     id: "user-id",
     aud: "authenticated",
+    created_at: "",
     app_metadata: {},
     user_metadata: {},
   },

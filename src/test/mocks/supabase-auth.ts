@@ -4,7 +4,7 @@ import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 type AuthStateChangeListener = (event: AuthChangeEvent, session: Session | null) => void;
 
 interface AuthStateSubscription {
-  unsubscribe: Mock<void, []>;
+  unsubscribe: Mock<() => void>;
 }
 
 interface Deferred<T> {
@@ -35,12 +35,11 @@ export interface SupabaseAuthMockControls {
 export interface SupabaseAuthMock {
   controls: SupabaseAuthMockControls;
   supabaseAuth: {
-    getSession: Mock<Promise<{ data: { session: Session | null } }>, []>;
+    getSession: Mock<() => Promise<{ data: { session: Session | null } }>>;
     onAuthStateChange: Mock<
-      { data: { subscription: AuthStateSubscription } },
-      [AuthStateChangeListener]
+      (listener: AuthStateChangeListener) => { data: { subscription: AuthStateSubscription } }
     >;
-    signInWithOAuth: Mock<Promise<{ data: null; error: null }>, [unknown]>;
+    signInWithOAuth: Mock<(arg: unknown) => Promise<{ data: null; error: null }>>;
   };
 }
 
@@ -48,7 +47,7 @@ export function createSupabaseAuthMock(): SupabaseAuthMock {
   const listeners = new Set<AuthStateChangeListener>();
   const subscriptions: AuthStateSubscription[] = [];
 
-  const getSessionMock: Mock<Promise<{ data: { session: Session | null } }>, []> = vi.fn();
+  const getSessionMock: Mock<() => Promise<{ data: { session: Session | null } }>> = vi.fn();
   let getSessionDeferred: Deferred<{ data: { session: Session | null } }>;
 
   const resetGetSessionDeferred = () => {
@@ -69,8 +68,7 @@ export function createSupabaseAuthMock(): SupabaseAuthMock {
   };
 
   const onAuthStateChangeMock: Mock<
-    { data: { subscription: AuthStateSubscription } },
-    [AuthStateChangeListener]
+    (listener: AuthStateChangeListener) => { data: { subscription: AuthStateSubscription } }
   > = vi.fn((listener) => {
     listeners.add(listener);
     const unsubscribe = vi.fn(() => {
@@ -81,7 +79,7 @@ export function createSupabaseAuthMock(): SupabaseAuthMock {
     return { data: { subscription } };
   });
 
-  const signInWithOAuthMock: Mock<Promise<{ data: null; error: null }>, [unknown]> = vi.fn(() =>
+  const signInWithOAuthMock: Mock<(arg: unknown) => Promise<{ data: null; error: null }>> = vi.fn(() =>
     Promise.resolve({ data: null, error: null })
   );
 
