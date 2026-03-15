@@ -20,10 +20,6 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': 'http://localhost:8787',
-      '/storybook': {
-        target: 'http://localhost:6006',
-        rewrite: (path) => path.replace(/^\/storybook/, '')
-      }
     }
   },
   resolve: {
