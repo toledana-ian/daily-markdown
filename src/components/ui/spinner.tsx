@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { RiLoader4Line } from '@remixicon/react';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function Spinner({ className, children: _children, ...props }: React.ComponentProps<'svg'>) {
   return (
     <RiLoader4Line

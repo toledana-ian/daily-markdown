@@ -24,12 +24,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           throw error;
         }
         setSession(data.session);
-      } catch (error) {
+      } catch {
         if (!mounted) return;
         setSession(null);
       } finally {
-        if (!mounted) return;
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 

@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import type { Env } from './types';
-import { corsMiddleware } from './middleware/cors';
 import health from './routes/health';
 import auth from './routes/auth';
 import notes from './routes/notes';
