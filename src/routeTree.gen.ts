@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as protectedProtectedRouteRouteImport } from './routes/(protected)/_protected/route'
 import { Route as protectedProtectedDashboardRouteImport } from './routes/(protected)/_protected/dashboard'
 
+const LogoutRoute = LogoutRouteImport.update({
+  id: '/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -44,12 +50,14 @@ const protectedProtectedDashboardRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard': typeof protectedProtectedDashboardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard': typeof protectedProtectedDashboardRoute
 }
@@ -57,19 +65,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/(protected)/_protected': typeof protectedProtectedRouteRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/(protected)/_protected/dashboard': typeof protectedProtectedDashboardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/auth/callback' | '/dashboard'
+  fullPaths: '/' | '/login' | '/logout' | '/auth/callback' | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/auth/callback' | '/dashboard'
+  to: '/' | '/login' | '/logout' | '/auth/callback' | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/login'
+    | '/logout'
     | '/(protected)/_protected'
     | '/auth/callback'
     | '/(protected)/_protected/dashboard'
@@ -78,12 +88,20 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  LogoutRoute: typeof LogoutRoute
   protectedProtectedRouteRoute: typeof protectedProtectedRouteRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -139,6 +157,7 @@ const protectedProtectedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  LogoutRoute: LogoutRoute,
   protectedProtectedRouteRoute: protectedProtectedRouteRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
 }
