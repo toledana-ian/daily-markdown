@@ -1,15 +1,16 @@
-import { createRootRoute } from '@tanstack/react-router'
+import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { type PropsWithChildren } from 'react'
 import { AuthProvider } from '@/app/providers/auth'
-import { DefaultLayout } from '@/app/layouts/DefaultLayout'
 import { NotFoundPage } from '@/features/home/pages/404'
 
 const AuthShell = ({ children }: PropsWithChildren) => (
-  <AuthProvider>{children}</AuthProvider>
+    <AuthProvider>{children}</AuthProvider>
 )
 
+const RootLayout = () => <Outlet />
+
 export const Route = createRootRoute({
-  component: DefaultLayout,
-  shellComponent: AuthShell,
-  notFoundComponent: NotFoundPage,
+    component: RootLayout,
+    shellComponent: AuthShell,
+    notFoundComponent: NotFoundPage,
 })
