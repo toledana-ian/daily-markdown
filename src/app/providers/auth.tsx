@@ -1,11 +1,10 @@
-import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import type { Session } from '@supabase/supabase-js';
+import { type PropsWithChildren, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
-import { AuthContext } from '@/app/context/auth';
+import { useAuthStore } from '@/app/stores/auth';
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const setSession = useAuthStore((s) => s.setSession);
+  const setLoading = useAuthStore((s) => s.setLoading);
 
   useEffect(() => {
     let mounted = true;
@@ -34,15 +33,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       }
     };
 
-    bootstrapSession();
+    bootstrapSession().then();
 
     return () => {
       mounted = false;
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [setSession, setLoading]);
 
-  const value = useMemo(() => ({ session, loading }), [session, loading]);
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <>{children}</>;
 };
