@@ -5,7 +5,7 @@ import { Footer } from '@/components/shared/footer.tsx';
 export const PublicLayout = () => {
   return (
     <div className='min-h-screen flex flex-col'>
-      <Header showLogin={true} />
+      <Header />
       <main className='flex-1'>
         <Outlet />
       </main>

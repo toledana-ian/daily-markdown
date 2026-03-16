@@ -13,7 +13,7 @@ export const AuthLayout = () => {
 
   return (
     <div className='min-h-screen flex flex-col'>
-      <Header showLogin={false} />
+      <Header />
       <main className='flex-1'>
         <Outlet />
       </main>
