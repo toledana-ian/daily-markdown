@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { type PropsWithChildren } from 'react';
 import { AuthProvider } from '@/app/providers/auth';
-import { NotFoundPage } from '@/features/home/pages/404';
+import { NotFoundPage } from '@/features/public/pages/404.tsx';
 
 const AuthShell = ({ children }: PropsWithChildren) => <AuthProvider>{children}</AuthProvider>;
 

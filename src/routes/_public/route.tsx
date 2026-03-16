@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { PublicLayout } from '@/app/layouts/PublicLayout';
+import { DefaultLayout } from '@/app/layouts/DefaultLayout.tsx';
 
 export const Route = createFileRoute('/_public')({
-  component: PublicLayout,
+  component: DefaultLayout,
 });
