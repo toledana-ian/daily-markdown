@@ -13,6 +13,7 @@ import { Route as PublicRouteRouteImport } from './routes/_public/route'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
+import { Route as PublicauthTestRouteImport } from './routes/_public/(auth)/test'
 import { Route as PublicauthLogoutRouteImport } from './routes/_public/(auth)/logout'
 import { Route as PublicauthLoginRouteImport } from './routes/_public/(auth)/login'
 import { Route as PublicauthAuthCallbackRouteImport } from './routes/_public/(auth)/auth/callback'
@@ -35,6 +36,11 @@ const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
+const PublicauthTestRoute = PublicauthTestRouteImport.update({
+  id: '/(auth)/test',
+  path: '/test',
+  getParentRoute: () => PublicRouteRoute,
+} as any)
 const PublicauthLogoutRoute = PublicauthLogoutRouteImport.update({
   id: '/(auth)/logout',
   path: '/logout',
@@ -56,6 +62,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof ProtectedDashboardRoute
   '/login': typeof PublicauthLoginRoute
   '/logout': typeof PublicauthLogoutRoute
+  '/test': typeof PublicauthTestRoute
   '/auth/callback': typeof PublicauthAuthCallbackRoute
 }
 export interface FileRoutesByTo {
@@ -63,6 +70,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof ProtectedDashboardRoute
   '/login': typeof PublicauthLoginRoute
   '/logout': typeof PublicauthLogoutRoute
+  '/test': typeof PublicauthTestRoute
   '/auth/callback': typeof PublicauthAuthCallbackRoute
 }
 export interface FileRoutesById {
@@ -73,13 +81,20 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_public/(auth)/login': typeof PublicauthLoginRoute
   '/_public/(auth)/logout': typeof PublicauthLogoutRoute
+  '/_public/(auth)/test': typeof PublicauthTestRoute
   '/_public/(auth)/auth/callback': typeof PublicauthAuthCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/logout' | '/auth/callback'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/logout'
+    | '/test'
+    | '/auth/callback'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/logout' | '/auth/callback'
+  to: '/' | '/dashboard' | '/login' | '/logout' | '/test' | '/auth/callback'
   id:
     | '__root__'
     | '/_protected'
@@ -88,6 +103,7 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_public/(auth)/login'
     | '/_public/(auth)/logout'
+    | '/_public/(auth)/test'
     | '/_public/(auth)/auth/callback'
   fileRoutesById: FileRoutesById
 }
@@ -125,6 +141,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof ProtectedDashboardRouteImport
       parentRoute: typeof ProtectedRouteRoute
+    }
+    '/_public/(auth)/test': {
+      id: '/_public/(auth)/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof PublicauthTestRouteImport
+      parentRoute: typeof PublicRouteRoute
     }
     '/_public/(auth)/logout': {
       id: '/_public/(auth)/logout'
@@ -166,6 +189,7 @@ interface PublicRouteRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
   PublicauthLoginRoute: typeof PublicauthLoginRoute
   PublicauthLogoutRoute: typeof PublicauthLogoutRoute
+  PublicauthTestRoute: typeof PublicauthTestRoute
   PublicauthAuthCallbackRoute: typeof PublicauthAuthCallbackRoute
 }
 
@@ -173,6 +197,7 @@ const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
   PublicauthLoginRoute: PublicauthLoginRoute,
   PublicauthLogoutRoute: PublicauthLogoutRoute,
+  PublicauthTestRoute: PublicauthTestRoute,
   PublicauthAuthCallbackRoute: PublicauthAuthCallbackRoute,
 }
 
