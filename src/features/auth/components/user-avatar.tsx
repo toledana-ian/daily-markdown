@@ -5,13 +5,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu.tsx';
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 
 interface UserAvatarProps {
   profilePicture: string | null;
 }
 
 export const UserAvatar = ({ profilePicture }: UserAvatarProps) => {
+  const navigate = useNavigate();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -23,11 +25,13 @@ export const UserAvatar = ({ profilePicture }: UserAvatarProps) => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
-        <DropdownMenuItem>
-          <Link to='.'>Settings</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link to='/logout'>Logout</Link>
+        <DropdownMenuItem onClick={() => navigate({ to: '.' })}>Settings</DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            navigate({ to: '/logout' }).then();
+          }}
+        >
+          Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
