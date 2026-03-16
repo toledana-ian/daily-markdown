@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   createMemoryHistory,
   createRootRoute,
   createRouter,
   RouterProvider,
-} from "@tanstack/react-router";
+} from '@tanstack/react-router';
 
-import { Header } from "./header";
+import { Header } from './header';
 
 function withRouter(children: React.ReactNode) {
   const rootRoute = createRootRoute({ component: () => <>{children}</> });
@@ -18,19 +18,16 @@ function withRouter(children: React.ReactNode) {
 }
 
 const meta = {
-  title: "Shared/Header",
+  title: 'Shared/Header',
   component: Header,
   parameters: {
-    layout: "fullscreen",
+    layout: 'fullscreen',
   },
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   argTypes: {
-    showLogin: { control: "boolean" },
+    showLogin: { control: 'boolean' },
   },
-  decorators: [
-    (Story) =>
-      withRouter(<Story />),
-  ],
+  decorators: [(Story) => withRouter(<Story />)],
 } satisfies Meta<typeof Header>;
 
 export default meta;

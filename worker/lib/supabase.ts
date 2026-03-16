@@ -1,4 +1,4 @@
-import type { Env } from '../types'
+import type { Env } from '../types';
 
 export function createSupabaseClient(_env: Env) {
   // TODO: initialize Supabase client using env bindings

@@ -1,5 +1,5 @@
-import { vi, type Mock } from "vitest";
-import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import { vi, type Mock } from 'vitest';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 type AuthStateChangeListener = (event: AuthChangeEvent, session: Session | null) => void;
 
@@ -79,8 +79,8 @@ export function createSupabaseAuthMock(): SupabaseAuthMock {
     return { data: { subscription } };
   });
 
-  const signInWithOAuthMock: Mock<(arg: unknown) => Promise<{ data: null; error: null }>> = vi.fn(() =>
-    Promise.resolve({ data: null, error: null })
+  const signInWithOAuthMock: Mock<(arg: unknown) => Promise<{ data: null; error: null }>> = vi.fn(
+    () => Promise.resolve({ data: null, error: null }),
   );
 
   const emitAuthStateChange = (event: AuthChangeEvent, session: Session | null) => {
@@ -94,9 +94,7 @@ export function createSupabaseAuthMock(): SupabaseAuthMock {
     onAuthStateChangeMock.mockClear();
     signInWithOAuthMock.mockClear();
     resetGetSessionDeferred();
-    signInWithOAuthMock.mockImplementation(() =>
-      Promise.resolve({ data: null, error: null })
-    );
+    signInWithOAuthMock.mockImplementation(() => Promise.resolve({ data: null, error: null }));
   };
 
   return {

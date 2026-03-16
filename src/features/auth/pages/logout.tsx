@@ -1,13 +1,13 @@
-import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { supabase } from "@/lib/supabase/client";
+import { useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { supabase } from '@/lib/supabase/client';
 
 export const LogoutPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
     void supabase.auth.signOut().then(() => {
-      void navigate({ to: "/" });
+      void navigate({ to: '/' });
     });
   }, [navigate]);
 

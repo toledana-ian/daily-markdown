@@ -14,7 +14,7 @@ vi.doMock('@/lib/supabase/client', () => ({
 
 vi.doMock('@/app/layouts/ProtectedLayout', () => ({
   ProtectedLayout: ({ children }: { children: ReactNode }) => (
-    <div data-testid="protected-layout">{children}</div>
+    <div data-testid='protected-layout'>{children}</div>
   ),
 }));
 

@@ -23,18 +23,18 @@ bun run dev
 
 ## Scripts
 
-| Command             | Description                          |
-| ------------------- | ------------------------------------ |
-| `bun run dev`             | Start Wrangler, Vite, and Storybook  |
-| `bun run build`           | Type-check and build for production  |
-| `bun run preview`         | Build and run via Wrangler locally   |
-| `bun run deploy`          | Build and deploy to Cloudflare       |
+| Command                   | Description                            |
+| ------------------------- | -------------------------------------- |
+| `bun run dev`             | Start Wrangler, Vite, and Storybook    |
+| `bun run build`           | Type-check and build for production    |
+| `bun run preview`         | Build and run via Wrangler locally     |
+| `bun run deploy`          | Build and deploy to Cloudflare         |
 | `bun run storybook`       | Start Storybook dev server (port 6006) |
-| `bun run build-storybook` | Build Storybook static site          |
-| `bun run test`            | Run tests in watch mode              |
-| `bun run test:run`        | Run tests once                       |
-| `bun run lint`            | Run ESLint                           |
-| `bun run format`          | Format with Prettier                 |
+| `bun run build-storybook` | Build Storybook static site            |
+| `bun run test`            | Run tests in watch mode                |
+| `bun run test:run`        | Run tests once                         |
+| `bun run lint`            | Run ESLint                             |
+| `bun run format`          | Format with Prettier                   |
 
 ## File Structure
 
@@ -52,7 +52,7 @@ daily-markdown/
 │  ├─ components/
 │  │  └─ ui/                   # shadcn/ui components
 │  │  └─ shared/               # reusable app components
-│  │     ├─ Header.tsx 
+│  │     ├─ Header.tsx
 │  │     └─ LoadingSpinner.tsx
 │  │
 │  ├─ context/
