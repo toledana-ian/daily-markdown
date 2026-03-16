@@ -12,6 +12,7 @@ A daily markdown journaling app built with React, TanStack Router, Supabase auth
 - **Wrangler** (Cloudflare deployment)
 - **Tailwind CSS v4** + **shadcn/ui**
 - **Vitest** + **Testing Library** (tests)
+- **Storybook** (component development)
 
 ## Getting Started
 
@@ -24,14 +25,16 @@ bun run dev
 
 | Command             | Description                          |
 | ------------------- | ------------------------------------ |
-| `bun run dev`       | Start Vite dev server                |
-| `bun run build`     | Type-check and build for production  |
-| `bun run preview`   | Build and run via Wrangler locally   |
-| `bun run deploy`    | Build and deploy to Cloudflare       |
-| `bun run test`      | Run tests in watch mode              |
-| `bun run test:run`  | Run tests once                       |
-| `bun run lint`      | Run ESLint                           |
-| `bun run format`    | Format with Prettier                 |
+| `bun run dev`             | Start Wrangler, Vite, and Storybook  |
+| `bun run build`           | Type-check and build for production  |
+| `bun run preview`         | Build and run via Wrangler locally   |
+| `bun run deploy`          | Build and deploy to Cloudflare       |
+| `bun run storybook`       | Start Storybook dev server (port 6006) |
+| `bun run build-storybook` | Build Storybook static site          |
+| `bun run test`            | Run tests in watch mode              |
+| `bun run test:run`        | Run tests once                       |
+| `bun run lint`            | Run ESLint                           |
+| `bun run format`          | Format with Prettier                 |
 
 ## File Structure
 
@@ -44,8 +47,13 @@ daily-markdown/
 │  │     ├─ DefaultLayout.tsx
 │  │     └─ ProtectedLayout.tsx
 │  │
+│  ├─ assets/
+│  │
 │  ├─ components/
 │  │  └─ ui/                   # shadcn/ui components
+│  │  └─ shared/               # reusable app components
+│  │     ├─ Header.tsx 
+│  │     └─ LoadingSpinner.tsx
 │  │
 │  ├─ context/
 │  │  └─ auth.tsx              # Supabase auth context
@@ -82,7 +90,16 @@ daily-markdown/
 │  │  ├─ index.tsx
 │  │  └─ login.tsx
 │  │
+│  ├─ stories/                 # Storybook stories
+│  │  ├─ Button.stories.ts
+│  │  ├─ Header.stories.ts
+│  │  └─ Page.stories.ts
+│  │
 │  ├─ test/                    # Mirrors src structure
+│  │  ├─ app/
+│  │  ├─ context/
+│  │  ├─ features/
+│  │  ├─ routes/
 │  │  ├─ mocks/
 │  │  │  └─ supabase-auth.ts
 │  │  └─ setup.ts
@@ -113,8 +130,12 @@ daily-markdown/
 │  └─ plans/
 │
 ├─ components.json             # shadcn/ui config
+├─ eslint.config.js
 ├─ index.html
 ├─ vite.config.ts
+├─ vitest.shims.d.ts
 ├─ wrangler.jsonc
-└─ tsconfig.json
+├─ tsconfig.json
+├─ tsconfig.app.json
+└─ tsconfig.node.json
 ```
