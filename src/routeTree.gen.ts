@@ -11,11 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteRouteImport } from './routes/_public/route'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
+import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
-import { Route as PublicauthLogoutRouteImport } from './routes/_public/(auth)/logout'
-import { Route as PublicauthLoginRouteImport } from './routes/_public/(auth)/login'
-import { Route as PublicauthAuthCallbackRouteImport } from './routes/_public/(auth)/auth/callback'
+import { Route as AuthLogoutRouteImport } from './routes/_auth/logout'
+import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as AuthAuthCallbackRouteImport } from './routes/_auth/auth/callback'
 
 const PublicRouteRoute = PublicRouteRouteImport.update({
   id: '/_public',
@@ -23,6 +24,10 @@ const PublicRouteRoute = PublicRouteRouteImport.update({
 } as any)
 const ProtectedRouteRoute = ProtectedRouteRouteImport.update({
   id: '/_protected',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRouteRoute = AuthRouteRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
@@ -35,63 +40,66 @@ const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
-const PublicauthLogoutRoute = PublicauthLogoutRouteImport.update({
-  id: '/(auth)/logout',
+const AuthLogoutRoute = AuthLogoutRouteImport.update({
+  id: '/logout',
   path: '/logout',
-  getParentRoute: () => PublicRouteRoute,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const PublicauthLoginRoute = PublicauthLoginRouteImport.update({
-  id: '/(auth)/login',
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/login',
   path: '/login',
-  getParentRoute: () => PublicRouteRoute,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const PublicauthAuthCallbackRoute = PublicauthAuthCallbackRouteImport.update({
-  id: '/(auth)/auth/callback',
+const AuthAuthCallbackRoute = AuthAuthCallbackRouteImport.update({
+  id: '/auth/callback',
   path: '/auth/callback',
-  getParentRoute: () => PublicRouteRoute,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/login': typeof AuthLoginRoute
+  '/logout': typeof AuthLogoutRoute
   '/dashboard': typeof ProtectedDashboardRoute
-  '/login': typeof PublicauthLoginRoute
-  '/logout': typeof PublicauthLogoutRoute
-  '/auth/callback': typeof PublicauthAuthCallbackRoute
+  '/auth/callback': typeof AuthAuthCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
+  '/login': typeof AuthLoginRoute
+  '/logout': typeof AuthLogoutRoute
   '/dashboard': typeof ProtectedDashboardRoute
-  '/login': typeof PublicauthLoginRoute
-  '/logout': typeof PublicauthLogoutRoute
-  '/auth/callback': typeof PublicauthAuthCallbackRoute
+  '/auth/callback': typeof AuthAuthCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_auth': typeof AuthRouteRouteWithChildren
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/_public': typeof PublicRouteRouteWithChildren
+  '/_auth/login': typeof AuthLoginRoute
+  '/_auth/logout': typeof AuthLogoutRoute
   '/_protected/dashboard': typeof ProtectedDashboardRoute
   '/_public/': typeof PublicIndexRoute
-  '/_public/(auth)/login': typeof PublicauthLoginRoute
-  '/_public/(auth)/logout': typeof PublicauthLogoutRoute
-  '/_public/(auth)/auth/callback': typeof PublicauthAuthCallbackRoute
+  '/_auth/auth/callback': typeof AuthAuthCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/logout' | '/auth/callback'
+  fullPaths: '/' | '/login' | '/logout' | '/dashboard' | '/auth/callback'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/logout' | '/auth/callback'
+  to: '/' | '/login' | '/logout' | '/dashboard' | '/auth/callback'
   id:
     | '__root__'
+    | '/_auth'
     | '/_protected'
     | '/_public'
+    | '/_auth/login'
+    | '/_auth/logout'
     | '/_protected/dashboard'
     | '/_public/'
-    | '/_public/(auth)/login'
-    | '/_public/(auth)/logout'
-    | '/_public/(auth)/auth/callback'
+    | '/_auth/auth/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren
   PublicRouteRoute: typeof PublicRouteRouteWithChildren
 }
@@ -112,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_public/': {
       id: '/_public/'
       path: '/'
@@ -126,29 +141,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedDashboardRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
-    '/_public/(auth)/logout': {
-      id: '/_public/(auth)/logout'
+    '/_auth/logout': {
+      id: '/_auth/logout'
       path: '/logout'
       fullPath: '/logout'
-      preLoaderRoute: typeof PublicauthLogoutRouteImport
-      parentRoute: typeof PublicRouteRoute
+      preLoaderRoute: typeof AuthLogoutRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/_public/(auth)/login': {
-      id: '/_public/(auth)/login'
+    '/_auth/login': {
+      id: '/_auth/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof PublicauthLoginRouteImport
-      parentRoute: typeof PublicRouteRoute
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/_public/(auth)/auth/callback': {
-      id: '/_public/(auth)/auth/callback'
+    '/_auth/auth/callback': {
+      id: '/_auth/auth/callback'
       path: '/auth/callback'
       fullPath: '/auth/callback'
-      preLoaderRoute: typeof PublicauthAuthCallbackRouteImport
-      parentRoute: typeof PublicRouteRoute
+      preLoaderRoute: typeof AuthAuthCallbackRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
   }
 }
+
+interface AuthRouteRouteChildren {
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthLogoutRoute: typeof AuthLogoutRoute
+  AuthAuthCallbackRoute: typeof AuthAuthCallbackRoute
+}
+
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthLoginRoute: AuthLoginRoute,
+  AuthLogoutRoute: AuthLogoutRoute,
+  AuthAuthCallbackRoute: AuthAuthCallbackRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
 
 interface ProtectedRouteRouteChildren {
   ProtectedDashboardRoute: typeof ProtectedDashboardRoute
@@ -164,16 +195,10 @@ const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
 
 interface PublicRouteRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
-  PublicauthLoginRoute: typeof PublicauthLoginRoute
-  PublicauthLogoutRoute: typeof PublicauthLogoutRoute
-  PublicauthAuthCallbackRoute: typeof PublicauthAuthCallbackRoute
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
-  PublicauthLoginRoute: PublicauthLoginRoute,
-  PublicauthLogoutRoute: PublicauthLogoutRoute,
-  PublicauthAuthCallbackRoute: PublicauthAuthCallbackRoute,
 }
 
 const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
@@ -181,6 +206,7 @@ const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  AuthRouteRoute: AuthRouteRouteWithChildren,
   ProtectedRouteRoute: ProtectedRouteRouteWithChildren,
   PublicRouteRoute: PublicRouteRouteWithChildren,
 }
