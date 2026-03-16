@@ -34,7 +34,6 @@ export const LoginPage = () => {
     return (
         <div className="min-h-[calc(100vh-7rem)] flex items-center justify-center px-6">
             <div className="w-full max-w-sm bg-card border border-border rounded-lg p-8 flex flex-col items-center gap-4">
-                <span className="font-mono text-primary font-semibold text-sm">daily.md</span>
                 <div className="text-center">
                     <h1 className="text-xl font-semibold">Welcome back</h1>
                     <p className="text-sm text-muted-foreground mt-1">Sign in to continue</p>
