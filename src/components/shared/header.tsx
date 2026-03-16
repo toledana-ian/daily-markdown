@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { cn } from '@/lib/utils.ts';
-import { buttonVariants } from '@/components/ui/button.tsx';
+import { SignInButton } from '@/features/auth/components/signin-button.tsx';
 
 interface HeaderProps {
   showLogin: boolean;
@@ -16,11 +15,7 @@ export const Header = (props: HeaderProps) => {
             <img src={'/favicon_io/icon.png'} alt='logo' className='size-6 mb-1' />
             <div className='font-mono text-primary font-semibold text-sm'>daily.md</div>
           </Link>
-          {showLogin && (
-            <Link to='/login' className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
-              Sign in
-            </Link>
-          )}
+          {showLogin && <SignInButton />}
         </div>
       </header>
     </>
