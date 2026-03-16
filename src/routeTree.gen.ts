@@ -9,25 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PublicRouteRouteImport } from './routes/_public/route'
+import { Route as DefaultRouteRouteImport } from './routes/_default/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
-import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as DefaultIndexRouteImport } from './routes/_default/index'
 import { Route as AuthLogoutRouteImport } from './routes/_auth/logout'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthAuthCallbackRouteImport } from './routes/_auth/auth/callback'
 
-const PublicRouteRoute = PublicRouteRouteImport.update({
-  id: '/_public',
+const DefaultRouteRoute = DefaultRouteRouteImport.update({
+  id: '/_default',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PublicIndexRoute = PublicIndexRouteImport.update({
+const DefaultIndexRoute = DefaultIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => PublicRouteRoute,
+  getParentRoute: () => DefaultRouteRoute,
 } as any)
 const AuthLogoutRoute = AuthLogoutRouteImport.update({
   id: '/logout',
@@ -46,13 +46,13 @@ const AuthAuthCallbackRoute = AuthAuthCallbackRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof PublicIndexRoute
+  '/': typeof DefaultIndexRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/auth/callback': typeof AuthAuthCallbackRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof PublicIndexRoute
+  '/': typeof DefaultIndexRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/auth/callback': typeof AuthAuthCallbackRoute
@@ -60,10 +60,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteRouteWithChildren
-  '/_public': typeof PublicRouteRouteWithChildren
+  '/_default': typeof DefaultRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/logout': typeof AuthLogoutRoute
-  '/_public/': typeof PublicIndexRoute
+  '/_default/': typeof DefaultIndexRoute
   '/_auth/auth/callback': typeof AuthAuthCallbackRoute
 }
 export interface FileRouteTypes {
@@ -74,25 +74,25 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_auth'
-    | '/_public'
+    | '/_default'
     | '/_auth/login'
     | '/_auth/logout'
-    | '/_public/'
+    | '/_default/'
     | '/_auth/auth/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  PublicRouteRoute: typeof PublicRouteRouteWithChildren
+  DefaultRouteRoute: typeof DefaultRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_public': {
-      id: '/_public'
+    '/_default': {
+      id: '/_default'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof PublicRouteRouteImport
+      preLoaderRoute: typeof DefaultRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth': {
@@ -102,12 +102,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_public/': {
-      id: '/_public/'
+    '/_default/': {
+      id: '/_default/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof PublicIndexRouteImport
-      parentRoute: typeof PublicRouteRoute
+      preLoaderRoute: typeof DefaultIndexRouteImport
+      parentRoute: typeof DefaultRouteRoute
     }
     '/_auth/logout': {
       id: '/_auth/logout'
@@ -149,21 +149,21 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
-interface PublicRouteRouteChildren {
-  PublicIndexRoute: typeof PublicIndexRoute
+interface DefaultRouteRouteChildren {
+  DefaultIndexRoute: typeof DefaultIndexRoute
 }
 
-const PublicRouteRouteChildren: PublicRouteRouteChildren = {
-  PublicIndexRoute: PublicIndexRoute,
+const DefaultRouteRouteChildren: DefaultRouteRouteChildren = {
+  DefaultIndexRoute: DefaultIndexRoute,
 }
 
-const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
-  PublicRouteRouteChildren,
+const DefaultRouteRouteWithChildren = DefaultRouteRoute._addFileChildren(
+  DefaultRouteRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
-  PublicRouteRoute: PublicRouteRouteWithChildren,
+  DefaultRouteRoute: DefaultRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
