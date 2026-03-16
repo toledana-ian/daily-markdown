@@ -1,13 +1,7 @@
-import { type PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase/client";
-
-interface AuthContextValue {
-  session: Session | null;
-  loading: boolean;
-}
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import type { Session } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase/client';
+import { AuthContext } from '@/app/context/auth';
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useState<Session | null>(null);
@@ -50,14 +44,4 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const value = useMemo(() => ({ session, loading }), [session, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-
-  return context;
 };

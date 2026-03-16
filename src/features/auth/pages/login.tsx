@@ -1,6 +1,6 @@
 import { Navigate } from "@tanstack/react-router";
 import { supabase } from "@/lib/supabase/client";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "@/app/hooks/useAuth";
 
 const getCallbackRedirect = () => {
   if (typeof window === "undefined") {

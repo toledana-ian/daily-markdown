@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from '@tanstack/react-router'
-import { useAuth } from '@/context/auth'
+import { useAuth } from '@/app/hooks/useAuth'
 
 export const ProtectedLayout = () => {
   const { loading, session } = useAuth()

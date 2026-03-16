@@ -16,7 +16,7 @@ vi.doMock("@/lib/supabase/client", () => ({
 }));
 
 vi.doMock("@/features/home/pages", async () => {
-  const { useAuth } = await import("@/context/auth");
+  const { useAuth } = await import("@/app/context/auth.tsx");
 
   const AuthAwareHomePage = () => {
     const { loading } = useAuth();

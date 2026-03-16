@@ -1,5 +1,5 @@
 import { Navigate } from "@tanstack/react-router";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "@/app/hooks/useAuth";
 
 export const CallbackPage = () => {
   const { loading, session } = useAuth();

@@ -1,6 +1,6 @@
 import { createRootRoute } from '@tanstack/react-router'
 import { type PropsWithChildren } from 'react'
-import { AuthProvider } from '@/context/auth'
+import { AuthProvider } from '@/app/providers/auth'
 import { DefaultLayout } from '@/app/layouts/DefaultLayout'
 import { NotFoundPage } from '@/features/home/pages/404'
 
