@@ -10,4 +10,4 @@ supabase/.temp
 .idea
 .tanstack/temp
 docs
-
+src/routeTree.gen.ts
