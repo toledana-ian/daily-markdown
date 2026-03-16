@@ -1,18 +1,14 @@
-import { Navigate, Outlet } from '@tanstack/react-router';
 import { Header } from '@/components/shared/header.tsx';
 import { Footer } from '@/components/shared/footer.tsx';
 import { useAuth } from '@/app/hooks/useAuth.ts';
 import { Loading } from '@/features/auth/components/loading.tsx';
+import { Outlet } from '@tanstack/react-router';
 
 export const AuthLayout = () => {
-  const { session, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return <Loading />;
-  }
-
-  if (session) {
-    return <Navigate to='/' />;
   }
 
   return (

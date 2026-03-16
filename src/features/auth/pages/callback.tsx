@@ -1,8 +1,13 @@
 import { Navigate } from '@tanstack/react-router';
+import { useAuth } from '@/app/hooks/useAuth.ts';
 
 export const CallbackPage = () => {
-  // the layout will handle the redirection if login is successful or loading
-  // this will only be rendered if the user is not authenticated
+  const { session } = useAuth();
+
+  if (session) {
+    return <Navigate to='/' />;
+  }
+
   return <Navigate to='/login' />;
 };
 

@@ -1,6 +1,8 @@
 import { RiGoogleFill } from '@remixicon/react';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/app/hooks/useAuth.ts';
+import { Navigate } from '@tanstack/react-router';
 
 const getCallbackRedirect = () => {
   if (typeof window === 'undefined') {
@@ -10,6 +12,8 @@ const getCallbackRedirect = () => {
 };
 
 export const LoginPage = () => {
+  const { session } = useAuth();
+
   const handleGoogleSignIn = () => {
     void supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -18,6 +22,10 @@ export const LoginPage = () => {
       },
     });
   };
+
+  if (session) {
+    return <Navigate to='/' />;
+  }
 
   return (
     <div className='min-h-[calc(100vh-7rem)] flex items-center justify-center px-6'>
