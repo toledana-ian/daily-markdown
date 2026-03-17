@@ -15,7 +15,8 @@
     "format:check": "prettier . --check",
     "test": "bun run --filter './apps/*' test",
     "typecheck": "bun run --filter './apps/*' typecheck",
-    "deploy": "cd apps/api && bunx wrangler versions upload"
+    "deploy": "cd apps/api && bunx wrangler versions upload",
+    "knip": "knip"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
