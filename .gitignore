@@ -31,3 +31,15 @@ apps/web/src/routeTree.gen.ts
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+# Supabase
+supabase/.branches
+supabase/.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local
+
+# JetBrains IDE
+.idea/
