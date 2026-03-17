@@ -39,6 +39,34 @@ bun run dev
 | `bun run format`          | Format with Prettier                   |
 | `bun run format:check`    | Check formatting without writing       |
 
+## Stack
+
+Monorepo: Bun Workspaces  
+│  
+├── apps/web  
+│ Frontend: React 19 + Vite 6 + TanStack Router + TanStack Query  
+│ Styling: Tailwind v4 + shadcn/ui  
+│ State: Zustand  
+│ Forms: React Hook Form + Zod  
+│  
+├── apps/api  
+│ API: Hono (with Hono RPC) on Cloudflare Workers  
+│ ORM: Drizzle ORM + Cloudflare Hyperdrive  
+│  
+└── packages/shared  
+Validation: Zod schemas (shared between web + api)  
+│  
+Database: Supabase (Postgres + Auth + Storage + Realtime)
+Deploy: Cloudflare Pages (web) + Cloudflare Workers (api)  
+Monitoring: Sentry  
+│  
+Pkg Mgr: Bun  
+Lint: ESLint v9 + Prettier  
+Git Hooks: Lefthook + lint-staged  
+Testing: Vitest + Playwright  
+Types: TypeScript 5.x strict  
+DX: knip
+
 ## File Structure
 
 ```text
