@@ -10,9 +10,11 @@ A daily markdown journaling app built with React, TanStack Router, Supabase auth
 - **Supabase** (auth + database)
 - **Hono** (Cloudflare Worker server)
 - **Wrangler** (Cloudflare deployment)
-- **Tailwind CSS v4** + **shadcn/ui**
+- **Tailwind CSS v4** + **shadcn/ui** + **Base UI**
+- **Zustand** (client state)
 - **Vitest** + **Testing Library** (tests)
 - **Storybook** (component development)
+- **Lefthook** (git hooks)
 
 ## Getting Started
 
@@ -35,6 +37,35 @@ bun run dev
 | `bun run test:run`        | Run tests once                         |
 | `bun run lint`            | Run ESLint                             |
 | `bun run format`          | Format with Prettier                   |
+| `bun run format:check`    | Check formatting without writing       |
+
+## Stack
+
+Monorepo: Bun Workspaces  
+│  
+├── apps/web  
+│ Frontend: React 19 + Vite 6 + TanStack Router + TanStack Query  
+│ Styling: Tailwind v4 + shadcn/ui  
+│ State: Zustand  
+│ Forms: React Hook Form + Zod  
+│  
+├── apps/api  
+│ API: Hono (with Hono RPC) on Cloudflare Workers  
+│ ORM: Drizzle ORM + Cloudflare Hyperdrive  
+│  
+└── packages/shared  
+Validation: Zod schemas (shared between web + api)  
+│  
+Database: Supabase (Postgres + Auth + Storage + Realtime)
+Deploy: Cloudflare Pages (web) + Cloudflare Workers (api)  
+Monitoring: Sentry  
+│  
+Pkg Mgr: Bun  
+Lint: ESLint v9 + Prettier  
+Git Hooks: Lefthook + lint-staged  
+Testing: Vitest + Playwright  
+Types: TypeScript 5.x strict  
+DX: knip
 
 ## File Structure
 
@@ -43,61 +74,72 @@ daily-markdown/
 ├─ public/
 ├─ src/
 │  ├─ app/
-│  │  └─ layouts/
-│  │     ├─ DefaultLayout.tsx
-│  │     └─ ProtectedLayout.tsx
-│  │
-│  ├─ assets/
+│  │  ├─ hooks/
+│  │  │  └─ useAuth.ts
+│  │  ├─ layouts/
+│  │  │  ├─ AuthLayout.tsx
+│  │  │  ├─ DefaultLayout.tsx
+│  │  │  └─ PublicLayout.tsx
+│  │  ├─ providers/
+│  │  │  └─ auth.tsx            # Supabase auth provider
+│  │  └─ stores/
+│  │     └─ auth.ts             # Zustand auth store
 │  │
 │  ├─ components/
-│  │  └─ ui/                   # shadcn/ui components
-│  │  └─ shared/               # reusable app components
-│  │     ├─ Header.tsx
-│  │     └─ LoadingSpinner.tsx
-│  │
-│  ├─ context/
-│  │  └─ auth.tsx              # Supabase auth context
+│  │  ├─ ui/                    # shadcn/ui components
+│  │  │  ├─ avatar.tsx
+│  │  │  ├─ button.tsx
+│  │  │  ├─ dropdown-menu.tsx
+│  │  │  └─ spinner.tsx
+│  │  └─ shared/                # reusable app components
+│  │     ├─ header.tsx
+│  │     └─ footer.tsx
 │  │
 │  ├─ features/
 │  │  ├─ auth/
+│  │  │  ├─ components/
+│  │  │  │  ├─ loading.tsx
+│  │  │  │  ├─ signin-button.tsx
+│  │  │  │  └─ user-avatar.tsx
 │  │  │  └─ pages/
-│  │  │     ├─ index.tsx
+│  │  │     ├─ callback.tsx
 │  │  │     ├─ login.tsx
-│  │  │     └─ callback.tsx
+│  │  │     └─ logout.tsx
 │  │  │
-│  │  ├─ dashboard/
+│  │  ├─ home/
 │  │  │  └─ pages/
 │  │  │     └─ index.tsx
 │  │  │
-│  │  └─ home/
+│  │  └─ public/
 │  │     └─ pages/
-│  │        ├─ index.tsx
-│  │        └─ 404.tsx
+│  │        ├─ 404.tsx
+│  │        └─ landing.tsx
 │  │
 │  ├─ lib/
 │  │  ├─ supabase/
 │  │  │  └─ client.ts
 │  │  └─ utils.ts
 │  │
-│  ├─ routes/                  # TanStack Router file-based routes
-│  │  ├─ (protected)/
-│  │  │  └─ _protected/
-│  │  │     ├─ route.tsx       # Auth guard
-│  │  │     └─ dashboard.tsx
-│  │  ├─ auth/
-│  │  │  └─ callback.tsx
-│  │  ├─ __root.tsx
-│  │  ├─ index.tsx
-│  │  └─ login.tsx
+│  ├─ routes/                   # TanStack Router file-based routes
+│  │  ├─ _auth/                 # Auth layout group
+│  │  │  ├─ route.tsx
+│  │  │  ├─ login.tsx
+│  │  │  ├─ logout.tsx
+│  │  │  └─ auth/
+│  │  │     └─ callback.tsx
+│  │  ├─ _default/              # Default (authenticated) layout group
+│  │  │  ├─ route.tsx           # Auth guard
+│  │  │  └─ index.tsx
+│  │  ├─ _public/               # Public layout group
+│  │  │  ├─ route.tsx
+│  │  │  └─ landing.tsx
+│  │  └─ __root.tsx
 │  │
-│  ├─ stories/                 # Storybook stories
-│  │  ├─ Button.stories.ts
-│  │  ├─ Header.stories.ts
-│  │  └─ Page.stories.ts
+│  ├─ stories/                  # Storybook config
+│  │  └─ Configure.mdx
 │  │
-│  ├─ test/                    # Mirrors src structure
+│  ├─ test/                     # Mirrors src structure
 │  │  ├─ app/
-│  │  ├─ context/
 │  │  ├─ features/
 │  │  ├─ routes/
 │  │  ├─ mocks/
@@ -106,22 +148,22 @@ daily-markdown/
 │  │
 │  ├─ index.css
 │  ├─ main.tsx
-│  └─ routeTree.gen.ts         # Auto-generated by TanStack Router
+│  └─ routeTree.gen.ts          # Auto-generated by TanStack Router
 │
-├─ worker/                     # Hono Cloudflare Worker (backend)
-│  ├─ index.ts                 # Entry point
-│  ├─ app.ts                   # Hono app, route mounting, asset fallthrough
-│  ├─ types.ts                 # Env and shared types
+├─ worker/                      # Hono Cloudflare Worker (backend)
+│  ├─ index.ts                  # Entry point
+│  ├─ app.ts                    # Hono app, route mounting, asset fallthrough
+│  ├─ types.ts                  # Env and shared types
 │  ├─ middleware/
-│  │  ├─ auth.ts               # JWT auth middleware
-│  │  └─ cors.ts               # CORS middleware
+│  │  ├─ auth.ts                # JWT auth middleware
+│  │  └─ cors.ts                # CORS middleware
 │  ├─ routes/
-│  │  ├─ health.ts             # GET /api/health
-│  │  ├─ auth.ts               # /api/auth/*
-│  │  ├─ notes.ts              # /api/notes/*
-│  │  └─ webhooks.ts           # /api/webhooks/*
+│  │  ├─ health.ts              # GET /api/health, GET /api/env
+│  │  ├─ auth.ts                # /api/auth/*
+│  │  ├─ notes.ts               # /api/notes/*
+│  │  └─ webhooks.ts            # /api/webhooks/*
 │  └─ lib/
-│     └─ supabase.ts           # Supabase client for worker
+│     └─ supabase.ts            # Supabase client for worker
 │
 ├─ supabase/
 │  └─ config.toml
@@ -129,9 +171,11 @@ daily-markdown/
 ├─ docs/
 │  └─ plans/
 │
-├─ components.json             # shadcn/ui config
+├─ ai_runner.sh
+├─ components.json              # shadcn/ui config
 ├─ eslint.config.js
 ├─ index.html
+├─ lefthook.yml
 ├─ vite.config.ts
 ├─ vitest.shims.d.ts
 ├─ wrangler.jsonc

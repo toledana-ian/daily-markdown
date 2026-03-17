@@ -1,0 +1,28 @@
+{
+  "name": "@daily-markdown/api",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "@daily-markdown/shared": "workspace:*",
+    "@sentry/cloudflare": "^10.43.0",
+    "@supabase/supabase-js": "^2.99.0",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.12.8",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260317.1",
+    "@types/node": "^25.4.0",
+    "drizzle-kit": "^0.31.10",
+    "wrangler": "^4.73.0"
+  }
+}
