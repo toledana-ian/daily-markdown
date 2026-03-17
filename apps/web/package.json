@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsr generate && tsc -b && vite build",
+    "build": "vite build && tsc -b",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
