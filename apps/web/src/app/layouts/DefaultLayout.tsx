@@ -6,8 +6,12 @@ import { useAuth } from '@/features/auth/hooks/useAuth.ts';
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar.ts';
 
 export const DefaultLayout = () => {
-  const { session } = useAuth();
+  const { session, loading } = useAuth();
   const { toggle, isVisible } = useSidebar();
+
+  if (loading) {
+    return <></>;
+  }
 
   if (!session) {
     return <Navigate to='/landing' />;
