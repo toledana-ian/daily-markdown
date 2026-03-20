@@ -2,18 +2,17 @@ import { Link } from '@tanstack/react-router';
 import { RiMenuLine } from '@remixicon/react';
 import { SignInButton } from '@/features/auth/components/signin-button.tsx';
 import { UserAvatar } from '@/features/auth/components/user-avatar.tsx';
-import { useSidebar } from '@/features/sidebar/hooks/useSidebar.ts';
 import type { Session } from '@supabase/supabase-js';
 
 interface HeaderProps {
   session?: Session | null;
   showLogin?: boolean;
   showMenu?: boolean;
+  onCLickMenu?: () => void;
 }
 
 export const Header = (props: HeaderProps) => {
-  const { session, showLogin, showMenu } = props;
-  const { toggle } = useSidebar();
+  const { session, showLogin, showMenu, onCLickMenu } = props;
 
   return (
     <>
@@ -22,9 +21,10 @@ export const Header = (props: HeaderProps) => {
           <div className='flex flex-row items-center gap-4'>
             {showMenu && (
               <button
-                onClick={toggle}
+                type='button'
                 aria-label='Toggle sidebar'
-                className='text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
+                className='cursor-pointer text-muted-foreground transition-colors hover:text-foreground'
+                onClick={onCLickMenu}
               >
                 <RiMenuLine className='size-5' />
               </button>
