@@ -12,7 +12,7 @@ export const DefaultLayout = () => {
 
   return (
     <div className='min-h-screen flex flex-col'>
-      <Header session={session} showLogin={true} />
+      <Header session={session} showLogin={true} showMenu={true} />
       <main className='flex-1'>
         <Outlet />
       </main>
