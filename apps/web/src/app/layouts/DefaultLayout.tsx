@@ -1,6 +1,5 @@
 import { Navigate, Outlet } from '@tanstack/react-router';
 import { Header } from '@/components/common/header.tsx';
-import { Footer } from '@/components/common/footer.tsx';
 import { Sidebar } from '@/components/common/sidebar.tsx';
 import { useAuth } from '@/features/auth/hooks/useAuth.ts';
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar.ts';
@@ -34,7 +33,6 @@ export const DefaultLayout = () => {
           <Outlet />
         </main>
       </div>
-      <Footer />
     </div>
   );
 };

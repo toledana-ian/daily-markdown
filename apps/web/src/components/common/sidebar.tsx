@@ -69,7 +69,7 @@ export const Sidebar = (props: SidebarProps) => {
           role='dialog'
           aria-modal='true'
           aria-label='Sidebar navigation'
-          className='h-full w-72 max-w-[85vw] border-r border-sidebar-border bg-sidebar shadow-xl'
+          className='h-full max-h-[calc(100vh-3.5rem)] w-72 max-w-[85vw] border-r border-sidebar-border bg-sidebar shadow-xl'
           onClick={(event) => event.stopPropagation()}
         >
           <div className='flex items-center justify-end px-3 py-3'>
