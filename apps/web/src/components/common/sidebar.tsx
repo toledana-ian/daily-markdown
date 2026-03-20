@@ -50,34 +50,34 @@ interface SidebarProps {
 export const Sidebar = (props: SidebarProps) => {
   const { isVisible } = props;
 
+  if (!isVisible) return <></>;
+
   return (
     <>
-      <aside className='hidden w-72 shrink-0 border-r border-sidebar-border bg-sidebar md:block'>
+      <aside className='hidden w-72 shrink-0 border-r border-sidebar-border bg-sidebar md:block hidden'>
         <SidebarContent />
       </aside>
 
-      {isVisible && (
-        <div className='fixed inset-0 z-40 bg-foreground/20'>
-          <div
-            role='dialog'
-            aria-modal='true'
-            aria-label='Sidebar navigation'
-            className='h-full w-72 max-w-[85vw] border-r border-sidebar-border bg-sidebar shadow-xl'
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className='flex items-center justify-end px-3 py-3'>
-              <button
-                type='button'
-                aria-label='Close sidebar'
-                className='rounded-md p-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              >
-                <RiCloseLine className='size-5' />
-              </button>
-            </div>
-            <SidebarContent />
+      <div className='fixed inset-0 z-40 bg-foreground/20 md:hidden'>
+        <div
+          role='dialog'
+          aria-modal='true'
+          aria-label='Sidebar navigation'
+          className='h-full w-72 max-w-[85vw] border-r border-sidebar-border bg-sidebar shadow-xl'
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className='flex items-center justify-end px-3 py-3'>
+            <button
+              type='button'
+              aria-label='Close sidebar'
+              className='rounded-md p-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+            >
+              <RiCloseLine className='size-5' />
+            </button>
           </div>
+          <SidebarContent />
         </div>
-      )}
+      </div>
     </>
   );
 };
