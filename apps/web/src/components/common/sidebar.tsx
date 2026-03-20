@@ -1,43 +1,49 @@
-import { RiCloseLine, RiLayoutGridLine, RiStickyNoteLine } from '@remixicon/react';
-import { Link } from '@tanstack/react-router';
-const navigationItems = [
-  {
-    to: '/',
-    label: 'Notes',
-    icon: RiStickyNoteLine,
-  },
-  {
-    to: '/dashboard',
-    label: 'Dashboard',
-    icon: RiLayoutGridLine,
-  },
-] as const;
+import { RiCloseLine, RiQuestionLine } from '@remixicon/react';
+import { Button } from '@/components/ui/button.tsx';
+import { Calendar } from '@/components/ui/calendar.tsx';
+
+const temporaryHashtags = ['#work', '#ideas', '#journal', '#personal'] as const;
 
 const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   return (
     <div className='flex h-full flex-col bg-sidebar text-sidebar-foreground'>
-      <div className='border-b border-sidebar-border px-5 py-4'>
-        <div className='font-mono text-sm font-semibold text-primary'>daily.md</div>
-        <p className='mt-1 text-sm text-muted-foreground'>Authenticated workspace</p>
-      </div>
-      <nav aria-label='App sidebar' className='flex-1 px-3 py-4'>
-        <div className='space-y-1'>
-          {navigationItems.map(({ to, label, icon: Icon }) => (
-            <Link
-              key={to}
-              to={to}
-              onClick={onNavigate}
-              className='flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              activeProps={{
-                className:
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium bg-sidebar-primary text-sidebar-primary-foreground transition-colors',
-              }}
-            >
-              <Icon className='size-4' />
-              <span>{label}</span>
-            </Link>
-          ))}
+      <nav aria-label='App sidebar' className='flex flex-1 flex-col px-4 py-4'>
+        <div className='space-y-10'>
+          <section
+            aria-label='Sidebar calendar'
+            className='overflow-hidden rounded-3xl border border-sidebar-border bg-background/80'
+          >
+            <Calendar mode='single' selected={new Date()} className='w-full bg-transparent p-4' />
+          </section>
+
+          <section className='space-y-3'>
+            <h2 className='px-1 text-xs font-semibold tracking-[0.24em] text-muted-foreground'>
+              HASHTAGS
+            </h2>
+            <div className=''>
+              {temporaryHashtags.map((hashtag) => (
+                <button
+                  key={hashtag}
+                  type='button'
+                  onClick={onNavigate}
+                  className='flex w-full items-center rounded-2xl px-3 py-1 text-left text-sm font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer'
+                >
+                  {hashtag}
+                </button>
+              ))}
+            </div>
+          </section>
         </div>
+
+        <Button
+          type='button'
+          variant='outline'
+          onClick={onNavigate}
+          className='mt-auto w-full justify-start gap-2 rounded-2xl border-sidebar-border bg-background/80'
+        >
+          <RiQuestionLine className='size-4' />
+          <span>Help</span>
+        </Button>
       </nav>
     </div>
   );

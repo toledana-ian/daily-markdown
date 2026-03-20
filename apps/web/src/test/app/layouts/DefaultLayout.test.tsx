@@ -68,12 +68,19 @@ beforeEach(() => {
 });
 
 describe('DefaultLayout authenticated navigation', () => {
-  it('renders the app navigation rail for authenticated pages', () => {
+  it('renders the updated sidebar content for authenticated pages', () => {
     render(<DefaultLayout />);
 
     expect(screen.getByRole('navigation', { name: /app sidebar/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /notes/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: /search notes/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/sidebar calendar/i)).toBeInTheDocument();
+    expect(screen.getByText('HASHTAGS')).toBeInTheDocument();
+    expect(screen.getByText('#work')).toBeInTheDocument();
+    expect(screen.getByText('#ideas')).toBeInTheDocument();
+    expect(screen.getByText('#journal')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /help/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /notes/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /dashboard/i })).not.toBeInTheDocument();
     expect(screen.getByTestId('default-layout-outlet')).toBeInTheDocument();
   });
 
