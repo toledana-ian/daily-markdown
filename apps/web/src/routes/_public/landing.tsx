@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { LandingPage } from '@/features/marketing/landing-screen.tsx';
+import { LandingPage } from '@/features/marketing/pages/landing-screen.tsx';
 
 export const Route = createFileRoute('/_public/landing')({
   component: LandingPage,
