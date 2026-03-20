@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/react-router';
+import { RiMenuLine } from '@remixicon/react';
 import { SignInButton } from '@/features/auth/components/signin-button.tsx';
 import { UserAvatar } from '@/features/auth/components/user-avatar.tsx';
+import { useSidebar } from '@/features/sidebar/hooks/useSidebar.ts';
 import type { Session } from '@supabase/supabase-js';
 
 interface HeaderProps {
@@ -10,15 +12,25 @@ interface HeaderProps {
 
 export const Header = (props: HeaderProps) => {
   const { session, showLogin } = props;
+  const { toggle } = useSidebar();
 
   return (
     <>
       <header className='sticky top-0 z-50 border-b border-border bg-background'>
         <div className='max-w-5xl mx-auto px-6 h-14 flex items-center justify-between'>
-          <Link to='/' className={'flex flex-row items-center gap-2'}>
-            <img src={'/favicon_io/icon.png'} alt='logo' className='size-6 mb-1' />
-            <div className='font-mono text-primary font-semibold text-sm'>daily.md</div>
-          </Link>
+          <div className='flex flex-row items-center gap-3'>
+            <button
+              onClick={toggle}
+              aria-label='Toggle sidebar'
+              className='text-muted-foreground hover:text-foreground transition-colors'
+            >
+              <RiMenuLine className='size-5' />
+            </button>
+            <Link to='/' className={'flex flex-row items-center gap-2'}>
+              <img src={'/favicon_io/icon.png'} alt='logo' className='size-6 mb-1' />
+              <div className='font-mono text-primary font-semibold text-sm'>daily.md</div>
+            </Link>
+          </div>
           {showLogin &&
             (session ? (
               <UserAvatar profilePicture={session.user.user_metadata.avatar_url ?? null} />
