@@ -4,10 +4,18 @@ import { Footer } from '@/components/common/footer.tsx';
 import { Sidebar } from '@/components/common/sidebar.tsx';
 import { useAuth } from '@/features/auth/hooks/useAuth.ts';
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar.ts';
+import { useTailwindScreen } from '@/hooks/useTailwindScreen.ts';
+import { useEffect } from 'react';
 
 export const DefaultLayout = () => {
   const { session, loading } = useAuth();
-  const { toggle, isVisible } = useSidebar();
+  const { toggle, isVisible, setVisible } = useSidebar();
+  const tailwindScreen = useTailwindScreen();
+
+  useEffect(() => {
+    if (['base', 'sm'].indexOf(tailwindScreen) !== -1) setVisible(false);
+    else setVisible(true);
+  }, [setVisible, tailwindScreen]);
 
   if (loading) {
     return <></>;
