@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { RiArrowLeftLine } from '@remixicon/react';
 import { cn } from '@/lib/utils';
-import { buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button-variants';
 
 export const NotFoundPage = () => {
   return (

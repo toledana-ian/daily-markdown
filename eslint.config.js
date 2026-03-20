@@ -8,7 +8,7 @@ import prettierConfig from 'eslint-config-prettier';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['**/dist', '**/node_modules', '**/routeTree.gen.ts']),
+  globalIgnores(['**/dist', '**/node_modules', '**/routeTree.gen.ts', '**/.wrangler/**']),
 
   // Base TS rules for all packages
   {
