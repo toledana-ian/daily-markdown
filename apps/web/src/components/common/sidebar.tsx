@@ -1,8 +1,9 @@
 import { RiCloseLine, RiQuestionLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
 import { Calendar } from '@/components/ui/calendar.tsx';
+import { Tag } from '@/features/tags/components/tag.tsx';
 
-const temporaryHashtags = ['#work', '#ideas', '#journal', '#personal'] as const;
+const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 
 const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   return (
@@ -13,23 +14,18 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
             aria-label='Sidebar calendar'
             className='overflow-hidden rounded-3xl border border-sidebar-border bg-background/80'
           >
-            <Calendar mode='single' selected={new Date()} className='w-full bg-transparent p-4' />
+            <Calendar
+              mode='single'
+              selected={new Date()}
+              className='w-full bg-transparent p-4 rounded-sm'
+            />
           </section>
 
           <section className='space-y-1'>
-            <h2 className='px-1 text-xs font-semibold tracking-[0.24em] text-muted-foreground'>
-              HASHTAGS
-            </h2>
+            <h2 className='px-1 text-xs font-semibold text-muted-foreground'>HASHTAGS</h2>
             <div className=''>
               {temporaryHashtags.map((hashtag) => (
-                <button
-                  key={hashtag}
-                  type='button'
-                  onClick={onNavigate}
-                  className='flex w-full items-center rounded-2xl px-3 py-1 text-left text-sm font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer'
-                >
-                  {hashtag}
-                </button>
+                <Tag textContent={hashtag} />
               ))}
             </div>
           </section>
