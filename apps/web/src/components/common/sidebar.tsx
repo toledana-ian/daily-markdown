@@ -16,7 +16,7 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
             <Calendar mode='single' selected={new Date()} className='w-full bg-transparent p-4' />
           </section>
 
-          <section className='space-y-3'>
+          <section className='space-y-1'>
             <h2 className='px-1 text-xs font-semibold tracking-[0.24em] text-muted-foreground'>
               HASHTAGS
             </h2>

@@ -29,7 +29,7 @@ export const DefaultLayout = () => {
       <Header session={session} showLogin={true} showMenu={true} onCLickMenu={toggle} />
       <div className='flex flex-1'>
         <Sidebar isVisible={isVisible} />
-        <main className='flex-1 min-w-0'>
+        <main className='flex-1 min-w-0 p-10'>
           <Outlet />
         </main>
       </div>
