@@ -7,18 +7,11 @@ const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 
 const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   return (
-    <div className='flex h-full flex-col bg-sidebar text-sidebar-foreground'>
+    <div className='flex h-full flex-col text-sidebar-foreground'>
       <nav aria-label='App sidebar' className='flex flex-1 flex-col px-4 py-4'>
         <div className='space-y-10'>
-          <section
-            aria-label='Sidebar calendar'
-            className='overflow-hidden rounded-3xl border border-sidebar-border bg-background/80'
-          >
-            <Calendar
-              mode='single'
-              selected={new Date()}
-              className='w-full bg-transparent p-4 rounded-sm'
-            />
+          <section aria-label='Sidebar calendar' className='overflow-hidden rounded-md'>
+            <Calendar mode='single' selected={new Date()} className={'bg-transparent'} />
           </section>
 
           <section className='space-y-1'>
