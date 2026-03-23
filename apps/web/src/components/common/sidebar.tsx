@@ -1,4 +1,4 @@
-import { RiCloseLine, RiQuestionLine } from '@remixicon/react';
+import { RiQuestionLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
 import { Calendar } from '@/components/ui/calendar.tsx';
 import { Tag } from '@/features/tags/components/tag.tsx';
@@ -8,7 +8,7 @@ const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   return (
     <div className='flex h-full flex-col text-sidebar-foreground'>
-      <nav aria-label='App sidebar' className='flex flex-1 flex-col px-4 py-4'>
+      <nav aria-label='App sidebar' className='flex flex-1 flex-col p-4'>
         <div className='space-y-10'>
           <section aria-label='Sidebar calendar' className='overflow-hidden rounded-md'>
             <Calendar mode='single' selected={new Date()} className={'bg-transparent'} />
@@ -18,7 +18,7 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
             <h2 className='px-1 text-xs font-semibold text-muted-foreground'>HASHTAGS</h2>
             <div className=''>
               {temporaryHashtags.map((hashtag) => (
-                <Tag textContent={hashtag} />
+                <Tag key={hashtag} textContent={hashtag} />
               ))}
             </div>
           </section>
@@ -58,18 +58,9 @@ export const Sidebar = (props: SidebarProps) => {
           role='dialog'
           aria-modal='true'
           aria-label='Sidebar navigation'
-          className='h-full max-h-[calc(100vh-3.5rem)] w-72 max-w-[85vw] border-r border-sidebar-border bg-sidebar shadow-xl'
+          className='h-full pt-14 w-72 max-w-[85vw] border-r border-sidebar-border bg-sidebar shadow-xl'
           onClick={(event) => event.stopPropagation()}
         >
-          <div className='flex items-center justify-end px-3 py-3'>
-            <button
-              type='button'
-              aria-label='Close sidebar'
-              className='rounded-md p-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-            >
-              <RiCloseLine className='size-5' />
-            </button>
-          </div>
           <SidebarContent />
         </div>
       </div>
