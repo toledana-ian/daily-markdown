@@ -1,13 +1,31 @@
-export const CreateNote = () => {
+'use client';
+
+import { useState } from 'react';
+import {
+  NoteEditorDialog,
+  type NoteEditorSaveData,
+} from '@/features/notes/components/note-editor-dialog';
+
+type CreateNoteProps = {
+  data?: Partial<NoteEditorSaveData>;
+  onSave?: (data: NoteEditorSaveData) => void;
+};
+
+export const CreateNote = ({ data, onSave }: CreateNoteProps) => {
+  const [open, setOpen] = useState(false);
+
   return (
     <>
-      <div
-        className={
-          'text-gray-400 p-4 text-sm bg-white max-w-md border-2 rounded-sm cursor-pointer w-full'
-        }
+      <button
+        className='w-full max-w-md cursor-pointer rounded-sm border-2 bg-white p-4 text-left text-sm text-gray-400'
+        onClick={() => setOpen(true)}
+        type='button'
       >
         Take a note...
-      </div>
+      </button>
+      <NoteEditorDialog data={data} onOpenChange={setOpen} onSave={onSave} open={open} />
     </>
   );
 };
+
+export type { NoteEditorSaveData };
