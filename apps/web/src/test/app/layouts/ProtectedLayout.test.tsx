@@ -24,7 +24,7 @@ let mockAuthState: { loading: boolean; session: Session | null } = {
 };
 const navigateTargets: string[] = [];
 
-vi.mock('@/context/auth', () => ({
+vi.mock('@/features/auth/hooks/useAuth.ts', () => ({
   useAuth: () => mockAuthState,
 }));
 
@@ -36,11 +36,11 @@ vi.mock('@tanstack/react-router', () => ({
   Outlet: () => <div data-testid='protected-outlet' />,
 }));
 
-let ProtectedLayout: ComponentType;
+let DefaultLayout: ComponentType;
 
 beforeAll(async () => {
-  const module = await import('@/app/layouts/ProtectedLayout');
-  ProtectedLayout = module.ProtectedLayout;
+  const module = await import('@/app/layouts/DefaultLayout.tsx');
+  DefaultLayout = module.DefaultLayout;
 });
 
 beforeEach(() => {
@@ -49,33 +49,32 @@ beforeEach(() => {
 });
 
 describe('ProtectedLayout guard states', () => {
-  it('shows a loading shell while auth bootstraps', () => {
+  it('shows an empty shell while auth bootstraps', () => {
     mockAuthState = { loading: true, session: null };
 
-    render(<ProtectedLayout />);
+    const { container } = render(<DefaultLayout />);
 
-    expect(screen.getByTestId('protected-loading')).toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
     expect(screen.queryByTestId('protected-outlet')).toBeNull();
     expect(screen.queryByTestId('protected-redirect')).toBeNull();
   });
 
-  it('redirects to /login when auth finishes without a session', () => {
+  it('redirects to /landing when auth finishes without a session', () => {
     mockAuthState = { loading: false, session: null };
 
-    render(<ProtectedLayout />);
+    render(<DefaultLayout />);
 
-    expect(screen.getByTestId('protected-redirect')).toHaveTextContent('/login');
-    expect(navigateTargets).toContain('/login');
+    expect(screen.getByTestId('protected-redirect')).toHaveTextContent('/landing');
+    expect(navigateTargets).toContain('/landing');
     expect(screen.queryByTestId('protected-outlet')).toBeNull();
   });
 
   it('renders its outlet once a session exists', () => {
     mockAuthState = { loading: false, session: mockSession };
 
-    render(<ProtectedLayout />);
+    render(<DefaultLayout />);
 
     expect(screen.getByTestId('protected-outlet')).toBeInTheDocument();
     expect(screen.queryByTestId('protected-redirect')).toBeNull();
-    expect(screen.queryByTestId('protected-loading')).toBeNull();
   });
 });
