@@ -32,6 +32,21 @@ describe('CreateNote', () => {
     });
   });
 
+  it('prefills the editor when initial note data is provided', () => {
+    render(
+      <CreateNote
+        data={{
+          content: 'Existing note',
+          html: '<p>Existing note</p>\n',
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByText(/take a note/i));
+
+    expect(screen.getByLabelText(/markdown editor/i)).toHaveValue('Existing note');
+  });
+
   it('autosaves every 30 seconds with the latest markdown payload', () => {
     const onSave = vi.fn<(data: NoteEditorSaveData) => void>();
 
