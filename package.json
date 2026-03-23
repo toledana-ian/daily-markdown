@@ -15,8 +15,10 @@
     "format:check": "prettier . --check",
     "test": "bun run --filter './apps/*' test",
     "typecheck": "bun run --filter './apps/*' typecheck",
-    "deploy": "cd apps/api && bunx wrangler versions upload",
-    "knip": "knip"
+    "knip": "knip",
+    "drizzle:generate": "drizzle-kit generate",
+    "drizzle:migrate": "drizzle-kit migrate",
+    "deploy": "cd apps/api && bunx wrangler versions upload"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
