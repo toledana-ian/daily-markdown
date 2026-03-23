@@ -40,6 +40,7 @@ supabase/.temp
 .env.keys
 .env.local
 .env.*.local
+.env
 
 # JetBrains IDE
 .idea/
