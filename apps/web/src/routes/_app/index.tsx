@@ -1,12 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { CreateNote } from '@/features/notes/components/create-note.tsx';
+import { CreateNoteSection } from '@/features/notes/sections/create-note.tsx';
 
 const Screen = () => {
   return (
     <>
-      <div className='flex flex-col items-center justify-center'>
-        <CreateNote />
-      </div>
+      <CreateNoteSection />
     </>
   );
 };
