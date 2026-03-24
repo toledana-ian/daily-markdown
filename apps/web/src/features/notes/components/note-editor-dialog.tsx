@@ -9,18 +9,21 @@ import {
 } from '@/components/ui/dialog';
 
 type NoteEditorDialogProps = {
-  data?: string;
+  initialContent: string;
   onOpenChange: (open: boolean) => void;
   onSave?: (data: string) => void;
   open: boolean;
 };
 
-export const NoteEditorDialog = ({ data, onOpenChange, onSave, open }: NoteEditorDialogProps) => {
-  const contentKey = data ?? '';
-
+export const NoteEditorDialog = ({
+  initialContent,
+  onOpenChange,
+  onSave,
+  open,
+}: NoteEditorDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <NoteEditorDialogContent initialContent={contentKey} key={contentKey} onSave={onSave} />
+      <NoteEditorDialogContent initialContent={initialContent} onSave={onSave} />
     </Dialog>
   );
 };
