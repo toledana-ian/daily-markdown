@@ -4,17 +4,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 const markdown = new MarkdownIt();
 
 type NoteViewDialogProps = {
-  data: {
-    content: string;
-    html: string;
-  };
+  content: string;
   onEdit: () => void;
   onOpenChange: (open: boolean) => void;
   open: boolean;
 };
 
-export const NoteViewDialog = ({ data, onEdit, onOpenChange, open }: NoteViewDialogProps) => {
-  const html = data.html || markdown.render(data.content);
+export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteViewDialogProps) => {
+  const html = markdown.render(content);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

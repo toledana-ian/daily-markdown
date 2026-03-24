@@ -1,17 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  NoteEditorDialog,
-  type NoteEditorSaveData,
-} from '@/features/notes/components/note-editor-dialog';
+import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
 
 type CreateNoteProps = {
-  data?: Partial<NoteEditorSaveData>;
-  onSave?: (data: NoteEditorSaveData) => void;
+  onSave?: (data: string) => void;
 };
 
-export const CreateNote = ({ data, onSave }: CreateNoteProps) => {
+export const CreateNote = ({ onSave }: CreateNoteProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,9 +19,7 @@ export const CreateNote = ({ data, onSave }: CreateNoteProps) => {
       >
         Take a note...
       </button>
-      <NoteEditorDialog data={data} onOpenChange={setOpen} onSave={onSave} open={open} />
+      <NoteEditorDialog initialContent={''} onOpenChange={setOpen} onSave={onSave} open={open} />
     </>
   );
 };
-
-export type { NoteEditorSaveData };
