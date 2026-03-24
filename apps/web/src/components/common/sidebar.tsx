@@ -1,21 +1,20 @@
-'use client';
-
 import { RiQuestionLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
 import { Tag } from '@/features/tags/components/tag.tsx';
 import { SearchNote } from '@/features/notes/components/search-note.tsx';
 import { NotesCalendar } from '@/features/notes/components/notes-calendar.tsx';
-import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
-import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 
 const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 
-const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
-  const selectedDate = useNoteDateStore((state) => state.selectedDate);
-  const setSelectedDate = useNoteDateStore((state) => state.setSelectedDate);
+interface SidebarContentProps {
+  selectedDate: Date | undefined;
+  setSelectedDate: (date: Date | undefined) => void;
+  query: string;
+  setQuery: (query: string) => void;
+}
 
-  const query = useNoteSearchStore((state) => state.query);
-  const setQuery = useNoteSearchStore((state) => state.setQuery);
+const SidebarContent = (props: SidebarContentProps) => {
+  const { selectedDate, setSelectedDate, query, setQuery } = props;
 
   return (
     <div className='flex h-full flex-col text-sidebar-foreground'>
@@ -49,7 +48,6 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
         <Button
           type='button'
           variant='outline'
-          onClick={onNavigate}
           className='mt-auto w-full justify-start gap-2 rounded-2xl border-sidebar-border bg-background/80'
         >
           <RiQuestionLine className='size-4' />
@@ -60,19 +58,24 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   );
 };
 
-interface SidebarProps {
+interface SidebarProps extends SidebarContentProps {
   isVisible: boolean;
 }
 
 export const Sidebar = (props: SidebarProps) => {
-  const { isVisible } = props;
+  const { isVisible, selectedDate, setSelectedDate, query, setQuery } = props;
 
   if (!isVisible) return <></>;
 
   return (
     <>
       <aside className='hidden w-72 shrink-0 bg-sidebar md:block'>
-        <SidebarContent />
+        <SidebarContent
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          query={query}
+          setQuery={setQuery}
+        />
       </aside>
 
       <div className='fixed inset-0 z-40 bg-foreground/20 md:hidden'>
@@ -83,7 +86,12 @@ export const Sidebar = (props: SidebarProps) => {
           className='h-full pt-14 w-72 max-w-[85vw] bg-sidebar shadow-xl'
           onClick={(event) => event.stopPropagation()}
         >
-          <SidebarContent />
+          <SidebarContent
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            query={query}
+            setQuery={setQuery}
+          />
         </div>
       </div>
     </>
