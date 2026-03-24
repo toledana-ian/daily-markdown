@@ -16,14 +16,14 @@ export const Header = (props: HeaderProps) => {
 
   return (
     <>
-      <header className='sticky top-0 z-50 border-b border-border bg-background'>
+      <header className='sticky top-0 z-50 bg-background shadow'>
         <div className='px-6 h-14 flex items-center justify-between'>
           <div className='flex flex-row items-center gap-4'>
             {showMenu && (
               <button
                 type='button'
                 aria-label='Toggle sidebar'
-                className='cursor-pointer text-muted-foreground transition-colors hover:text-foreground'
+                className='cursor-pointer text-muted-foreground transition-colors hover:text-foreground outline-0'
                 onClick={onCLickMenu}
               >
                 <RiMenuLine className='size-5' />

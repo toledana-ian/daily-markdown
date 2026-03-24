@@ -24,7 +24,7 @@ export const UserAvatar = ({ profilePicture }: UserAvatarProps) => {
           </Avatar>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align='end'>
+      <DropdownMenuContent className={'rounded-sm shadow-xl'} align='end'>
         <DropdownMenuItem onClick={() => navigate({ to: '.' })}>Settings</DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {

@@ -52,7 +52,7 @@ export const Sidebar = (props: SidebarProps) => {
 
   return (
     <>
-      <aside className='hidden w-72 shrink-0 border-r border-sidebar-border bg-sidebar md:block'>
+      <aside className='hidden w-72 shrink-0 bg-sidebar md:block'>
         <SidebarContent />
       </aside>
 
@@ -61,7 +61,7 @@ export const Sidebar = (props: SidebarProps) => {
           role='dialog'
           aria-modal='true'
           aria-label='Sidebar navigation'
-          className='h-full pt-14 w-72 max-w-[85vw] border-r border-sidebar-border bg-sidebar shadow-xl'
+          className='h-full pt-14 w-72 max-w-[85vw] bg-sidebar shadow-xl'
           onClick={(event) => event.stopPropagation()}
         >
           <SidebarContent />
