@@ -3,6 +3,7 @@
 import { NoteCard } from '@/features/notes/components/note-card.tsx';
 import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { NoteListTitle } from '@/features/notes/components/note-list-title.tsx';
+import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
 
 export const NoteListSection = () => {
   const notes = [
@@ -41,6 +42,7 @@ export const NoteListSection = () => {
     '## Code Block Without Language\n```\nplain text block\n```',
   ];
   const query = useNoteSearchStore((state) => state.query);
+  const selectedDate = useNoteDateStore((state) => state.selectedDate);
   const normalizedQuery = query.trim().toLowerCase();
   const filteredNotes = normalizedQuery
     ? notes.filter((note) => note.toLowerCase().includes(normalizedQuery))
@@ -48,7 +50,7 @@ export const NoteListSection = () => {
 
   return (
     <>
-      <NoteListTitle />
+      <NoteListTitle date={selectedDate} searchValue={query} />
 
       <div className={'flex gap-2 flex-wrap justify-center'}>
         {filteredNotes.map((note, index) => (
