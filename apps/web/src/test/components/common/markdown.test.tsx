@@ -15,4 +15,11 @@ describe('Markdown', () => {
 
     expect(screen.getByText(/this note is empty/i)).toBeInTheDocument();
   });
+
+  it('applies the shared markdown renderer class contract', () => {
+    const { container } = render(<Markdown className='custom-markdown' content='Paragraph text' />);
+
+    expect(container.firstElementChild).toHaveClass('markdown-render');
+    expect(container.firstElementChild).toHaveClass('custom-markdown');
+  });
 });

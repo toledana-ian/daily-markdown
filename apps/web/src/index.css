@@ -3,6 +3,11 @@
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/jetbrains-mono';
 @import '@fontsource-variable/roboto';
+
+@plugin '@tailwindcss/typography';
+
+@source inline('text-3xl prose');
+
 @source 'streamdown/dist/*.js';
 @source '@streamdown/code/dist/*.js';
 @source '@streamdown/cjk/dist/*.js';
@@ -133,5 +138,11 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer components {
+  .prose h1 {
+    @apply mt-0;
   }
 }
