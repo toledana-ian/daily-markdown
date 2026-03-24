@@ -22,7 +22,13 @@ export const NoteListSection = () => {
     <>
       <div className={'flex gap-2 flex-wrap'}>
         {notes.map((note, index) => (
-          <NoteCard key={index} content={note} />
+          <NoteCard
+            key={index}
+            content={note}
+            onSave={() => {
+              console.log(`Saved #${index} note: ${note}`);
+            }}
+          />
         ))}
       </div>
     </>
