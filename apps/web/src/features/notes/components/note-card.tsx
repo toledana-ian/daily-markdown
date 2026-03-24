@@ -20,7 +20,6 @@ export const NoteCard = ({ content, onSave }: NoteCardProps) => {
         aria-label='Open note'
         className='w-full max-w-md cursor-pointer rounded-2xl border border-border bg-white p-4 text-left shadow-xs transition hover:-translate-y-0.5 hover:shadow-md'
         onClick={() => setMode('view')}
-        onDoubleClick={() => setMode('edit')}
         type='button'
       >
         <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
