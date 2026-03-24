@@ -17,7 +17,7 @@ export const NoteCard = ({ content, onSave }: NoteCardProps) => {
     <>
       <div
         aria-label='Open note'
-        className='flex flex-col max-h-96 overflow-auto w-sm md:w-xs  cursor-pointer rounded-sm border border-border bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md outline-0'
+        className='flex flex-col max-h-96 overflow-auto w-sm md:w-xs  cursor-pointer rounded-sm bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md outline-0'
         onClick={() => setMode('view')}
       >
         <Markdown content={content} emptyMessage='This note is empty.' />

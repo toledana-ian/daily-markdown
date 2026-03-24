@@ -13,7 +13,7 @@ export const CreateNote = ({ onSave }: CreateNoteProps) => {
   return (
     <>
       <button
-        className='w-full max-w-md cursor-pointer rounded-sm border-2 bg-white p-4 text-left text-sm text-gray-400'
+        className='w-full max-w-md cursor-pointer rounded-sm bg-white p-4 text-left text-sm text-gray-400 outline-0'
         onClick={() => setOpen(true)}
         type='button'
       >

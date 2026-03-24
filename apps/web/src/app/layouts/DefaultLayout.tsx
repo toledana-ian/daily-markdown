@@ -31,7 +31,7 @@ export const DefaultLayout = () => {
       <Header session={session} showLogin={true} showMenu={true} onCLickMenu={toggle} />
       <div className='flex flex-1'>
         <Sidebar isVisible={isVisible} />
-        <main className='flex-1 min-w-0 p-4 flex flex-col gap-4'>
+        <main className='flex-1 min-w-0 p-4 flex flex-col gap-8'>
           <Outlet />
         </main>
       </div>
