@@ -15,14 +15,13 @@ export const NoteCard = ({ content, onSave }: NoteCardProps) => {
 
   return (
     <>
-      <button
+      <div
         aria-label='Open note'
         className='flex flex-col max-h-96 overflow-auto w-sm md:w-xs  cursor-pointer rounded-sm border border-border bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md outline-0'
         onClick={() => setMode('view')}
-        type='button'
       >
         <Markdown content={content} emptyMessage='This note is empty.' />
-      </button>
+      </div>
       <NoteViewDialog
         content={content}
         onEdit={() => setMode('edit')}
