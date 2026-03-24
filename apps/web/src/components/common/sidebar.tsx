@@ -6,6 +6,7 @@ import { Calendar } from '@/components/ui/calendar.tsx';
 import { Tag } from '@/features/tags/components/tag.tsx';
 import { SearchNote } from '@/features/notes/components/search-note.tsx';
 import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
+import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 
 const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 
@@ -13,11 +14,14 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   const selectedDate = useNoteDateStore((state) => state.selectedDate);
   const setSelectedDate = useNoteDateStore((state) => state.setSelectedDate);
 
+  const query = useNoteSearchStore((state) => state.query);
+  const setQuery = useNoteSearchStore((state) => state.setQuery);
+
   return (
     <div className='flex h-full flex-col text-sidebar-foreground'>
       <nav aria-label='App sidebar' className='flex flex-1 flex-col p-4'>
         <div className='space-y-4'>
-          <SearchNote />
+          <SearchNote query={query} setQuery={setQuery} />
 
           <Calendar
             mode='single'

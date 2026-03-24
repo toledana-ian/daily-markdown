@@ -1,10 +1,13 @@
 import { RiSearchLine } from '@remixicon/react';
 import { Input } from '@/components/ui/input.tsx';
-import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 
-export const SearchNote = () => {
-  const query = useNoteSearchStore((state) => state.query);
-  const setQuery = useNoteSearchStore((state) => state.setQuery);
+interface SearchNoteProps {
+  query: string;
+  setQuery: (query: string) => void;
+}
+
+export const SearchNote = (props: SearchNoteProps) => {
+  const { query, setQuery } = props;
 
   return (
     <>
