@@ -17,7 +17,7 @@ export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteView
         </DialogHeader>
         <div
           aria-label='Preview note'
-          className='prose prose-neutral max-h-[70vh] overflow-y-auto rounded-2xl border border-border bg-white p-5'
+          className='max-h-[70vh] overflow-y-auto rounded-sm border border-border bg-white p-5'
           onDoubleClick={onEdit}
           role='document'
         >
