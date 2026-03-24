@@ -1,7 +1,5 @@
-import MarkdownIt from 'markdown-it';
+import { Markdown } from '@/components/common/markdown';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-
-const markdown = new MarkdownIt();
 
 type NoteViewDialogProps = {
   content: string;
@@ -11,8 +9,6 @@ type NoteViewDialogProps = {
 };
 
 export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteViewDialogProps) => {
-  const html = markdown.render(content);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-3xl sm:max-w-3xl'>
@@ -25,11 +21,7 @@ export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteView
           onDoubleClick={onEdit}
           role='document'
         >
-          {html ? (
-            <div dangerouslySetInnerHTML={{ __html: html }} />
-          ) : (
-            <p className='text-sm text-muted-foreground'>This note is empty.</p>
-          )}
+          <Markdown content={content} emptyMessage='This note is empty.' />
         </div>
       </DialogContent>
     </Dialog>

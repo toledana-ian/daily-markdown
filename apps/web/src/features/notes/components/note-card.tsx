@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import MarkdownIt from 'markdown-it';
+import { Markdown } from '@/components/common/markdown';
 import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
 import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
 
@@ -12,17 +12,16 @@ type NoteCardProps = {
 
 export const NoteCard = ({ content, onSave }: NoteCardProps) => {
   const [mode, setMode] = useState<'closed' | 'view' | 'edit'>('closed');
-  const htmlContent = new MarkdownIt().render(content);
 
   return (
     <>
       <button
         aria-label='Open note'
-        className='w-full max-w-md cursor-pointer rounded-2xl border border-border bg-white p-4 text-left shadow-xs transition hover:-translate-y-0.5 hover:shadow-md markdown'
+        className='flex flex-col w-full max-w-xs max-h-52 cursor-pointer rounded-sm border border-border bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md outline-0'
         onClick={() => setMode('view')}
         type='button'
       >
-        <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <Markdown content={content} emptyMessage='This note is empty.' />
       </button>
       <NoteViewDialog
         content={content}

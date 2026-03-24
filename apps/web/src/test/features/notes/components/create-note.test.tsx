@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CreateNote, type NoteEditorSaveData } from '@/features/notes/components/create-note';
+import { CreateNote } from '@/features/notes/components/create-note';
 
 describe('CreateNote', () => {
   beforeEach(() => {
@@ -11,8 +11,8 @@ describe('CreateNote', () => {
     vi.useRealTimers();
   });
 
-  it('opens the full editor dialog and saves the current markdown payload', () => {
-    const onSave = vi.fn<(data: NoteEditorSaveData) => void>();
+  it('opens the full editor dialog and saves the current markdown content', () => {
+    const onSave = vi.fn<(data: string) => void>();
 
     render(<CreateNote onSave={onSave} />);
 
@@ -26,29 +26,19 @@ describe('CreateNote', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /save note/i }));
 
-    expect(onSave).toHaveBeenCalledWith({
-      content: '# Hello world',
-      html: '<h1>Hello world</h1>\n',
-    });
+    expect(onSave).toHaveBeenCalledWith('# Hello world');
   });
 
-  it('prefills the editor when initial note data is provided', () => {
-    render(
-      <CreateNote
-        data={{
-          content: 'Existing note',
-          html: '<p>Existing note</p>\n',
-        }}
-      />,
-    );
+  it('opens the editor with a blank initial value', () => {
+    render(<CreateNote />);
 
     fireEvent.click(screen.getByText(/take a note/i));
 
-    expect(screen.getByLabelText(/markdown editor/i)).toHaveValue('Existing note');
+    expect(screen.getByLabelText(/markdown editor/i)).toHaveValue('');
   });
 
-  it('autosaves every 30 seconds with the latest markdown payload', () => {
-    const onSave = vi.fn<(data: NoteEditorSaveData) => void>();
+  it('autosaves every 30 seconds with the latest markdown content', () => {
+    const onSave = vi.fn<(data: string) => void>();
 
     render(<CreateNote onSave={onSave} />);
 
@@ -61,10 +51,7 @@ describe('CreateNote', () => {
       vi.advanceTimersByTime(30_000);
     });
 
-    expect(onSave).toHaveBeenNthCalledWith(1, {
-      content: 'Initial body',
-      html: '<p>Initial body</p>\n',
-    });
+    expect(onSave).toHaveBeenNthCalledWith(1, 'Initial body');
 
     fireEvent.change(screen.getByLabelText(/markdown editor/i), {
       target: { value: 'Updated body' },
@@ -74,9 +61,6 @@ describe('CreateNote', () => {
       vi.advanceTimersByTime(30_000);
     });
 
-    expect(onSave).toHaveBeenNthCalledWith(2, {
-      content: 'Updated body',
-      html: '<p>Updated body</p>\n',
-    });
+    expect(onSave).toHaveBeenNthCalledWith(2, 'Updated body');
   });
 });

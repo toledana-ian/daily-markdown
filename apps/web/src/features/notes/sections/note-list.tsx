@@ -20,7 +20,7 @@ export const NoteListSection = () => {
 
   return (
     <>
-      <div className={'flex gap-2 flex-wrap'}>
+      <div className={'flex gap-2 flex-wrap justify-center'}>
         {notes.map((note, index) => (
           <NoteCard
             key={index}

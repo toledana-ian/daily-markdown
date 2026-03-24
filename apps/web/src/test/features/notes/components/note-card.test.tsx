@@ -4,14 +4,7 @@ import { NoteCard } from '@/features/notes/components/note-card';
 
 describe('NoteCard', () => {
   it('opens the view dialog on click and renders markdown preview', () => {
-    render(
-      <NoteCard
-        note={{
-          content: '# Daily note\n\nBody copy',
-          html: '<h1>Daily note</h1>\n<p>Body copy</p>\n',
-        }}
-      />,
-    );
+    render(<NoteCard content='# Daily note\n\nBody copy' />);
 
     fireEvent.click(screen.getByRole('button', { name: /open note/i }));
 
@@ -27,14 +20,7 @@ describe('NoteCard', () => {
   });
 
   it('opens the editor dialog on double click from the note card', () => {
-    render(
-      <NoteCard
-        note={{
-          content: 'Editable body',
-          html: '<p>Editable body</p>\n',
-        }}
-      />,
-    );
+    render(<NoteCard content='Editable body' />);
 
     fireEvent.doubleClick(screen.getByRole('button', { name: /open note/i }));
 
@@ -46,15 +32,7 @@ describe('NoteCard', () => {
   it('switches from the view dialog to the editor dialog on double click', () => {
     const onSave = vi.fn();
 
-    render(
-      <NoteCard
-        note={{
-          content: 'Editable from preview',
-          html: '<p>Editable from preview</p>\n',
-        }}
-        onSave={onSave}
-      />,
-    );
+    render(<NoteCard content='Editable from preview' onSave={onSave} />);
 
     fireEvent.click(screen.getByRole('button', { name: /open note/i }));
     fireEvent.doubleClick(screen.getByRole('document', { name: /preview note/i }));
