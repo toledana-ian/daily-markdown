@@ -1,5 +1,4 @@
 import { useEffect, useId, useMemo, useState } from 'react';
-import MarkdownIt from 'markdown-it';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -9,22 +8,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-export type NoteEditorSaveData = {
-  content: string;
-  html: string;
-};
-
 type NoteEditorDialogProps = {
-  data?: Partial<NoteEditorSaveData>;
+  data?: string;
   onOpenChange: (open: boolean) => void;
-  onSave?: (data: NoteEditorSaveData) => void;
+  onSave?: (data: string) => void;
   open: boolean;
 };
 
-const markdown = new MarkdownIt();
-
 export const NoteEditorDialog = ({ data, onOpenChange, onSave, open }: NoteEditorDialogProps) => {
-  const contentKey = data?.content ?? '';
+  const contentKey = data ?? '';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,21 +27,14 @@ export const NoteEditorDialog = ({ data, onOpenChange, onSave, open }: NoteEdito
 
 type NoteEditorDialogContentProps = {
   initialContent: string;
-  onSave?: (data: NoteEditorSaveData) => void;
+  onSave?: (data: string) => void;
 };
 
 const NoteEditorDialogContent = ({ initialContent, onSave }: NoteEditorDialogContentProps) => {
   const editorId = useId();
   const [content, setContent] = useState(initialContent);
 
-  const saveData = useMemo(
-    () =>
-      ({
-        content,
-        html: markdown.render(content),
-      }) satisfies NoteEditorSaveData,
-    [content],
-  );
+  const saveData = useMemo(() => content, [content]);
 
   useEffect(() => {
     if (!onSave) {
@@ -66,7 +51,8 @@ const NoteEditorDialogContent = ({ initialContent, onSave }: NoteEditorDialogCon
   }, [onSave, saveData]);
 
   const handleSave = () => {
-    onSave?.(saveData);
+    if (!onSave) return;
+    onSave(saveData);
   };
 
   return (
