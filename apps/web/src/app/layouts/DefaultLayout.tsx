@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from '@tanstack/react-router';
+import { Navigate, Outlet } from '@tanstack/react-router';
 import { Header } from '@/components/common/header.tsx';
 import { Sidebar } from '@/components/common/sidebar.tsx';
 import { useAuth } from '@/features/auth/hooks/useAuth.ts';
@@ -11,11 +11,6 @@ export const DefaultLayout = () => {
   const { session, loading } = useAuth();
   const { toggle, isVisible, setVisible } = useSidebar();
   const tailwindScreen = useTailwindScreen();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    console.log(session, loading);
-  }, [loading, session]);
 
   // manage how to display sidebar based on screen size
   useEffect(() => {
@@ -28,9 +23,7 @@ export const DefaultLayout = () => {
   }
 
   if (!session) {
-    console.log('navigate to landing');
-    navigate({ to: '/landing' }).then();
-    return <>hello</>;
+    return <Navigate to='/landing' replace={true} />;
   }
 
   return (

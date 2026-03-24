@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -22,13 +22,36 @@ let mockAuthState: { loading: boolean; session: Session | null } = {
   loading: true,
   session: null,
 };
+let mockTailwindScreen: 'base' | 'md' = 'md';
 const navigateTargets: string[] = [];
 
 vi.mock('@/features/auth/hooks/useAuth.ts', () => ({
   useAuth: () => mockAuthState,
 }));
 
+vi.mock('@/hooks/useTailwindScreen.ts', () => ({
+  useTailwindScreen: () => mockTailwindScreen,
+}));
+
+vi.mock('@/features/auth/components/user-avatar.tsx', () => ({
+  UserAvatar: () => <div data-testid='user-avatar' />,
+}));
+
 vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    to,
+    children,
+    className,
+    ...props
+  }: {
+    to: string;
+    children: ReactNode;
+    className?: string;
+  }) => (
+    <a href={to} className={className} {...props}>
+      {children}
+    </a>
+  ),
   Navigate: ({ to }: { to: string }) => {
     navigateTargets.push(to);
     return <div data-testid='protected-redirect'>{to}</div>;
@@ -45,6 +68,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   mockAuthState = { loading: true, session: null };
+  mockTailwindScreen = 'md';
   navigateTargets.length = 0;
 });
 
@@ -52,9 +76,9 @@ describe('ProtectedLayout guard states', () => {
   it('shows an empty shell while auth bootstraps', () => {
     mockAuthState = { loading: true, session: null };
 
-    const { container } = render(<DefaultLayout />);
+    render(<DefaultLayout />);
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByText(/finalizing sign in/i)).toBeInTheDocument();
     expect(screen.queryByTestId('protected-outlet')).toBeNull();
     expect(screen.queryByTestId('protected-redirect')).toBeNull();
   });
