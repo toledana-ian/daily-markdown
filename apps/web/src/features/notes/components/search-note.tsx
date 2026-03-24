@@ -22,7 +22,7 @@ export const SearchNote = (props: SearchNoteProps) => {
           onChange={(event) => setQuery(event.target.value)}
           placeholder='Search notes'
           aria-label='Search notes'
-          className='bg-background/80 pl-9'
+          className='bg-background/80 pl-9 focus-visible:ring-0'
         />
       </div>
     </>
