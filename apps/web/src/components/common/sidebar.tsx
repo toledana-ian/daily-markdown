@@ -3,18 +3,16 @@ import { Button } from '@/components/ui/button.tsx';
 import { Tag } from '@/features/tags/components/tag.tsx';
 import { SearchNote } from '@/features/notes/components/search-note.tsx';
 import { NotesCalendar } from '@/features/notes/components/notes-calendar.tsx';
+import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
+import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 
 const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 
-interface SidebarContentProps {
-  selectedDate: Date | undefined;
-  setSelectedDate: (date: Date | undefined) => void;
-  query: string;
-  setQuery: (query: string) => void;
-}
-
-const SidebarContent = (props: SidebarContentProps) => {
-  const { selectedDate, setSelectedDate, query, setQuery } = props;
+const SidebarContent = () => {
+  const selectedDate = useNoteDateStore((state) => state.selectedDate);
+  const setSelectedDate = useNoteDateStore((state) => state.setSelectedDate);
+  const query = useNoteSearchStore((state) => state.query);
+  const setQuery = useNoteSearchStore((state) => state.setQuery);
 
   return (
     <div className='flex h-full flex-col text-sidebar-foreground'>
@@ -31,7 +29,7 @@ const SidebarContent = (props: SidebarContentProps) => {
               { date: new Date('2026-03-07T00:00:00Z'), count: 15 },
               { date: new Date('2026-03-08T00:00:00Z'), count: 10 },
               { date: new Date('2026-03-09T00:00:00Z'), count: 5 },
-              { date: new Date('2026-03-09T00:00:00Z'), count: 0 },
+              { date: new Date('2026-03-10T00:00:00Z'), count: 0 },
             ]}
           />
 
@@ -58,24 +56,19 @@ const SidebarContent = (props: SidebarContentProps) => {
   );
 };
 
-interface SidebarProps extends SidebarContentProps {
+interface SidebarProps {
   isVisible: boolean;
 }
 
 export const Sidebar = (props: SidebarProps) => {
-  const { isVisible, selectedDate, setSelectedDate, query, setQuery } = props;
+  const { isVisible } = props;
 
   if (!isVisible) return <></>;
 
   return (
     <>
       <aside className='hidden w-72 shrink-0 bg-sidebar md:block'>
-        <SidebarContent
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          query={query}
-          setQuery={setQuery}
-        />
+        <SidebarContent />
       </aside>
 
       <div className='fixed inset-0 z-40 bg-foreground/20 md:hidden'>
@@ -86,12 +79,7 @@ export const Sidebar = (props: SidebarProps) => {
           className='h-full pt-14 w-72 max-w-[85vw] bg-sidebar shadow-xl'
           onClick={(event) => event.stopPropagation()}
         >
-          <SidebarContent
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            query={query}
-            setQuery={setQuery}
-          />
+          <SidebarContent />
         </div>
       </div>
     </>
