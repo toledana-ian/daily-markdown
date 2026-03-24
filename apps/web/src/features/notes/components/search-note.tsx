@@ -1,5 +1,5 @@
 import { RiSearchLine } from '@remixicon/react';
-import { Input } from '@base-ui/react';
+import { Input } from '@/components/ui/input.tsx';
 import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 
 export const SearchNote = () => {
