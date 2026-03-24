@@ -18,7 +18,7 @@ export const NoteCard = ({ content, onSave }: NoteCardProps) => {
     <>
       <button
         aria-label='Open note'
-        className='w-full max-w-md cursor-pointer rounded-2xl border border-border bg-white p-4 text-left shadow-xs transition hover:-translate-y-0.5 hover:shadow-md'
+        className='w-full max-w-md cursor-pointer rounded-2xl border border-border bg-white p-4 text-left shadow-xs transition hover:-translate-y-0.5 hover:shadow-md prose'
         onClick={() => setMode('view')}
         type='button'
       >
