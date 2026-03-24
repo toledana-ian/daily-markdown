@@ -11,15 +11,19 @@ export const NoteListTitle = ({ date, searchValue }: NoteListTitleProps) => {
   const today = new Date();
   const isToday = isSameDay(date, today);
 
-  const primaryText = hasSearch ? 'Search' : isToday ? 'Today' : format(date, 'MMMM d, yyyy');
+  let primaryText;
+  let secondaryText = '';
 
-  const secondaryText = hasSearch
-    ? isToday
-      ? `“${normalizedSearchValue}”`
-      : `${format(date, 'MMMM d, yyyy')}: “${normalizedSearchValue}”`
-    : isToday
-      ? format(date, 'EEEE, MMMM d')
-      : format(date, 'EEEE');
+  if (hasSearch) {
+    primaryText = 'Search';
+    secondaryText = `${format(date, 'MMMM d, yyyy')}: “${normalizedSearchValue}”`;
+  } else if (isToday) {
+    primaryText = 'Today';
+    secondaryText = format(date, 'EEEE, MMMM d');
+  } else {
+    primaryText = format(date, 'MMMM d, yyyy');
+    secondaryText = format(date, 'EEEE');
+  }
 
   return (
     <>
