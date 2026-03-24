@@ -1,7 +1,7 @@
 import { format, isSameDay } from 'date-fns';
 
 interface NoteListTitleProps {
-  date: Date;
+  date: Date | undefined;
   searchValue: string;
 }
 
@@ -9,12 +9,18 @@ export const NoteListTitle = ({ date, searchValue }: NoteListTitleProps) => {
   const normalizedSearchValue = searchValue.trim();
   const hasSearch = normalizedSearchValue.length > 0;
   const today = new Date();
-  const isToday = isSameDay(date, today);
+  const isToday = date ? isSameDay(date, today) : false;
 
   let primaryText;
   let secondaryText = '';
 
-  if (hasSearch) {
+  if (!date && hasSearch) {
+    primaryText = 'Search';
+    secondaryText = `“${normalizedSearchValue}”`;
+  } else if (!date) {
+    primaryText = 'All Notes';
+    secondaryText = 'Pick a day to filter';
+  } else if (hasSearch) {
     primaryText = 'Search';
     secondaryText = `${format(date, 'MMMM d, yyyy')}: “${normalizedSearchValue}”`;
   } else if (isToday) {

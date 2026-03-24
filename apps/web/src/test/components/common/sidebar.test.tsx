@@ -43,6 +43,21 @@ describe('Sidebar', () => {
 
     fireEvent.click(dateButton as HTMLButtonElement);
 
-    expect(format(useNoteDateStore.getState().selectedDate, 'yyyy-MM-dd')).toBe('2025-03-18');
+    const selectedDate = useNoteDateStore.getState().selectedDate;
+
+    expect(selectedDate).toBeInstanceOf(Date);
+    expect(format(selectedDate!, 'yyyy-MM-dd')).toBe('2025-03-18');
+  });
+
+  it('clears the shared selected date when the active day is clicked again', () => {
+    const { container } = render(<Sidebar isVisible={true} />);
+
+    const selectedDateButton = container.querySelector('[data-day="3/24/2025"]');
+
+    expect(selectedDateButton).not.toBeNull();
+
+    fireEvent.click(selectedDateButton as HTMLButtonElement);
+
+    expect(useNoteDateStore.getState().selectedDate).toBeUndefined();
   });
 });

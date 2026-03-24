@@ -2,9 +2,9 @@
 
 import { RiQuestionLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
-import { Calendar } from '@/components/ui/calendar.tsx';
 import { Tag } from '@/features/tags/components/tag.tsx';
 import { SearchNote } from '@/features/notes/components/search-note.tsx';
+import { NotesCalendar } from '@/features/notes/components/notes-calendar.tsx';
 import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
 import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 
@@ -23,15 +23,17 @@ const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
         <div className='space-y-4'>
           <SearchNote query={query} setQuery={setQuery} />
 
-          <Calendar
-            mode='single'
+          <NotesCalendar
             selected={selectedDate}
-            onSelect={(date) => {
-              if (date) {
-                setSelectedDate(date);
-              }
-            }}
-            className={'bg-transparent'}
+            onSelect={setSelectedDate}
+            noteCountsByDate={[
+              { date: new Date('2026-03-05T00:00:00Z'), count: 25 },
+              { date: new Date('2026-03-06T00:00:00Z'), count: 20 },
+              { date: new Date('2026-03-07T00:00:00Z'), count: 15 },
+              { date: new Date('2026-03-08T00:00:00Z'), count: 10 },
+              { date: new Date('2026-03-09T00:00:00Z'), count: 5 },
+              { date: new Date('2026-03-09T00:00:00Z'), count: 0 },
+            ]}
           />
 
           <section className='space-y-1 mt-8'>
