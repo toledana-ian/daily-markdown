@@ -23,7 +23,7 @@ export const NoteCard = ({ content, onSave }: NoteCardProps) => {
         onDoubleClick={() => setMode('edit')}
         type='button'
       >
-        <p className='mt-2 line-clamp-3 text-sm text-muted-foreground'>{htmlContent}</p>
+        <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
       </button>
       <NoteViewDialog
         content={content}
