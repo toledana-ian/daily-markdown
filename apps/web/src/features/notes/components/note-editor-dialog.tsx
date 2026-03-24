@@ -23,7 +23,7 @@ export const NoteEditorDialog = ({
 }: NoteEditorDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <NoteEditorDialogContent initialContent={initialContent} onSave={onSave} />
+      <NoteEditorDialogContent initialContent={initialContent} onSave={onSave} open={open} />
     </Dialog>
   );
 };
@@ -31,16 +31,21 @@ export const NoteEditorDialog = ({
 type NoteEditorDialogContentProps = {
   initialContent: string;
   onSave?: (data: string) => void;
+  open: boolean;
 };
 
-const NoteEditorDialogContent = ({ initialContent, onSave }: NoteEditorDialogContentProps) => {
+const NoteEditorDialogContent = ({
+  initialContent,
+  onSave,
+  open,
+}: NoteEditorDialogContentProps) => {
   const editorId = useId();
   const [content, setContent] = useState(initialContent);
 
   const saveData = useMemo(() => content, [content]);
 
   useEffect(() => {
-    if (!onSave) {
+    if (!onSave || !open) {
       return;
     }
 
@@ -51,7 +56,7 @@ const NoteEditorDialogContent = ({ initialContent, onSave }: NoteEditorDialogCon
     return () => {
       window.clearInterval(autosaveTimer);
     };
-  }, [onSave, saveData]);
+  }, [onSave, open, saveData]);
 
   const handleSave = () => {
     if (!onSave) return;
