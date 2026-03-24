@@ -20,7 +20,7 @@ export const NoteListSection = () => {
     '## Blockquote\n> This is a quote\n>\n> Multi-line supported\n>> Nested quote',
     '### Horizontal Rule\n---\nContent after divider',
     '## Links\n- [Google](https://google.com)\n- [GitHub](https://github.com)',
-    '### Image\n![Sample Image](https://picsum.photos/200/100)',
+    '### Image\n![Sample Image](https://picsum.photos/500/400)',
     '## Mermaid Diagram\n```mermaid\ngraph TD\n  A[Start] --> B{Decision}\n  B -->|Yes| C[Do it]\n  B -->|No| D[Skip]\n```',
     '### Callout (Custom Styling Needed)\n> ⚠️ **Warning**\n> This is a warning message block.',
     '## Long Content\n' + 'Lorem ipsum dolor sit amet, '.repeat(50),
