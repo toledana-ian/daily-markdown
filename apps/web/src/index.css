@@ -4,15 +4,11 @@
 @import '@fontsource-variable/jetbrains-mono';
 @import '@fontsource-variable/roboto';
 
-@plugin '@tailwindcss/typography';
-
-@source inline('text-3xl prose');
-
-@source 'streamdown/dist/*.js';
-@source '@streamdown/code/dist/*.js';
-@source '@streamdown/cjk/dist/*.js';
-@source '@streamdown/math/dist/*.js';
-@source '@streamdown/mermaid/dist/*.js';
+@source '../../../node_modules/streamdown/dist/*.js';
+@source '../../../node_modules/@streamdown/code/dist/*.js';
+@source '../../../node_modules/@streamdown/cjk/dist/*.js';
+@source '../../../node_modules/@streamdown/math/dist/*.js';
+@source '../../../node_modules/@streamdown/mermaid/dist/*.js';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -142,7 +138,8 @@
 }
 
 @layer components {
-  .prose h1 {
-    @apply mt-0;
+  /* Images */
+  .markdown-container img {
+    @apply rounded-full;
   }
 }

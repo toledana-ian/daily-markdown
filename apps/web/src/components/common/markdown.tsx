@@ -28,7 +28,11 @@ export const Markdown = ({ className, content, emptyMessage }: MarkdownProps) =>
   }
 
   return (
-    <Streamdown className={cn('prose', className)} mode='static' plugins={markdownPlugins}>
+    <Streamdown
+      className={cn('markdown-container', className)}
+      mode='static'
+      plugins={markdownPlugins}
+    >
       {content}
     </Streamdown>
   );
