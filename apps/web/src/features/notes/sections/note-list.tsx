@@ -20,9 +20,11 @@ export const NoteListSection = () => {
 
   return (
     <>
-      {notes.map((note, index) => (
-        <NoteCard key={index} content={note} />
-      ))}
+      <div className={'flex gap-2 flex-wrap'}>
+        {notes.map((note, index) => (
+          <NoteCard key={index} content={note} />
+        ))}
+      </div>
     </>
   );
 };
