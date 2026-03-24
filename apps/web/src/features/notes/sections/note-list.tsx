@@ -1,4 +1,7 @@
+'use client';
+
 import { NoteCard } from '@/features/notes/components/note-card.tsx';
+import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 
 export const NoteListSection = () => {
   const notes = [
@@ -36,13 +39,18 @@ export const NoteListSection = () => {
     '### URL Autolink\nhttps://openai.com',
     '## Code Block Without Language\n```\nplain text block\n```',
   ];
+  const query = useNoteSearchStore((state) => state.query);
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredNotes = normalizedQuery
+    ? notes.filter((note) => note.toLowerCase().includes(normalizedQuery))
+    : notes;
 
   return (
     <>
       <div className={'flex gap-2 flex-wrap justify-center'}>
-        {notes.map((note, index) => (
+        {filteredNotes.map((note, index) => (
           <NoteCard
-            key={index}
+            key={`${index}-${note.slice(0, 24)}`}
             content={note}
             onSave={() => {
               console.log(`Saved #${index} note: ${note}`);

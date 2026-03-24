@@ -1,15 +1,40 @@
-import { RiQuestionLine } from '@remixicon/react';
+'use client';
+
+import { RiQuestionLine, RiSearchLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
 import { Calendar } from '@/components/ui/calendar.tsx';
+import { Input } from '@/components/ui/input.tsx';
+import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { Tag } from '@/features/tags/components/tag.tsx';
+import { SearchNote } from '@/features/notes/components/search-note.tsx';
 
 const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 
 const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
+  const query = useNoteSearchStore((state) => state.query);
+  const setQuery = useNoteSearchStore((state) => state.setQuery);
+
   return (
     <div className='flex h-full flex-col text-sidebar-foreground'>
       <nav aria-label='App sidebar' className='flex flex-1 flex-col p-4'>
         <div className='space-y-10'>
+          <div className='relative'>
+            <RiSearchLine
+              aria-hidden='true'
+              className='pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground'
+            />
+            <Input
+              type='search'
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder='Search notes'
+              aria-label='Search notes'
+              className='bg-background/80 pl-9'
+            />
+          </div>
+
+          <SearchNote />
+
           <section aria-label='Sidebar calendar' className='overflow-hidden rounded-md'>
             <Calendar mode='single' selected={new Date()} className={'bg-transparent'} />
           </section>

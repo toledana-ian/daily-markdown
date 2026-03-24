@@ -78,6 +78,7 @@ describe('DefaultLayout authenticated navigation', () => {
     render(<DefaultLayout />);
 
     expect(screen.getAllByRole('navigation', { name: /app sidebar/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('searchbox', { name: /search notes/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByLabelText(/sidebar calendar/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText('HASHTAGS').length).toBeGreaterThan(0);
     expect(screen.getAllByText('work').length).toBeGreaterThan(0);
