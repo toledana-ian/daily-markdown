@@ -70,8 +70,8 @@ export const Sidebar = (props: SidebarProps) => {
     <>
       <aside
         className={cn(
-          'hidden  shrink-0 bg-sidebar md:block shadow-xl transition duration-150',
-          isVisible ? 'translate-x-0 w-72' : '-translate-x-72 w-0',
+          'hidden w-72 bg-sidebar md:block shadow-xl transition duration-150 ease-in-out',
+          isVisible ? 'translate-x-0' : '-translate-x-72',
         )}
       >
         <SidebarContent />
@@ -79,7 +79,7 @@ export const Sidebar = (props: SidebarProps) => {
 
       <div
         className={cn(
-          'fixed inset-0 z-40 bg-foreground/20 md:hidden transition-opacity duration-150',
+          'fixed inset-0 z-40 bg-foreground/20 md:hidden transition-opacity duration-150 ease-in-out',
           isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
       >
@@ -88,7 +88,7 @@ export const Sidebar = (props: SidebarProps) => {
           aria-modal='true'
           aria-label='Sidebar navigation'
           className={cn(
-            'h-full pt-14 w-72 max-w-[85vw] bg-sidebar shadow-xl transition duration-150',
+            'h-full pt-14 w-72 max-w-[85vw] bg-sidebar shadow-xl transition duration-150 ease-in-out',
             isVisible ? 'translate-x-0' : '-translate-x-full',
           )}
         >
