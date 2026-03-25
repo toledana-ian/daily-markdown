@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
 
 type CreateNoteProps = {
-  onSave?: (data: string) => void;
+  onSave?: (data: string) => void | Promise<void>;
 };
 
 export const CreateNote = ({ onSave }: CreateNoteProps) => {

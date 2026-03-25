@@ -11,7 +11,7 @@ import {
 type NoteEditorDialogProps = {
   initialContent: string;
   onOpenChange: (open: boolean) => void;
-  onSave?: (data: string) => void;
+  onSave?: (data: string) => void | Promise<void>;
   open: boolean;
 };
 
@@ -30,7 +30,7 @@ export const NoteEditorDialog = ({
 
 type NoteEditorDialogContentProps = {
   initialContent: string;
-  onSave?: (data: string) => void;
+  onSave?: (data: string) => void | Promise<void>;
   open: boolean;
 };
 
@@ -50,7 +50,7 @@ const NoteEditorDialogContent = ({
     }
 
     const autosaveTimer = window.setInterval(() => {
-      onSave(saveData);
+      void onSave(saveData);
     }, 30_000);
 
     return () => {
@@ -60,7 +60,7 @@ const NoteEditorDialogContent = ({
 
   const handleSave = () => {
     if (!onSave) return;
-    onSave(saveData);
+    void onSave(saveData);
   };
 
   return (

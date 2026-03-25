@@ -8,6 +8,13 @@
       "when": 1774278776297,
       "tag": "0000_sturdy_proudstar",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774448557486,
+      "tag": "0001_glossy_johnny_storm",
+      "breakpoints": true
     }
   ]
 }

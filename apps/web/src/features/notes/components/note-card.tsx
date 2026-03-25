@@ -8,7 +8,7 @@ import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
 
 type NoteCardProps = {
   content: string;
-  onSave?: (data: string) => void;
+  onSave?: (data: string) => void | Promise<void>;
 };
 
 export const NoteCard = ({ content, onSave }: NoteCardProps) => {
