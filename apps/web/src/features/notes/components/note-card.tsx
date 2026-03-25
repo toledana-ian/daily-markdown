@@ -27,7 +27,7 @@ export const NoteCard = ({ content, onSave }: NoteCardProps) => {
     <>
       <div
         aria-label='Open note'
-        className='flex flex-col max-h-96 overflow-auto w-full sm:w-xs md:w-xs lg:w-xs  cursor-pointer rounded-sm bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md outline-0'
+        className='flex flex-col max-h-96 overflow-auto w-full sm:w-xs md:w-xs lg:w-xs  cursor-pointer rounded-sm bg-white p-4 shadow transition hover:-translate-y-0.5 hover:shadow-md outline-0'
         onClick={openPreview}
         onDoubleClick={openEditor}
         onKeyDown={handleKeyDown}

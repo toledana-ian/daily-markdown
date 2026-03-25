@@ -5,10 +5,11 @@ import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog
 import { RiAddFill } from '@remixicon/react';
 
 type CreateNoteProps = {
+  displayText?: string;
   onSave?: (data: string) => void | Promise<void>;
 };
 
-export const CreateNote = ({ onSave }: CreateNoteProps) => {
+export const CreateNote = ({ onSave, displayText }: CreateNoteProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -18,7 +19,7 @@ export const CreateNote = ({ onSave }: CreateNoteProps) => {
         onClick={() => setOpen(true)}
         type='button'
       >
-        <div className={'my-auto'}>Take a note...</div>
+        <div className={'my-auto'}>{displayText ?? 'Take a note...'}</div>
         <div className={''}>
           <RiAddFill />
         </div>
