@@ -67,7 +67,7 @@ export const Sidebar = (props: SidebarProps) => {
 
   return (
     <>
-      <aside className='hidden w-72 shrink-0 bg-sidebar md:block'>
+      <aside className='hidden w-72 shrink-0 bg-sidebar md:block shadow-xl'>
         <SidebarContent />
       </aside>
 
