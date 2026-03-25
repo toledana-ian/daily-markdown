@@ -23,18 +23,7 @@ const SidebarContent = (props: SidebarContentProps) => {
         <div className='space-y-4'>
           <SearchNote query={query} setQuery={setQuery} />
 
-          <NotesCalendar
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            noteCountsByDate={[
-              { date: new Date('2026-03-05T00:00:00Z'), count: 25 },
-              { date: new Date('2026-03-06T00:00:00Z'), count: 20 },
-              { date: new Date('2026-03-07T00:00:00Z'), count: 15 },
-              { date: new Date('2026-03-08T00:00:00Z'), count: 10 },
-              { date: new Date('2026-03-09T00:00:00Z'), count: 5 },
-              { date: new Date('2026-03-10T00:00:00Z'), count: 0 },
-            ]}
-          />
+          <NotesCalendar selected={selectedDate} onSelect={setSelectedDate} noteCountsByDate={[]} />
 
           <section className='space-y-1 mt-8'>
             <h2 className='px-1 text-xs font-semibold text-muted-foreground'>HASHTAGS</h2>
