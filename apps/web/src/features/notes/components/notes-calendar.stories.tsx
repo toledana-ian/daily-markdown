@@ -25,7 +25,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 function NotesCalendarPreview() {
-  const [selected, setSelected] = useState<Date | undefined>(new Date('2026-03-08T00:00:00Z'));
+  const [selected, setSelected] = useState<Date | null>(new Date('2026-03-08T00:00:00Z'));
 
   return (
     <div className='rounded-3xl bg-white p-4 shadow-sm'>
@@ -40,5 +40,6 @@ function NotesCalendarPreview() {
 }
 
 export const Default: Story = {
+  args: {},
   render: () => <NotesCalendarPreview />,
 };

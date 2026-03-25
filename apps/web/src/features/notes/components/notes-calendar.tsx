@@ -21,8 +21,8 @@ interface NotesCalendarProps extends Omit<
   'components' | 'mode' | 'onSelect' | 'selected'
 > {
   noteCountsByDate?: NoteCountsByDate;
-  onSelect: (date: Date | null) => void;
-  selected: Date | null;
+  onSelect?: (date: Date | null) => void;
+  selected?: Date | null;
 }
 
 const INTENSITY_STYLES: Record<number, string> = {
@@ -139,7 +139,7 @@ export function NotesCalendar(props: NotesCalendarProps) {
   return (
     <Calendar
       mode='single'
-      selected={resolvedSelected}
+      selected={resolvedSelected ?? undefined}
       month={month}
       defaultMonth={defaultMonth ?? resolvedSelected ?? new Date()}
       onDayClick={handleDayClick}

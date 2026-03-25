@@ -12,7 +12,7 @@ export interface Note {
 }
 
 export interface NotesFilter {
-  date?: Date;
+  date?: Date | null;
   query?: string;
   limit?: number;
 }

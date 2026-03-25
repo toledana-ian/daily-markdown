@@ -6,6 +6,17 @@ import { useNoteSearchStore } from '@/features/notes/store/note-search';
 import { useNoteDateStore } from '@/features/notes/store/note-date';
 
 describe('Sidebar', () => {
+  const renderSidebar = () =>
+    render(
+      <Sidebar
+        isVisible={true}
+        selectedDate={useNoteDateStore.getState().selectedDate}
+        setSelectedDate={useNoteDateStore.getState().setSelectedDate}
+        query={useNoteSearchStore.getState().query}
+        setQuery={useNoteSearchStore.getState().setQuery}
+      />,
+    );
+
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2025-03-24T12:00:00Z'));
@@ -18,7 +29,7 @@ describe('Sidebar', () => {
   });
 
   it('renders a notes search field above the calendar and updates shared search state', () => {
-    const { container } = render(<Sidebar isVisible={true} />);
+    const { container } = renderSidebar();
 
     const searchInput = screen.getAllByRole('searchbox', { name: /search notes/i })[0];
     const calendar = container.querySelector('[data-slot="calendar"]');
@@ -35,7 +46,7 @@ describe('Sidebar', () => {
   });
 
   it('updates the shared selected date when a calendar day is chosen', () => {
-    const { container } = render(<Sidebar isVisible={true} />);
+    const { container } = renderSidebar();
 
     const dateButton = container.querySelector('[data-day="3/18/2025"]');
 
@@ -50,7 +61,7 @@ describe('Sidebar', () => {
   });
 
   it('clears the shared selected date when the active day is clicked again', () => {
-    const { container } = render(<Sidebar isVisible={true} />);
+    const { container } = renderSidebar();
 
     const selectedDateButton = container.querySelector('[data-day="3/24/2025"]');
 
@@ -58,6 +69,6 @@ describe('Sidebar', () => {
 
     fireEvent.click(selectedDateButton as HTMLButtonElement);
 
-    expect(useNoteDateStore.getState().selectedDate).toBeUndefined();
+    expect(useNoteDateStore.getState().selectedDate).toBeNull();
   });
 });

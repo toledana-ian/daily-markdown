@@ -23,11 +23,19 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     isVisible: true,
+    selectedDate: null,
+    setSelectedDate: () => {},
+    query: '',
+    setQuery: () => {},
   },
 };
 
 export const Hidden: Story = {
   args: {
     isVisible: false,
+    selectedDate: null,
+    setSelectedDate: () => {},
+    query: '',
+    setQuery: () => {},
   },
 };

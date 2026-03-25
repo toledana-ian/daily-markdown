@@ -1,7 +1,7 @@
 import { format, isSameDay } from 'date-fns';
 
 interface NoteListTitleProps {
-  date: Date | undefined;
+  date: Date | null;
   searchValue: string;
 }
 

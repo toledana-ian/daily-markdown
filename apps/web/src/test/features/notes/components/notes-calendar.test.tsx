@@ -31,7 +31,7 @@ describe('NotesCalendar', () => {
 
     fireEvent.click(todayButton as HTMLButtonElement);
 
-    expect(onSelect).toHaveBeenCalledWith(undefined);
+    expect(onSelect).toHaveBeenCalledWith(null);
     expect(container.querySelector('[data-day="3/24/2025"]')).not.toHaveAttribute(
       'data-selected-single',
     );
