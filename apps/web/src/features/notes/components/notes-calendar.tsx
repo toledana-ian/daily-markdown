@@ -21,8 +21,8 @@ interface NotesCalendarProps extends Omit<
   'components' | 'mode' | 'onSelect' | 'selected'
 > {
   noteCountsByDate?: NoteCountsByDate;
-  onSelect?: (date: Date | undefined) => void;
-  selected?: Date | undefined;
+  onSelect: (date: Date | null) => void;
+  selected: Date | null;
 }
 
 const INTENSITY_STYLES: Record<number, string> = {
@@ -104,14 +104,14 @@ export function NotesCalendar(props: NotesCalendarProps) {
     ...calendarProps
   } = props;
   const isControlled = Object.prototype.hasOwnProperty.call(props, 'selected');
-  const [internalSelected, setInternalSelected] = React.useState<Date | undefined>(
+  const [internalSelected, setInternalSelected] = React.useState<Date | null>(
     selected ?? new Date(),
   );
 
   const resolvedSelected = isControlled ? selected : internalSelected;
 
   const handleSelect = React.useCallback(
-    (date: Date | undefined) => {
+    (date: Date | null) => {
       if (!isControlled) {
         setInternalSelected(date);
       }
@@ -129,7 +129,7 @@ export function NotesCalendar(props: NotesCalendarProps) {
         return;
       }
 
-      const nextSelected = resolvedSelected && isSameDay(date, resolvedSelected) ? undefined : date;
+      const nextSelected = resolvedSelected && isSameDay(date, resolvedSelected) ? null : date;
 
       handleSelect(nextSelected);
     },

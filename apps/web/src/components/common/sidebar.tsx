@@ -3,17 +3,19 @@ import { Button } from '@/components/ui/button.tsx';
 import { Tag } from '@/features/tags/components/tag.tsx';
 import { SearchNote } from '@/features/notes/components/search-note.tsx';
 import { NotesCalendar } from '@/features/notes/components/notes-calendar.tsx';
-import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
-import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { cn } from '@/lib/utils.ts';
 
 const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 
-const SidebarContent = () => {
-  const selectedDate = useNoteDateStore((state) => state.selectedDate);
-  const setSelectedDate = useNoteDateStore((state) => state.setSelectedDate);
-  const query = useNoteSearchStore((state) => state.query);
-  const setQuery = useNoteSearchStore((state) => state.setQuery);
+interface SidebarContentProps {
+  selectedDate: Date | null;
+  setSelectedDate: (date: Date | null) => void;
+  query: string;
+  setQuery: (query: string) => void;
+}
+
+const SidebarContent = (props: SidebarContentProps) => {
+  const { selectedDate, setSelectedDate, query, setQuery } = props;
 
   return (
     <div className='bg-sidebar w-72 flex h-full flex-col text-sidebar-foreground'>
@@ -57,12 +59,12 @@ const SidebarContent = () => {
   );
 };
 
-interface SidebarProps {
+interface SidebarProps extends SidebarContentProps {
   isVisible: boolean;
 }
 
 export const Sidebar = (props: SidebarProps) => {
-  const { isVisible } = props;
+  const { isVisible, selectedDate, setSelectedDate, query, setQuery } = props;
 
   return (
     <>
@@ -72,7 +74,12 @@ export const Sidebar = (props: SidebarProps) => {
           isVisible ? 'translate-x-0' : '-translate-x-72 w-0',
         )}
       >
-        <SidebarContent />
+        <SidebarContent
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          query={query}
+          setQuery={setQuery}
+        />
       </aside>
 
       <div
@@ -90,7 +97,12 @@ export const Sidebar = (props: SidebarProps) => {
             isVisible ? 'translate-x-0' : '-translate-x-full',
           )}
         >
-          <SidebarContent />
+          <SidebarContent
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            query={query}
+            setQuery={setQuery}
+          />
         </div>
       </div>
     </>
