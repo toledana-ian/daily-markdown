@@ -64,8 +64,6 @@ interface SidebarProps {
 export const Sidebar = (props: SidebarProps) => {
   const { isVisible } = props;
 
-  // if (!isVisible) return <></>;
-
   return (
     <>
       <aside

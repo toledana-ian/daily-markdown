@@ -13,14 +13,22 @@ export const DefaultLayout = () => {
 
   const tailwindScreen = useTailwindScreen();
 
-  // manage how to display sidebar based on screen size
   useEffect(() => {
     if (['base', 'sm'].indexOf(tailwindScreen) !== -1) setVisible(false);
     else setVisible(true);
   }, [setVisible, tailwindScreen]);
 
   if (loading) {
-    return <RenderLoading />;
+    return (
+      <div className='min-h-screen flex flex-col'>
+        <Header />
+        <div className='flex flex-1'>
+          <main className='flex-1 min-w-0 p-4'>
+            <Loading />
+          </main>
+        </div>
+      </div>
+    );
   }
 
   if (!session) {
@@ -34,19 +42,6 @@ export const DefaultLayout = () => {
         <Sidebar isVisible={isVisible} />
         <main className='flex-1 min-w-0 p-4 flex flex-col gap-8'>
           <Outlet />
-        </main>
-      </div>
-    </div>
-  );
-};
-
-const RenderLoading = () => {
-  return (
-    <div className='min-h-screen flex flex-col'>
-      <Header />
-      <div className='flex flex-1'>
-        <main className='flex-1 min-w-0 p-4'>
-          <Loading />
         </main>
       </div>
     </div>
