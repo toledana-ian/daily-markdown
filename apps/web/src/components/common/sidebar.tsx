@@ -16,7 +16,7 @@ const SidebarContent = () => {
   const setQuery = useNoteSearchStore((state) => state.setQuery);
 
   return (
-    <div className='flex h-full flex-col text-sidebar-foreground'>
+    <div className='bg-sidebar w-72 flex h-full flex-col text-sidebar-foreground'>
       <nav aria-label='App sidebar' className='flex flex-1 flex-col p-4'>
         <div className='space-y-4'>
           <SearchNote query={query} setQuery={setQuery} />
@@ -70,8 +70,8 @@ export const Sidebar = (props: SidebarProps) => {
     <>
       <aside
         className={cn(
-          'hidden w-72 bg-sidebar md:block shadow-xl transition duration-150 ease-in-out',
-          isVisible ? 'translate-x-0' : '-translate-x-72',
+          'hidden md:block shadow-xl transition duration-150 ease-in-out',
+          isVisible ? 'translate-x-0' : '-translate-x-72 w-0',
         )}
       >
         <SidebarContent />
@@ -88,7 +88,7 @@ export const Sidebar = (props: SidebarProps) => {
           aria-modal='true'
           aria-label='Sidebar navigation'
           className={cn(
-            'h-full pt-14 w-72 max-w-[85vw] bg-sidebar shadow-xl transition duration-150 ease-in-out',
+            'h-full pt-14 w-72 max-w-[85vw] shadow-xl transition duration-150 ease-in-out',
             isVisible ? 'translate-x-0' : '-translate-x-full',
           )}
         >
