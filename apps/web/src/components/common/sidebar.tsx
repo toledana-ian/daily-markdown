@@ -5,6 +5,7 @@ import { SearchNote } from '@/features/notes/components/search-note.tsx';
 import { NotesCalendar } from '@/features/notes/components/notes-calendar.tsx';
 import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
 import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
+import { cn } from '@/lib/utils.ts';
 
 const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 
@@ -63,21 +64,33 @@ interface SidebarProps {
 export const Sidebar = (props: SidebarProps) => {
   const { isVisible } = props;
 
-  if (!isVisible) return <></>;
+  // if (!isVisible) return <></>;
 
   return (
     <>
-      <aside className='hidden w-72 shrink-0 bg-sidebar md:block shadow-xl'>
+      <aside
+        className={cn(
+          'hidden  shrink-0 bg-sidebar md:block shadow-xl transition duration-150',
+          isVisible ? 'translate-x-0 w-72' : '-translate-x-72 w-0',
+        )}
+      >
         <SidebarContent />
       </aside>
 
-      <div className='fixed inset-0 z-40 bg-foreground/20 md:hidden'>
+      <div
+        className={cn(
+          'fixed inset-0 z-40 bg-foreground/20 md:hidden transition-opacity duration-150',
+          isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none',
+        )}
+      >
         <div
           role='dialog'
           aria-modal='true'
           aria-label='Sidebar navigation'
-          className='h-full pt-14 w-72 max-w-[85vw] bg-sidebar shadow-xl'
-          onClick={(event) => event.stopPropagation()}
+          className={cn(
+            'h-full pt-14 w-72 max-w-[85vw] bg-sidebar shadow-xl transition duration-150',
+            isVisible ? 'translate-x-0' : '-translate-x-full',
+          )}
         >
           <SidebarContent />
         </div>
