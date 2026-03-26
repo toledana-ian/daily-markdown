@@ -15,7 +15,6 @@ export const NoteCard = ({ content, onSave }: NoteCardProps) => {
   const [mode, setMode] = useState<'closed' | 'view' | 'edit'>('closed');
 
   const openPreview = () => setMode('view');
-  const openEditor = () => setMode('edit');
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -29,7 +28,6 @@ export const NoteCard = ({ content, onSave }: NoteCardProps) => {
         aria-label='Open note'
         className='flex flex-col max-h-96 overflow-auto w-full sm:w-xs md:w-xs lg:w-xs  cursor-pointer rounded-sm bg-white p-4 shadow transition hover:-translate-y-0.5 hover:shadow-md outline-0'
         onClick={openPreview}
-        onDoubleClick={openEditor}
         onKeyDown={handleKeyDown}
         role='button'
         tabIndex={0}
@@ -44,7 +42,7 @@ export const NoteCard = ({ content, onSave }: NoteCardProps) => {
       />
       <NoteEditorDialog
         initialContent={content}
-        onOpenChange={(open) => setMode(open ? 'edit' : 'closed')}
+        onOpenChange={(open) => setMode(open ? 'edit' : 'view')}
         onSave={onSave}
         open={mode === 'edit'}
       />
