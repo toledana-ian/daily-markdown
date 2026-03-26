@@ -11,13 +11,11 @@ type NoteViewDialogProps = {
 export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteViewDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='w-full' showCloseButton={false}>
-        <div
-          aria-label='Preview note'
-          className=' rounded-sm border border-border bg-white p-5'
-          onDoubleClick={onEdit}
-          role='document'
-        >
+      <DialogContent
+        className={'max-w-5xl  sm:max-w-5xl rounded-sm bg-white max-h-[90vh] overflow-auto'}
+        showCloseButton={false}
+      >
+        <div aria-label='Preview note' className='' onDoubleClick={onEdit} role='document'>
           <Markdown content={content} emptyMessage='This note is empty.' />
         </div>
       </DialogContent>

@@ -55,12 +55,9 @@ export const NoteEditorDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-5xl p-6 sm:max-w-5xl' showCloseButton={false}>
-        <label className='sr-only' htmlFor={editorId}>
-          Markdown editor
-        </label>
+      <DialogContent className='max-w-5xl sm:max-w-5xl rounded-sm p-0' showCloseButton={false}>
         <textarea
-          className='min-h-96 rounded-2xl border border-input bg-background px-4 py-3 text-md outline-none'
+          className='min-h-[90vh] p-6 outline-none resize-none'
           id={editorId}
           onChange={(event) => setContent(event.target.value)}
           placeholder='Write your note in markdown...'
