@@ -12,10 +12,10 @@ export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteView
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={'max-w-5xl  sm:max-w-5xl rounded-sm bg-white max-h-[90vh] overflow-auto'}
+        className={'max-w-5xl  sm:max-w-5xl rounded-sm  max-h-[80vh] overflow-auto p-0'}
         showCloseButton={false}
       >
-        <div aria-label='Preview note' className='' onDoubleClick={onEdit} role='document'>
+        <div aria-label='Preview note' className='p-6' onDoubleClick={onEdit} role='document'>
           <Markdown content={content} emptyMessage='This note is empty.' />
         </div>
       </DialogContent>

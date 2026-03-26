@@ -55,9 +55,12 @@ export const NoteEditorDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-5xl sm:max-w-5xl rounded-sm p-0' showCloseButton={false}>
+      <DialogContent
+        className='min-h-[80vh]  max-w-5xl sm:max-w-5xl rounded-sm p-0'
+        showCloseButton={false}
+      >
         <textarea
-          className='min-h-[90vh] p-6 outline-none resize-none'
+          className='p-6 outline-none resize-none'
           id={editorId}
           onChange={(event) => setContent(event.target.value)}
           placeholder='Write your note in markdown...'
