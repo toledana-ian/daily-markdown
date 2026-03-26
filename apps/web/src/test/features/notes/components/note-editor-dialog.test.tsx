@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
 
@@ -38,12 +38,16 @@ describe('NoteEditorDialog', () => {
       />,
     );
 
+    fireEvent.change(screen.getByLabelText(/markdown editor/i), {
+      target: { value: 'Updated draft body' },
+    });
+
     act(() => {
       vi.advanceTimersByTime(30_000);
     });
 
     expect(onSave).toHaveBeenCalledOnce();
-    expect(onSave).toHaveBeenCalledWith('Draft body');
+    expect(onSave).toHaveBeenCalledWith('Updated draft body');
 
     rerender(
       <NoteEditorDialog
@@ -59,5 +63,54 @@ describe('NoteEditorDialog', () => {
     });
 
     expect(onSave).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not autosave unchanged initial content', () => {
+    const onSave = vi.fn<(data: string) => void>();
+    const onOpenChange = vi.fn<(open: boolean) => void>();
+
+    render(
+      <NoteEditorDialog
+        initialContent='Existing note'
+        onOpenChange={onOpenChange}
+        onSave={onSave}
+        open={true}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(30_000);
+    });
+
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('saves the latest content when the dialog closes', () => {
+    const onSave = vi.fn<(data: string) => void>();
+    const onOpenChange = vi.fn<(open: boolean) => void>();
+    const { rerender } = render(
+      <NoteEditorDialog
+        initialContent=''
+        onOpenChange={onOpenChange}
+        onSave={onSave}
+        open={true}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/markdown editor/i), {
+      target: { value: 'Draft before close' },
+    });
+
+    rerender(
+      <NoteEditorDialog
+        initialContent=''
+        onOpenChange={onOpenChange}
+        onSave={onSave}
+        open={false}
+      />,
+    );
+
+    expect(onSave).toHaveBeenCalledOnce();
+    expect(onSave).toHaveBeenCalledWith('Draft before close');
   });
 });

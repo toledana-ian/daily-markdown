@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -41,27 +41,42 @@ const NoteEditorDialogContent = ({
 }: NoteEditorDialogContentProps) => {
   const editorId = useId();
   const [content, setContent] = useState(initialContent);
+  const contentRef = useRef(content);
+  const lastSavedContentRef = useRef(initialContent);
 
-  const saveData = useMemo(() => content, [content]);
+  const handleSave = useCallback(() => {
+    if (!onSave || contentRef.current === lastSavedContentRef.current) return;
 
+    lastSavedContentRef.current = contentRef.current;
+    onSave(contentRef.current);
+  }, [onSave]);
+
+  //update the contentRef when the content changes
   useEffect(() => {
-    if (!onSave || !open) {
+    contentRef.current = content;
+  }, [content]);
+
+  //autosave every 10 seconds if the dialog is open
+  useEffect(() => {
+    if (!open) {
       return;
     }
 
     const autosaveTimer = window.setInterval(() => {
-      void onSave(saveData);
-    }, 30_000);
+      handleSave();
+    }, 10_000);
 
     return () => {
       window.clearInterval(autosaveTimer);
     };
-  }, [onSave, open, saveData]);
+  }, [open, handleSave]);
 
-  const handleSave = () => {
-    if (!onSave) return;
-    void onSave(saveData);
-  };
+  //trigger autosave when the dialog is closed
+  useEffect(() => {
+    if (!open) {
+      handleSave();
+    }
+  }, [open, handleSave]);
 
   return (
     <DialogContent className='max-w-5xl p-6 sm:max-w-5xl' showCloseButton={false}>
