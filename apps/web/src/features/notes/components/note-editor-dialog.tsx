@@ -56,7 +56,7 @@ export const NoteEditorDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className='min-h-[80vh]  max-w-5xl sm:max-w-5xl rounded-sm p-0'
+        className='min-h-[80vh] w-[calc(100%-4rem)]  max-w-5xl sm:max-w-5xl rounded-sm p-0'
         showCloseButton={false}
       >
         <textarea

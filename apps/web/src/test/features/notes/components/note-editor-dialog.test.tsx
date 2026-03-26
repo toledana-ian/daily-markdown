@@ -85,6 +85,22 @@ describe('NoteEditorDialog', () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
+  it('keeps viewport-aware spacing at every size', () => {
+    render(
+      <NoteEditorDialog
+        initialContent='Existing note'
+        onOpenChange={vi.fn()}
+        onSave={vi.fn()}
+        open={true}
+      />,
+    );
+
+    expect(screen.getByRole('dialog')).toHaveClass(
+      'w-[calc(100%-2rem)]',
+      'max-w-[min(80rem,calc(100%-2rem))]',
+    );
+  });
+
   it('saves the latest content when the dialog closes', () => {
     const onSave = vi.fn<(data: string) => void>();
     const onOpenChange = vi.fn<(open: boolean) => void>();
