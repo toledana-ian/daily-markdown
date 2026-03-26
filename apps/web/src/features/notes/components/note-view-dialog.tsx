@@ -1,5 +1,5 @@
 import { Markdown } from '@/components/common/markdown';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 type NoteViewDialogProps = {
   content: string;
@@ -11,13 +11,10 @@ type NoteViewDialogProps = {
 export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteViewDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-3xl sm:max-w-3xl'>
-        <DialogHeader>
-          <DialogTitle>View note</DialogTitle>
-        </DialogHeader>
+      <DialogContent className='w-full' showCloseButton={false}>
         <div
           aria-label='Preview note'
-          className='max-h-[70vh] overflow-y-auto rounded-sm border border-border bg-white p-5'
+          className=' rounded-sm border border-border bg-white p-5'
           onDoubleClick={onEdit}
           role='document'
         >

@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -21,24 +14,6 @@ export const NoteEditorDialog = ({
   onSave,
   open,
 }: NoteEditorDialogProps) => {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <NoteEditorDialogContent initialContent={initialContent} onSave={onSave} open={open} />
-    </Dialog>
-  );
-};
-
-type NoteEditorDialogContentProps = {
-  initialContent: string;
-  onSave?: (data: string) => void | Promise<void>;
-  open: boolean;
-};
-
-const NoteEditorDialogContent = ({
-  initialContent,
-  onSave,
-  open,
-}: NoteEditorDialogContentProps) => {
   const editorId = useId();
   const [content, setContent] = useState(initialContent);
   const contentRef = useRef(content);
@@ -79,25 +54,19 @@ const NoteEditorDialogContent = ({
   }, [open, handleSave]);
 
   return (
-    <DialogContent className='max-w-5xl p-6 sm:max-w-5xl' showCloseButton={false}>
-      <DialogHeader>
-        <DialogTitle>Edit note</DialogTitle>
-      </DialogHeader>
-      <label className='sr-only' htmlFor={editorId}>
-        Markdown editor
-      </label>
-      <textarea
-        className='min-h-96 rounded-2xl border border-input bg-background px-4 py-3 text-md outline-none'
-        id={editorId}
-        onChange={(event) => setContent(event.target.value)}
-        placeholder='Write your note in markdown...'
-        value={content}
-      />
-      <DialogFooter>
-        <Button onClick={handleSave} type='button'>
-          Save note
-        </Button>
-      </DialogFooter>
-    </DialogContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='max-w-5xl p-6 sm:max-w-5xl' showCloseButton={false}>
+        <label className='sr-only' htmlFor={editorId}>
+          Markdown editor
+        </label>
+        <textarea
+          className='min-h-96 rounded-2xl border border-input bg-background px-4 py-3 text-md outline-none'
+          id={editorId}
+          onChange={(event) => setContent(event.target.value)}
+          placeholder='Write your note in markdown...'
+          value={content}
+        />
+      </DialogContent>
+    </Dialog>
   );
 };
