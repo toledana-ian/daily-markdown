@@ -1,6 +1,6 @@
 'use client';
 
-import type { KeyboardEvent } from 'react';
+import { type KeyboardEvent, useRef } from 'react';
 import { useState } from 'react';
 import { RiDeleteBinLine, RiEditLine, RiEyeLine, RiMore2Fill } from '@remixicon/react';
 import { Markdown } from '@/components/common/markdown';
@@ -34,15 +34,23 @@ type NoteCardProps = {
 export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
   const [mode, setMode] = useState<'closed' | 'view' | 'edit'>('closed');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const prevModeRef = useRef<'closed' | 'view' | 'edit'>(mode);
 
-  const openPreview = () => setMode('view');
-  const openEditor = () => setMode('edit');
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      openPreview();
-    }
+  const openPreview = () => {
+    setMode('view');
+    prevModeRef.current = 'view';
+  }
+  const closePreview = () => {
+    setMode('closed');
+    prevModeRef.current = 'closed';
   };
+  const openEditor = () => {
+    setMode('edit');
+  }
+  const closeEditor = () => {
+    setMode(prevModeRef.current);
+  }
+
   const handleDelete = () => {
     const result = onDelete?.();
     setIsDeleteDialogOpen(false);
@@ -57,8 +65,6 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
           aria-label='Open note'
           className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 pr-12 shadow outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
           onClick={openPreview}
-          onDoubleClick={openEditor}
-          onKeyDown={handleKeyDown}
           role='button'
           tabIndex={0}
         >
