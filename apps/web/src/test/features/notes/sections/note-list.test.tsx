@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NoteListSection } from '@/features/notes/sections/note-list';
 import { useNoteSearchStore } from '@/features/notes/store/note-search';
@@ -97,5 +97,36 @@ describe('NoteListSection', () => {
 
     expect(screen.getByText('Search')).toBeInTheDocument();
     expect(screen.getByText('March 18, 2024: “react”')).toBeInTheDocument();
+  });
+
+  it('deletes a note after confirmation from the note card actions', () => {
+    const deleteNote = vi.fn();
+
+    mockedUseNotes.mockImplementation(() => ({
+      notes: [
+        {
+          id: 'hello-note',
+          userId: 'user-1',
+          content: '### Hello World :D',
+          createdAt: '2025-03-24T12:00:00.000Z',
+          updatedAt: '2025-03-24T12:00:00.000Z',
+        },
+      ],
+      isLoading: false,
+      isMutating: false,
+      error: null,
+      createNote: vi.fn(),
+      updateNote: vi.fn(),
+      deleteNote,
+      reload: vi.fn(),
+    }));
+
+    render(<NoteListSection />);
+
+    fireEvent.click(screen.getByRole('button', { name: /note actions/i }));
+    fireEvent.click(screen.getByRole('menuitem', { name: /delete/i }));
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+
+    expect(deleteNote).toHaveBeenCalledWith('hello-note');
   });
 });

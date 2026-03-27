@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils.ts';
 export const NoteListSection = () => {
   const query = useNoteSearchStore((state) => state.query);
   const selectedDate = useNoteDateStore((state) => state.selectedDate);
-  const { createNote, notes, isLoading, error, updateNote } = useNotes({
+  const { createNote, notes, isLoading, error, updateNote, deleteNote } = useNotes({
     date: selectedDate,
     query,
   });
@@ -39,6 +39,7 @@ export const NoteListSection = () => {
           <NoteCard
             key={note.id}
             content={note.content}
+            onDelete={() => deleteNote(note.id)}
             onSave={(content) => updateNote(note.id, content)}
           />
         ))}

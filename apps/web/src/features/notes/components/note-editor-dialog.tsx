@@ -60,6 +60,7 @@ export const NoteEditorDialog = ({
         showCloseButton={false}
       >
         <textarea
+          aria-label='Markdown editor'
           className='p-6 outline-none resize-none'
           id={editorId}
           onChange={(event) => setContent(event.target.value)}
