@@ -30,7 +30,7 @@ export const Today: Story = {
 
 export const SearchOnly: Story = {
   args: {
-    date: undefined,
+    date: null,
     searchValue: 'markdown',
   },
 };
