@@ -1,6 +1,4 @@
-'use client';
-
-import { type KeyboardEvent, useRef } from 'react';
+import { useRef } from 'react';
 import { useState } from 'react';
 import { RiDeleteBinLine, RiEditLine, RiEyeLine, RiMore2Fill } from '@remixicon/react';
 import { Markdown } from '@/components/common/markdown';
@@ -87,11 +85,11 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
           />
           <DropdownMenuContent align='end' className='w-auto rounded-sm shadow-xl'>
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => setMode('view')}>
+              <DropdownMenuItem onClick={openPreview}>
                 <RiEyeLine />
                 View
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setMode('edit')}>
+              <DropdownMenuItem onClick={openEditor}>
                 <RiEditLine />
                 Edit
               </DropdownMenuItem>
@@ -106,12 +104,12 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
       <NoteViewDialog
         content={content}
         onEdit={() => setMode('edit')}
-        onOpenChange={(open) => setMode(open ? 'view' : 'closed')}
+        onOpenChange={(open) => {if(open)openPreview();else closePreview();}}
         open={mode === 'view'}
       />
       <NoteEditorDialog
         initialContent={content}
-        onOpenChange={(open) => setMode(open ? 'edit' : 'view')}
+        onOpenChange={(open) => {if(open)openEditor();else closeEditor();}}
         onSave={onSave}
         open={mode === 'edit'}
       />
