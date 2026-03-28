@@ -224,6 +224,12 @@ export const NoteEditorDialog = ({
     }
   }, [closeSlashCommands, filteredCommands, insertCommand, selectedCommandIndex, slashOpen, view]);
 
+  const handleEditorUpdate = useCallback((viewUpdate: { selectionSet: boolean; docChanged: boolean }) => {
+    if (viewUpdate.selectionSet && !viewUpdate.docChanged) {
+      closeSlashCommands();
+    }
+  }, [closeSlashCommands]);
+
   const handleSave = useCallback(() => {
     if (!onSave || contentRef.current === lastSavedContentRef.current) return;
 
@@ -285,6 +291,7 @@ export const NoteEditorDialog = ({
             className={'p-0 max-w-full'}
             onCreateEditor={(view) => setView(view)}
             onChange={handleChange}
+            onUpdate={handleEditorUpdate}
             placeholder='Write your note in markdown...'
             value={content}
             theme={vscodeLight}

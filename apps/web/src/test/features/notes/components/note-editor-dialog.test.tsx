@@ -2,6 +2,12 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useEffect, useRef } from 'react';
 
+const mockCursorCoords = {
+  left: 100,
+  top: 120,
+  bottom: 140,
+};
+
 vi.mock('@uiw/react-codemirror', () => {
   type MockEditorView = {
     state: {
@@ -49,6 +55,7 @@ vi.mock('@uiw/react-codemirror', () => {
     className?: string;
     onChange?: (value: string, viewUpdate: { view: MockEditorView }) => void;
     onCreateEditor?: (view: MockEditorView) => void;
+    onUpdate?: (viewUpdate: { view: MockEditorView; selectionSet?: boolean; docChanged?: boolean }) => void;
     value: string;
   }) {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -91,9 +98,9 @@ vi.mock('@uiw/react-codemirror', () => {
           textareaRef.current?.focus();
         },
         coordsAtPos: (pos: number) => ({
-          left: 100 + pos * 8,
-          top: 120,
-          bottom: 140,
+          left: mockCursorCoords.left + pos * 8,
+          top: mockCursorCoords.top,
+          bottom: mockCursorCoords.bottom,
         }),
       };
     }
@@ -123,6 +130,18 @@ vi.mock('@uiw/react-codemirror', () => {
 
           props.onChange?.(nextValue, { view: viewRef.current! });
         }}
+        onSelect={(event) => {
+          const nextSelection = event.currentTarget.selectionStart ?? valueRef.current.length;
+
+          selectionRef.current = nextSelection;
+          viewRef.current!.state.selection.main.head = nextSelection;
+
+          props.onUpdate?.({
+            view: viewRef.current!,
+            selectionSet: true,
+            docChanged: false,
+          });
+        }}
         ref={textareaRef}
         value={props.value}
       />
@@ -139,6 +158,9 @@ import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog
 describe('NoteEditorDialog', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    mockCursorCoords.left = 100;
+    mockCursorCoords.top = 120;
+    mockCursorCoords.bottom = 140;
   });
 
   afterEach(() => {
@@ -299,8 +321,47 @@ describe('NoteEditorDialog', () => {
 
     expect(menu).toHaveStyle({
       left: '124px',
-      top: '148px',
+      top: '140px',
     });
+  });
+
+  it('keeps the slash command popup aligned to the visible cursor when the editor scrolls', () => {
+    mockCursorCoords.top = 24;
+    mockCursorCoords.bottom = 44;
+
+    render(
+      <NoteEditorDialog initialContent='' onOpenChange={vi.fn()} onSave={vi.fn()} open={true} />,
+    );
+
+    fireEvent.change(screen.getByRole('textbox', { name: /markdown editor/i }), {
+      target: { value: '/ta', selectionStart: 3 },
+    });
+
+    const menu = screen.getByRole('listbox', { name: /slash commands/i });
+
+    expect(menu).toHaveStyle({
+      left: '124px',
+      top: '44px',
+    });
+  });
+
+  it('closes the slash command popup when the cursor moves away from the slash command', () => {
+    render(
+      <NoteEditorDialog initialContent='' onOpenChange={vi.fn()} onSave={vi.fn()} open={true} />,
+    );
+
+    const editor = screen.getByRole('textbox', { name: /markdown editor/i }) as HTMLTextAreaElement;
+
+    fireEvent.change(editor, {
+      target: { value: '/ta rest', selectionStart: 3 },
+    });
+
+    expect(screen.getByRole('listbox', { name: /slash commands/i })).toBeInTheDocument();
+
+    editor.setSelectionRange(8, 8);
+    fireEvent.select(editor);
+
+    expect(screen.queryByRole('listbox', { name: /slash commands/i })).not.toBeInTheDocument();
   });
 
   it('supports arrow keys, enter, and escape for slash commands', () => {
