@@ -143,3 +143,12 @@
     @apply rounded-full;
   }
 }
+
+
+.cm-editor.cm-focused {
+  outline: none !important;
+}
+
+.cm-content:focus {
+  outline: none !important;
+}

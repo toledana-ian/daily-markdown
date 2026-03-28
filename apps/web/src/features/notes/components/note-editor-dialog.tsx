@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
@@ -64,7 +64,6 @@ export const NoteEditorDialog = ({
         showCloseButton={false}
       >
         <CodeMirror
-          className='p-0 outline-none focus:outline-none'
           onChange={(event) => setContent(event)}
           placeholder='Write your note in markdown...'
           value={content}
