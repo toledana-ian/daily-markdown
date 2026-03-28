@@ -86,14 +86,6 @@ ${CURSOR_MARKER}`,
     value: 'link',
     template: `[${CURSOR_MARKER}](https://google.com)`,
   }),
-  createCommand({
-    description: 'Insert mermaid diagram block',
-    label: 'Mermaid',
-    value: 'mermaid',
-    template: `\`\`\`mermaid
-${CURSOR_MARKER}
-\`\`\``,
-  }),
 ];
 
 const getSlashCommandMatch = (textBeforeCursor: string) => {
