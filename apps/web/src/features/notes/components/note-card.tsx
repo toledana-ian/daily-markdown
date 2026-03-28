@@ -55,14 +55,16 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
     return result;
   };
 
+  // const tags = ['#test', '#example', '#markdown']
+
   return (
     <>
-      <div className='relative w-full sm:w-xs md:w-xs lg:w-xs'>
+      <div className='relative w-full sm:w-xs md:w-xs lg:w-xs transition hover:-translate-y-0.5 hover:shadow-md'>
         <ContextMenu>
           <ContextMenuTrigger>
             <div
               aria-label='Open note'
-              className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 shadow outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
+              className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 shadow outline-0'
               onClick={openPreview}
               onDoubleClick={openEditor}
               role='button'
@@ -70,6 +72,19 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
             >
               <Markdown content={content} emptyMessage='This note is empty.' />
             </div>
+            {/*<div*/}
+            {/*  className='absolute bottom-0 left-0 w-full h-16*/}
+            {/*  bg-linear-to-t from-chart-1*/}
+            {/*  pointer-events-none'*/}
+            {/*>*/}
+            {/*  <div className={'flex flex-row bg-red-300  my-auto gap-2 '}>*/}
+            {/*    {tags.map((tag, index) => (*/}
+            {/*      <span key={index} className='text-xs text-gray-500'>*/}
+            {/*        {tag}*/}
+            {/*      </span>*/}
+            {/*    ))}*/}
+            {/*  </div>*/}
+            {/*</div>*/}
           </ContextMenuTrigger>
           <ContextMenuContent className='w-auto rounded-sm shadow-xl'>
             <ContextMenuGroup>
@@ -92,12 +107,18 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
       <NoteViewDialog
         content={content}
         onEdit={() => setMode('edit')}
-        onOpenChange={(open) => {if(open)openPreview();else closePreview();}}
+        onOpenChange={(open) => {
+          if (open) openPreview();
+          else closePreview();
+        }}
         open={mode === 'view'}
       />
       <NoteEditorDialog
         initialContent={content}
-        onOpenChange={(open) => {if(open)openEditor();else closeEditor();}}
+        onOpenChange={(open) => {
+          if (open) openEditor();
+          else closeEditor();
+        }}
         onSave={onSave}
         open={mode === 'edit'}
       />
