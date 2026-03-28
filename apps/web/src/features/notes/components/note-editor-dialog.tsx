@@ -46,17 +46,16 @@ const COMMANDS: CommandItem[] = [
     description: 'Insert markdown table',
     label: 'Table',
     value: 'table',
-    template: `| Column 1${CURSOR_MARKER} | Column 2 | Column 3 |
-| --- | --- | --- |
-| |  |  |`,
+    template: `| Before | After |
+| --- | --- |
+| ${CURSOR_MARKER} |  |`,
   }),
   createCommand({
     description: 'Insert task list',
     label: 'Checklist',
     value: 'checklist',
     template: `- [ ] Task 1${CURSOR_MARKER}
-- [ ] Task 2
-- [ ] Task 3`,
+- [ ] Task 2`,
   }),
   createCommand({
     description: 'Insert fenced code block',
@@ -84,7 +83,7 @@ ${CURSOR_MARKER}`,
     description: 'Insert markdown link',
     label: 'Link',
     value: 'link',
-    template: `[${CURSOR_MARKER}](https://google.com)`,
+    template: `[link${CURSOR_MARKER}](https://google.com)`,
   }),
 ];
 

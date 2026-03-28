@@ -359,13 +359,14 @@ describe('NoteEditorDialog', () => {
 
     const menu = screen.getByRole('listbox', { name: /slash commands/i });
 
-    expect(within(menu).getByRole('option', { name: /table/i })).toBeInTheDocument();
-    expect(within(menu).getByRole('option', { name: /checklist/i })).toBeInTheDocument();
-    expect(within(menu).getByRole('option', { name: /code block/i })).toBeInTheDocument();
-    expect(within(menu).getByRole('option', { name: /divider/i })).toBeInTheDocument();
-    expect(within(menu).getByRole('option', { name: /image/i })).toBeInTheDocument();
-    expect(within(menu).getByRole('option', { name: /link/i })).toBeInTheDocument();
-    expect(within(menu).getByRole('option', { name: /mermaid/i })).toBeInTheDocument();
+    expect(within(menu).getByText('/table')).toBeInTheDocument();
+    expect(within(menu).getByText('/compare-table')).toBeInTheDocument();
+    expect(within(menu).getByText('/checklist')).toBeInTheDocument();
+    expect(within(menu).getByText('/code')).toBeInTheDocument();
+    expect(within(menu).getByText('/divider')).toBeInTheDocument();
+    expect(within(menu).getByText('/image')).toBeInTheDocument();
+    expect(within(menu).getByText('/link')).toBeInTheDocument();
+    expect(within(menu).getByText('/mermaid')).toBeInTheDocument();
   });
 
   it('moves the cursor into the inserted template', () => {
@@ -406,6 +407,25 @@ describe('NoteEditorDialog', () => {
 \`\`\``);
     expect(editor.selectionStart).toBe(`\`\`\`mermaid
 `.length);
+    expect(editor.selectionEnd).toBe(editor.selectionStart);
+  });
+
+  it('inserts a compare table from slash commands', () => {
+    render(
+      <NoteEditorDialog initialContent='' onOpenChange={vi.fn()} onSave={vi.fn()} open={true} />,
+    );
+
+    const editor = screen.getByRole('textbox', { name: /markdown editor/i }) as HTMLTextAreaElement;
+
+    fireEvent.change(editor, {
+      target: { value: '/compare', selectionStart: 8 },
+    });
+    fireEvent.keyDown(editor, { key: 'Enter' });
+
+    expect(editor.value).toBe(`| Before | After |
+| --- | --- |
+| Before value | After value |`);
+    expect(editor.selectionStart).toBe('| Before'.length);
     expect(editor.selectionEnd).toBe(editor.selectionStart);
   });
 });
