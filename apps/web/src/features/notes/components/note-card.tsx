@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useState } from 'react';
-import { RiDeleteBinLine, RiEditLine, RiEyeLine, RiMore2Fill } from '@remixicon/react';
+import { RiDeleteBinLine, RiEditLine, RiEyeLine } from '@remixicon/react';
 import { Markdown } from '@/components/common/markdown';
 import {
   AlertDialog,
@@ -12,14 +12,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
 import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
 import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
 
@@ -59,47 +58,36 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
   return (
     <>
       <div className='relative w-full sm:w-xs md:w-xs lg:w-xs'>
-        <div
-          aria-label='Open note'
-          className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 shadow outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
-          onClick={openPreview}
-          role='button'
-          tabIndex={0}
-        >
-          <Markdown content={content} emptyMessage='This note is empty.' />
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                aria-label='Note actions'
-                className='absolute top-2 right-2'
-                onClick={(event) => event.stopPropagation()}
-                onKeyDown={(event) => event.stopPropagation()}
-                size='icon-sm'
-                variant='ghost'
-              >
-                <RiMore2Fill />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align='end' className='w-auto rounded-sm shadow-xl'>
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={openPreview}>
+        <ContextMenu>
+          <ContextMenuTrigger>
+            <div
+              aria-label='Open note'
+              className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 shadow outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
+              onClick={openPreview}
+              onDoubleClick={openEditor}
+              role='button'
+              tabIndex={0}
+            >
+              <Markdown content={content} emptyMessage='This note is empty.' />
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className='w-auto rounded-sm shadow-xl'>
+            <ContextMenuGroup>
+              <ContextMenuItem onClick={openPreview}>
                 <RiEyeLine />
                 View
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={openEditor}>
+              </ContextMenuItem>
+              <ContextMenuItem onClick={openEditor}>
                 <RiEditLine />
                 Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} variant='destructive'>
+              </ContextMenuItem>
+              <ContextMenuItem onClick={() => setIsDeleteDialogOpen(true)} variant='destructive'>
                 <RiDeleteBinLine />
                 Delete
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              </ContextMenuItem>
+            </ContextMenuGroup>
+          </ContextMenuContent>
+        </ContextMenu>
       </div>
       <NoteViewDialog
         content={content}
