@@ -18,7 +18,7 @@ export const NoteListSection = () => {
     <>
       <div
         className={cn(
-          'flex flex-wrap gap-2 justify-center',
+          'columns-1 sm:columns-2 md:columns-2 lg:columns-3 xl:columns-4',
           notes.length === 0 ? 'flex-1 items-center -mt-8' : '',
         )}
       >

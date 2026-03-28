@@ -59,12 +59,12 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
 
   return (
     <>
-      <div className='relative w-full sm:w-xs md:w-xs lg:w-xs'>
+      <div className='break-inside-avoid mb-4 relative w-full'>
         <ContextMenu>
           <ContextMenuTrigger>
             <div
               aria-label='Open note'
-              className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 shadow outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
+              className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 shadow-sm outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
               onClick={openPreview}
               onDoubleClick={openEditor}
               role='button'
