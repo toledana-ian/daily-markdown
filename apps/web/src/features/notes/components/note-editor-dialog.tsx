@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import CodeMirror from '@uiw/react-codemirror';
+import { EditorView } from '@codemirror/view';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { vscodeLight } from '@uiw/codemirror-theme-vscode';
+import { cn } from '@/lib/utils.ts';
 
 
 type NoteEditorDialogProps = {
@@ -20,6 +22,7 @@ export const NoteEditorDialog = ({
   open,
 }: NoteEditorDialogProps) => {
   const [content, setContent] = useState(initialContent);
+  const [view, setView] = useState<EditorView | null>(null);
   const contentRef = useRef(content);
   const lastSavedContentRef = useRef(initialContent);
 
@@ -29,6 +32,7 @@ export const NoteEditorDialog = ({
     lastSavedContentRef.current = contentRef.current;
     onSave(contentRef.current);
   }, [onSave]);
+
 
   //update the contentRef when the content changes
   useEffect(() => {
@@ -63,7 +67,15 @@ export const NoteEditorDialog = ({
         className='h-[80vh] max-h-[80vh] w-[calc(100%-4rem)]  max-w-5xl sm:max-w-5xl rounded-sm p-0 overflow-auto'
         showCloseButton={false}
       >
+        <div
+          className={cn(
+            'absolute h-full w-1 border-l border-[#ddd]  ',
+            view && view.state.doc.lines >= 10 ? 'ml-[35.5px]' : 'ml-[30.5px]',
+          )}
+        ></div>
         <CodeMirror
+          className={'p-0 max-w-full'}
+          onCreateEditor={(view) => setView(view)}
           onChange={(event) => setContent(event)}
           placeholder='Write your note in markdown...'
           value={content}
