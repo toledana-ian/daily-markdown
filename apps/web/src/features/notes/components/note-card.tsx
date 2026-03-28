@@ -61,7 +61,7 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
       <div className='relative w-full sm:w-xs md:w-xs lg:w-xs'>
         <div
           aria-label='Open note'
-          className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 pr-12 shadow outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
+          className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 shadow outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
           onClick={openPreview}
           role='button'
           tabIndex={0}
