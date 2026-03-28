@@ -155,12 +155,18 @@ vi.mock('@uiw/react-codemirror', () => {
 
 import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
 
+const setViewportWidth = (width: number) => {
+  window.innerWidth = width;
+  window.dispatchEvent(new Event('resize'));
+};
+
 describe('NoteEditorDialog', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     mockCursorCoords.left = 100;
     mockCursorCoords.top = 120;
     mockCursorCoords.bottom = 140;
+    setViewportWidth(1024);
   });
 
   afterEach(() => {
@@ -251,7 +257,40 @@ describe('NoteEditorDialog', () => {
       />,
     );
 
-    expect(screen.getByRole('dialog')).toHaveClass('w-[calc(100%-4rem)]', 'max-w-5xl');
+    expect(document.querySelector("[data-slot='dialog-content']")).toHaveClass(
+      'w-[calc(100%-4rem)]',
+      'max-w-5xl',
+    );
+  });
+
+  it('renders a dialog on desktop', () => {
+    render(
+      <NoteEditorDialog
+        initialContent='Existing note'
+        onOpenChange={vi.fn()}
+        onSave={vi.fn()}
+        open={true}
+      />,
+    );
+
+    expect(document.querySelector("[data-slot='dialog-content']")).toBeInTheDocument();
+    expect(document.querySelector("[data-slot='drawer-content']")).not.toBeInTheDocument();
+  });
+
+  it('renders a drawer on mobile', () => {
+    setViewportWidth(640);
+
+    render(
+      <NoteEditorDialog
+        initialContent='Existing note'
+        onOpenChange={vi.fn()}
+        onSave={vi.fn()}
+        open={true}
+      />,
+    );
+
+    expect(document.querySelector("[data-slot='drawer-content']")).toBeInTheDocument();
+    expect(document.querySelector("[data-slot='dialog-content']")).not.toBeInTheDocument();
   });
 
   it('saves the latest content when the dialog closes', () => {

@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
 import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from '@codemirror/view';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { vscodeLight } from '@uiw/codemirror-theme-vscode';
 import { cn } from '@/lib/utils.ts';
+import { useTailwindScreen } from '@/hooks/useTailwindScreen';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -106,6 +108,8 @@ export const NoteEditorDialog = ({
   onSave,
   open,
 }: NoteEditorDialogProps) => {
+  const screen = useTailwindScreen();
+  const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
   const [content, setContent] = useState(initialContent);
   const [view, setView] = useState<EditorView | null>(null);
   const contentRef = useRef(content);
@@ -273,62 +277,86 @@ export const NoteEditorDialog = ({
     }
   }, [open, handleSave]);
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className='h-[80vh] max-h-[80vh] w-[calc(100%-4rem)]  max-w-5xl sm:max-w-5xl rounded-sm p-0 overflow-auto'
-        showCloseButton={false}
-      >
-        <div
-          className={cn(
-            'absolute h-full w-1 border-l border-[#ddd]  ',
-            view && view.state.doc.lines >= 10 ? 'ml-[35.5px]' : 'ml-[30.5px]',
-          )}
-        ></div>
-        <div onKeyDownCapture={handleEditorKeyDown}>
-          <CodeMirror
-            aria-label='Markdown editor'
-            className={'p-0 max-w-full'}
-            onCreateEditor={(view) => setView(view)}
-            onChange={handleChange}
-            onUpdate={handleEditorUpdate}
-            placeholder='Write your note in markdown...'
-            value={content}
-            theme={vscodeLight}
-            extensions={[markdown({ base: markdownLanguage, codeLanguages: languages })]}
-          />
-        </div>
-
-        {slashOpen && filteredCommands.length > 0 && slashPopupPosition && (
-          <div
-            aria-label='Slash commands'
-            className='fixed z-50 w-72 rounded-lg border bg-white shadow-lg'
-            role='listbox'
-            style={{
-              left: slashPopupPosition.left,
-              top: slashPopupPosition.top,
-            }}
-          >
-            {filteredCommands.map((command, index) => (
-              <button
-                aria-selected={index === selectedCommandIndex}
-                className={cn(
-                  'block w-full px-3 py-2 text-left',
-                  index === selectedCommandIndex ? 'bg-gray-100' : 'hover:bg-gray-100',
-                )}
-                key={command.value}
-                onMouseEnter={() => setSelectedCommandIndex(index)}
-                type='button'
-                onClick={() => insertCommand(command)}
-                role='option'
-              >
-                <div className='font-medium'>/{command.value}</div>
-                <div className='text-sm text-gray-500'>{command.description}</div>
-              </button>
-            ))}
-          </div>
+  const editor = (
+    <>
+      <div
+        className={cn(
+          'absolute h-full w-1 border-l border-[#ddd]',
+          view && view.state.doc.lines >= 10 ? 'ml-[35.5px]' : 'ml-[30.5px]',
         )}
-      </DialogContent>
-    </Dialog>
+      ></div>
+      <div onKeyDownCapture={handleEditorKeyDown}>
+        <CodeMirror
+          aria-label='Markdown editor'
+          className='max-w-full p-0'
+          onCreateEditor={(view) => setView(view)}
+          onChange={handleChange}
+          onUpdate={handleEditorUpdate}
+          placeholder='Write your note in markdown...'
+          value={content}
+          theme={vscodeLight}
+          extensions={[markdown({ base: markdownLanguage, codeLanguages: languages })]}
+        />
+      </div>
+
+      {slashOpen && filteredCommands.length > 0 && slashPopupPosition && (
+        <div
+          aria-label='Slash commands'
+          className='fixed z-50 w-72 rounded-lg border bg-white shadow-lg'
+          role='listbox'
+          style={{
+            left: slashPopupPosition.left,
+            top: slashPopupPosition.top,
+          }}
+        >
+          {filteredCommands.map((command, index) => (
+            <button
+              aria-selected={index === selectedCommandIndex}
+              className={cn(
+                'block w-full px-3 py-2 text-left',
+                index === selectedCommandIndex ? 'bg-gray-100' : 'hover:bg-gray-100',
+              )}
+              key={command.value}
+              onMouseEnter={() => setSelectedCommandIndex(index)}
+              type='button'
+              onClick={() => insertCommand(command)}
+              role='option'
+            >
+              <div className='font-medium'>/{command.value}</div>
+              <div className='text-sm text-gray-500'>{command.description}</div>
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
+
+  if (isDesktop) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          className='h-[80vh] max-h-[80vh] w-[calc(100%-4rem)] max-w-5xl overflow-auto rounded-sm p-0 sm:max-w-5xl'
+          showCloseButton={false}
+        >
+          <DialogTitle className='sr-only'>Edit note</DialogTitle>
+          <DialogDescription className='sr-only'>
+            Edit the note markdown content.
+          </DialogDescription>
+          {editor}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className='h-[80vh] max-h-[80vh] gap-0 p-0 before:inset-0 before:rounded-t-[calc(theme(borderRadius.4xl)-0.25rem)]'>
+        <DrawerTitle className='sr-only'>Edit note</DrawerTitle>
+        <DrawerDescription className='sr-only'>Edit the note markdown content.</DrawerDescription>
+        <div className='relative h-full overflow-auto rounded-t-[calc(theme(borderRadius.4xl)-0.25rem)] bg-background'>
+          {editor}
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 };
