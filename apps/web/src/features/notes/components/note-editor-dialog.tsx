@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import CodeMirror from '@uiw/react-codemirror';
+import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
+import { languages } from '@codemirror/language-data';
+import { vscodeLight } from '@uiw/codemirror-theme-vscode';
+
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -14,7 +19,6 @@ export const NoteEditorDialog = ({
   onSave,
   open,
 }: NoteEditorDialogProps) => {
-  const editorId = useId();
   const [content, setContent] = useState(initialContent);
   const contentRef = useRef(content);
   const lastSavedContentRef = useRef(initialContent);
@@ -56,16 +60,16 @@ export const NoteEditorDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className='min-h-[80vh] w-[calc(100%-4rem)]  max-w-5xl sm:max-w-5xl rounded-sm p-0'
+        className='h-[80vh] max-h-[80vh] w-[calc(100%-4rem)]  max-w-5xl sm:max-w-5xl rounded-sm p-0 overflow-auto'
         showCloseButton={false}
       >
-        <textarea
-          aria-label='Markdown editor'
-          className='p-6 outline-none resize-none'
-          id={editorId}
-          onChange={(event) => setContent(event.target.value)}
+        <CodeMirror
+          className='p-0 outline-none focus:outline-none'
+          onChange={(event) => setContent(event)}
           placeholder='Write your note in markdown...'
           value={content}
+          theme={vscodeLight}
+          extensions={[markdown({ base: markdownLanguage, codeLanguages: languages })]}
         />
       </DialogContent>
     </Dialog>
