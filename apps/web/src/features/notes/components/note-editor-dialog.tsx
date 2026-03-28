@@ -133,6 +133,11 @@ export const NoteEditorDialog = ({
     const { state } = currentView;
     const cursor = state.selection.main.head;
     const line = state.doc.lineAt(cursor);
+    const totalLines = state.doc.lines;
+    const height = currentView.contentHeight;
+    const slashY = (height / totalLines) * line.number;
+
+    console.log(height, totalLines, line.number, slashY);
 
     const textBeforeCursor = state.doc.sliceString(line.from, cursor);
 
@@ -140,14 +145,11 @@ export const NoteEditorDialog = ({
 
     if (match) {
       const coords = currentView.coordsAtPos(cursor);
-
-      console.log(coords);
-
       setSlashOpen(true);
       setSelectedCommandIndex(0);
       setSlashQuery(match.query);
       setSlashFrom(line.from + match.from);
-      setSlashPopupPosition(coords ? { left: coords.left-40, top: coords.top-60 } : null);
+      setSlashPopupPosition(coords ? { left: coords.left - 40, top: slashY } : null);
     } else {
       setSlashOpen(false);
       setSelectedCommandIndex(0);
