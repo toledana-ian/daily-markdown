@@ -15,34 +15,71 @@ type NoteEditorDialogProps = {
 };
 
 type CommandItem = {
+  description: string;
   label: string;
   value: string;
   template: string;
+  cursorOffset: number;
+};
+
+const CURSOR_MARKER = '{{cursor}}';
+
+const createCommand = (
+  definition: Omit<CommandItem, 'cursorOffset' | 'template'> & { template: string },
+): CommandItem => {
+  const cursorOffset = definition.template.indexOf(CURSOR_MARKER);
+  const template = definition.template.replace(CURSOR_MARKER, '');
+
+  if (cursorOffset === -1) {
+    throw new Error(`Missing cursor marker for slash command "${definition.value}"`);
+  }
+
+  return {
+    ...definition,
+    cursorOffset,
+    template,
+  };
 };
 
 const COMMANDS: CommandItem[] = [
-  {
+  createCommand({
+    description: 'Insert markdown table',
     label: 'Table',
     value: 'table',
     template: `| Column 1 | Column 2 | Column 3 |
 | --- | --- | --- |
-| Value 1 | Value 2 | Value 3 |`,
-  },
-  {
+| ${CURSOR_MARKER} |  |  |`,
+  }),
+  createCommand({
+    description: 'Insert task list',
     label: 'Checklist',
     value: 'checklist',
-    template: `- [ ] Task 1
+    template: `- [ ] ${CURSOR_MARKER}Task 1
 - [ ] Task 2
 - [ ] Task 3`,
-  },
-  {
+  }),
+  createCommand({
+    description: 'Insert fenced code block',
     label: 'Code Block',
     value: 'code',
     template: `\`\`\`ts
-console.log('hello')
+${CURSOR_MARKER}
 \`\`\``,
-  },
+  }),
 ];
+
+const getSlashCommandMatch = (textBeforeCursor: string) => {
+  const match = /(^|\s)\/([a-zA-Z0-9_-]*)$/.exec(textBeforeCursor);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    from: textBeforeCursor.length - match[2].length - 1,
+    query: match[2],
+  };
+};
 
 export const NoteEditorDialog = ({
   initialContent,
@@ -58,6 +95,10 @@ export const NoteEditorDialog = ({
   const [slashOpen, setSlashOpen] = useState(false);
   const [slashFrom, setSlashFrom] = useState<number | null>(null);
   const [slashQuery, setSlashQuery] = useState('');
+  const [selectedCommandIndex, setSelectedCommandIndex] = useState(0);
+  const [slashPopupPosition, setSlashPopupPosition] = useState<{ left: number; top: number } | null>(
+    null,
+  );
 
   const filteredCommands = useMemo(() => {
     if (!slashQuery) return COMMANDS;
@@ -76,40 +117,91 @@ export const NoteEditorDialog = ({
 
     const textBeforeCursor = state.doc.sliceString(line.from, cursor);
 
-    const match = textBeforeCursor.match(/\/([a-zA-Z0-9_-]*)$/);
+    const match = getSlashCommandMatch(textBeforeCursor);
 
     if (match) {
+      const coords = currentView.coordsAtPos(cursor);
+
       setSlashOpen(true);
-      setSlashQuery(match[1]);
-      setSlashFrom(cursor - match[0].length);
+      setSelectedCommandIndex(0);
+      setSlashQuery(match.query);
+      setSlashFrom(line.from + match.from);
+      setSlashPopupPosition(coords ? { left: coords.left, top: coords.bottom + 8 } : null);
     } else {
       setSlashOpen(false);
+      setSelectedCommandIndex(0);
       setSlashQuery('');
       setSlashFrom(null);
+      setSlashPopupPosition(null);
     }
   };
 
-  const insertCommand = (command: CommandItem) => {
-    if (!view || slashFrom === null) return;
+  const closeSlashCommands = useCallback(() => {
+    setSlashOpen(false);
+    setSelectedCommandIndex(0);
+    setSlashQuery('');
+    setSlashFrom(null);
+    setSlashPopupPosition(null);
+  }, []);
 
-    const to = view.state.selection.main.head;
+  const insertCommand = useCallback((command: CommandItem, currentView?: EditorView | null) => {
+    const activeView = currentView ?? view;
 
-    view.dispatch({
+    if (!activeView || slashFrom === null) return;
+
+    const to = activeView.state.selection.main.head;
+    const nextContent =
+      activeView.state.doc.toString().slice(0, slashFrom) +
+      command.template +
+      activeView.state.doc.toString().slice(to);
+    const cursorPosition = slashFrom + command.cursorOffset;
+
+    activeView.dispatch({
       changes: {
         from: slashFrom,
         to,
         insert: command.template,
       },
       selection: {
-        anchor: slashFrom + command.template.length,
+        anchor: cursorPosition,
       },
     });
 
-    view.focus();
-    setSlashOpen(false);
-    setSlashQuery('');
-    setSlashFrom(null);
-  };
+    setContent(nextContent);
+    activeView.focus();
+    closeSlashCommands();
+  }, [closeSlashCommands, slashFrom, view]);
+
+  const handleEditorKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!slashOpen || filteredCommands.length === 0) {
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setSelectedCommandIndex((currentIndex) => (currentIndex + 1) % filteredCommands.length);
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setSelectedCommandIndex(
+        (currentIndex) => (currentIndex - 1 + filteredCommands.length) % filteredCommands.length,
+      );
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      insertCommand(filteredCommands[selectedCommandIndex], view);
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeSlashCommands();
+    }
+  }, [closeSlashCommands, filteredCommands, insertCommand, selectedCommandIndex, slashOpen, view]);
 
   const handleSave = useCallback(() => {
     if (!onSave || contentRef.current === lastSavedContentRef.current) return;
@@ -123,6 +215,14 @@ export const NoteEditorDialog = ({
   useEffect(() => {
     contentRef.current = content;
   }, [content]);
+
+  useEffect(() => {
+    if (selectedCommandIndex < filteredCommands.length) {
+      return;
+    }
+
+    setSelectedCommandIndex(0);
+  }, [filteredCommands, selectedCommandIndex]);
 
   //autosave every 10 seconds if the dialog is open
   useEffect(() => {
@@ -158,26 +258,44 @@ export const NoteEditorDialog = ({
             view && view.state.doc.lines >= 10 ? 'ml-[35.5px]' : 'ml-[30.5px]',
           )}
         ></div>
-        <CodeMirror
-          className={'p-0 max-w-full'}
-          onCreateEditor={(view) => setView(view)}
-          onChange={handleChange}
-          placeholder='Write your note in markdown...'
-          value={content}
-          theme={vscodeLight}
-          extensions={[markdown({ base: markdownLanguage, codeLanguages: languages })]}
-        />
+        <div onKeyDownCapture={handleEditorKeyDown}>
+          <CodeMirror
+            aria-label='Markdown editor'
+            className={'p-0 max-w-full'}
+            onCreateEditor={(view) => setView(view)}
+            onChange={handleChange}
+            placeholder='Write your note in markdown...'
+            value={content}
+            theme={vscodeLight}
+            extensions={[markdown({ base: markdownLanguage, codeLanguages: languages })]}
+          />
+        </div>
 
-        {slashOpen && filteredCommands.length > 0 && (
-          <div className='absolute left-4 top-12 z-50 w-64 rounded-lg border bg-white shadow-lg'>
-            {filteredCommands.map((command) => (
+        {slashOpen && filteredCommands.length > 0 && slashPopupPosition && (
+          <div
+            aria-label='Slash commands'
+            className='fixed z-50 w-72 rounded-lg border bg-white shadow-lg'
+            role='listbox'
+            style={{
+              left: slashPopupPosition.left,
+              top: slashPopupPosition.top,
+            }}
+          >
+            {filteredCommands.map((command, index) => (
               <button
+                aria-selected={index === selectedCommandIndex}
+                className={cn(
+                  'block w-full px-3 py-2 text-left',
+                  index === selectedCommandIndex ? 'bg-gray-100' : 'hover:bg-gray-100',
+                )}
                 key={command.value}
+                onMouseEnter={() => setSelectedCommandIndex(index)}
                 type='button'
-                className='block w-full px-3 py-2 text-left hover:bg-gray-100'
                 onClick={() => insertCommand(command)}
+                role='option'
               >
-                /{command.value}
+                <div className='font-medium'>/{command.value}</div>
+                <div className='text-sm text-gray-500'>{command.description}</div>
               </button>
             ))}
           </div>
