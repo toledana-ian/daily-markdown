@@ -66,6 +66,34 @@ const COMMANDS: CommandItem[] = [
 ${CURSOR_MARKER}
 \`\`\``,
   }),
+  createCommand({
+    description: 'Insert horizontal divider',
+    label: 'Divider',
+    value: 'divider',
+    template: `---
+    
+${CURSOR_MARKER}`,
+  }),
+  createCommand({
+    description: 'Insert markdown image',
+    label: 'Image',
+    value: 'image',
+    template: `![${CURSOR_MARKER}](https://placehold.co/600x400)`,
+  }),
+  createCommand({
+    description: 'Insert markdown link',
+    label: 'Link',
+    value: 'link',
+    template: `[${CURSOR_MARKER}](https://google.com)`,
+  }),
+  createCommand({
+    description: 'Insert mermaid diagram block',
+    label: 'Mermaid',
+    value: 'mermaid',
+    template: `\`\`\`mermaid
+${CURSOR_MARKER}
+\`\`\``,
+  }),
 ];
 
 const getSlashCommandMatch = (textBeforeCursor: string) => {

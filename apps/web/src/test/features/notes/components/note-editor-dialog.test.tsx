@@ -346,6 +346,28 @@ describe('NoteEditorDialog', () => {
 - [ ] Task 3`);
   });
 
+  it('lists the expanded slash command set', () => {
+    render(
+      <NoteEditorDialog initialContent='' onOpenChange={vi.fn()} onSave={vi.fn()} open={true} />,
+    );
+
+    const editor = screen.getByRole('textbox', { name: /markdown editor/i });
+
+    fireEvent.change(editor, {
+      target: { value: '/', selectionStart: 1 },
+    });
+
+    const menu = screen.getByRole('listbox', { name: /slash commands/i });
+
+    expect(within(menu).getByRole('option', { name: /table/i })).toBeInTheDocument();
+    expect(within(menu).getByRole('option', { name: /checklist/i })).toBeInTheDocument();
+    expect(within(menu).getByRole('option', { name: /code block/i })).toBeInTheDocument();
+    expect(within(menu).getByRole('option', { name: /divider/i })).toBeInTheDocument();
+    expect(within(menu).getByRole('option', { name: /image/i })).toBeInTheDocument();
+    expect(within(menu).getByRole('option', { name: /link/i })).toBeInTheDocument();
+    expect(within(menu).getByRole('option', { name: /mermaid/i })).toBeInTheDocument();
+  });
+
   it('moves the cursor into the inserted template', () => {
     render(
       <NoteEditorDialog initialContent='' onOpenChange={vi.fn()} onSave={vi.fn()} open={true} />,
@@ -364,6 +386,26 @@ describe('NoteEditorDialog', () => {
     expect(editor.selectionStart).toBe(`| Column 1 | Column 2 | Column 3 |
 | --- | --- | --- |
 | `.length);
+    expect(editor.selectionEnd).toBe(editor.selectionStart);
+  });
+
+  it('inserts a mermaid block from slash commands', () => {
+    render(
+      <NoteEditorDialog initialContent='' onOpenChange={vi.fn()} onSave={vi.fn()} open={true} />,
+    );
+
+    const editor = screen.getByRole('textbox', { name: /markdown editor/i }) as HTMLTextAreaElement;
+
+    fireEvent.change(editor, {
+      target: { value: '/mer', selectionStart: 4 },
+    });
+    fireEvent.keyDown(editor, { key: 'Enter' });
+
+    expect(editor.value).toBe(`\`\`\`mermaid
+
+\`\`\``);
+    expect(editor.selectionStart).toBe(`\`\`\`mermaid
+`.length);
     expect(editor.selectionEnd).toBe(editor.selectionStart);
   });
 });
