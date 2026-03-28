@@ -137,8 +137,6 @@ export const NoteEditorDialog = ({
     const height = currentView.contentHeight;
     const slashY = (height / totalLines) * line.number;
 
-    console.log(height, totalLines, line.number, slashY);
-
     const textBeforeCursor = state.doc.sliceString(line.from, cursor);
 
     const match = getSlashCommandMatch(textBeforeCursor);
