@@ -46,15 +46,15 @@ const COMMANDS: CommandItem[] = [
     description: 'Insert markdown table',
     label: 'Table',
     value: 'table',
-    template: `| Column 1 | Column 2 | Column 3 |
+    template: `| Column 1${CURSOR_MARKER} | Column 2 | Column 3 |
 | --- | --- | --- |
-| ${CURSOR_MARKER} |  |  |`,
+| |  |  |`,
   }),
   createCommand({
     description: 'Insert task list',
     label: 'Checklist',
     value: 'checklist',
-    template: `- [ ] ${CURSOR_MARKER}Task 1
+    template: `- [ ] Task 1${CURSOR_MARKER}
 - [ ] Task 2
 - [ ] Task 3`,
   }),
@@ -62,7 +62,7 @@ const COMMANDS: CommandItem[] = [
     description: 'Insert fenced code block',
     label: 'Code Block',
     value: 'code',
-    template: `\`\`\`ts
+    template: `\`\`\`
 ${CURSOR_MARKER}
 \`\`\``,
   }),
