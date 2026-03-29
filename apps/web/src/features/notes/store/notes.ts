@@ -95,6 +95,7 @@ export const useNotesStore = create<NotesState>((set) => ({
     }
 
     const response = await query;
+    console.log('response', response);
     const { data, error: selectError, count } = response;
 
     if (selectError) {
@@ -108,6 +109,7 @@ export const useNotesStore = create<NotesState>((set) => ({
 
     const mappedNotes = (data ?? []).map(mapNote);
     const totalLoadedNotes = rangeStart + mappedNotes.length;
+    console.log('totalLoadedNotes', totalLoadedNotes)
 
     set((state) => ({
       notes: append ? [...state.notes, ...mappedNotes] : mappedNotes,
