@@ -51,6 +51,38 @@ const mapNote = (note: NoteRow): Note => ({
   updatedAt: note.updated_at,
 });
 
+const applyNotesFilter = <T extends {
+  gte: (column: string, value: string) => T;
+  lte: (column: string, value: string) => T;
+  textSearch: (
+    column: string,
+    query: string,
+    options: {
+      config: string;
+      type: 'websearch';
+    },
+  ) => T;
+}>(query: T, filter: NormalizedNotesFilter): T => {
+  let filteredQuery = query;
+
+  if (filter.dateMs !== undefined) {
+    const selectedDate = new Date(filter.dateMs);
+
+    filteredQuery = filteredQuery
+      .gte('created_at', startOfDay(selectedDate).toISOString())
+      .lte('created_at', endOfDay(selectedDate).toISOString());
+  }
+
+  if (filter.query) {
+    filteredQuery = filteredQuery.textSearch('search', filter.query, {
+      config: 'english',
+      type: 'websearch',
+    });
+  }
+
+  return filteredQuery;
+};
+
 //========== Store ==========//
 export const useNotesStore = create<NotesState>((set) => ({
   notes: [],
@@ -73,35 +105,31 @@ export const useNotesStore = create<NotesState>((set) => ({
       hasMore: state.hasMore,
     }));
 
-    let query = supabase
+    const dataQuery = applyNotesFilter(
+      supabase
       .from('notes')
-      .select('id, user_id, content, created_at, updated_at', { count: 'exact' })
+      .select('id, user_id, content, created_at, updated_at')
       .order('created_at', { ascending: false })
-      .range(rangeStart, rangeEnd);
+      .range(rangeStart, rangeEnd),
+      normalizedFilter,
+    );
 
-    if (normalizedFilter.dateMs !== undefined) {
-      const selectedDate = new Date(normalizedFilter.dateMs);
+    const countQuery = applyNotesFilter(
+      supabase.from('notes').select('*', { count: 'exact', head: true }),
+      normalizedFilter,
+    );
 
-      query = query
-        .gte('created_at', startOfDay(selectedDate).toISOString())
-        .lte('created_at', endOfDay(selectedDate).toISOString());
-    }
+    const [{ data, error: selectError }, { count, error: countError }] = await Promise.all([
+      dataQuery,
+      countQuery,
+    ]);
 
-    if (normalizedFilter.query) {
-      query = query.textSearch('search', normalizedFilter.query, {
-        config: 'english',
-        type: 'websearch',
-      });
-    }
+    console.log('count', count);
 
-    const response = await query;
-    console.log('response', response);
-    const { data, error: selectError, count } = response;
-
-    if (selectError) {
+    if (selectError || countError) {
       set({
         notes: append ? useNotesStore.getState().notes : [],
-        error: selectError.message,
+        error: selectError?.message ?? countError?.message ?? 'Failed to load notes',
         isLoading: false,
       });
       return;
@@ -109,14 +137,14 @@ export const useNotesStore = create<NotesState>((set) => ({
 
     const mappedNotes = (data ?? []).map(mapNote);
     const totalLoadedNotes = rangeStart + mappedNotes.length;
-    console.log('totalLoadedNotes', totalLoadedNotes)
+    console.log('totalLoadedNotes', totalLoadedNotes);
 
     set((state) => ({
       notes: append ? [...state.notes, ...mappedNotes] : mappedNotes,
       error: null,
       isLoading: false,
       currentPage: page,
-      hasMore: count!==null && totalLoadedNotes < count,
+      hasMore: count !== null && totalLoadedNotes < count,
     }));
   },
 }));

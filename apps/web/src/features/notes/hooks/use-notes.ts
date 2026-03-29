@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
-import { useCallback } from 'react';
 import { useNotesStore } from '@/features/notes/store/notes.ts';
 
 export interface Note {
@@ -28,14 +27,6 @@ export const useNotes = () => {
 
   //========== Store Functions==========//
   const loadNotes = useNotesStore((state) => state.loadNotes);
-
-  //========== Functions ==========//
-  const loadMoreNotes = useCallback(async () => {
-    await loadNotes({
-      page: currentPage + 1,
-      append: true,
-    });
-  }, [currentPage, loadNotes]);
 
   const createNote = async (content: string) => {
     const userId = session?.user?.id;
@@ -78,6 +69,5 @@ export const useNotes = () => {
     updateNote,
     deleteNote,
     loadNotes,
-    loadMoreNotes,
   };
 };

@@ -3,14 +3,19 @@ import { useNotes } from '@/features/notes/hooks/use-notes.ts';
 import { cn } from '@/lib/utils.ts';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
 
 export const NoteListSection = () => {
   const query = useNoteSearchStore((state) => state.query);
   const selectedDate = useNoteDateStore((state) => state.selectedDate);
-  const { notes, isLoading, error, hasMore, updateNote, deleteNote, loadNotes, loadMoreNotes } = useNotes();
+  const { notes, currentPage, isLoading, error, hasMore, updateNote, deleteNote, loadNotes } =
+    useNotes();
+
+  const loadMoreNotes = useCallback(() => {
+    loadNotes({ date: selectedDate, query, append: true, page: currentPage + 1 }).then();
+  }, [currentPage, loadNotes, query, selectedDate]);
 
   useEffect(() => {
     loadNotes({date:selectedDate, query}).then();
