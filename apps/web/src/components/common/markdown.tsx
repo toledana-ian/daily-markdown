@@ -2,6 +2,7 @@ import { cjk } from '@streamdown/cjk';
 import { code } from '@streamdown/code';
 import { math } from '@streamdown/math';
 import { mermaid } from '@streamdown/mermaid';
+import type { Element } from 'hast';
 import 'katex/dist/katex.min.css';
 import 'streamdown/styles.css';
 import { Streamdown, type StreamdownProps } from 'streamdown';
@@ -12,6 +13,30 @@ const markdownPlugins: NonNullable<StreamdownProps['plugins']> = {
   code,
   math,
   mermaid,
+};
+
+const hasImageDescendant = (node: Element): boolean => {
+  return node.children.some((child) => {
+    if (child.type !== 'element') {
+      return false;
+    }
+
+    return child.tagName === 'img' || hasImageDescendant(child);
+  });
+};
+
+export const isImageParagraph = (node?: Element) => {
+  return node?.tagName === 'p' && hasImageDescendant(node);
+};
+
+const markdownComponents: StreamdownProps['components'] = {
+  p: ({ children, node, ...props }) => {
+    if (isImageParagraph(node)) {
+      return <div {...props}>{children}</div>;
+    }
+
+    return <p {...props}>{children}</p>;
+  },
 };
 
 type MarkdownProps = {
@@ -30,6 +55,7 @@ export const Markdown = ({ className, content, emptyMessage }: MarkdownProps) =>
   return (
     <Streamdown
       className={cn('markdown-container', className)}
+      components={markdownComponents}
       mode='static'
       plugins={markdownPlugins}
     >
