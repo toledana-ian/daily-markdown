@@ -172,7 +172,15 @@ export const useNotes = () => {
   };
 
   const updateNote = async (id: string, content: string) => {
-    supabase
+    const index = notesRef.current.findIndex((note) => note.id === id);
+
+    if (index === -1) return;
+
+    const newNotes = [...notesRef.current];
+    newNotes[index] = { ...newNotes[index], content };
+    setNotes(newNotes)
+
+    await supabase
       .from('notes')
       .update({
         content,

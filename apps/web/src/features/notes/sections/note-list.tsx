@@ -46,7 +46,7 @@ export const NoteListSection = () => {
             key={note.id}
             content={note.content}
             onDelete={() => deleteNote(note.id).then()}
-            onSave={(content) => updateNote(note.id, content)}
+            onSave={(content) => updateNote(note.id, content).then()}
           />
         ))}
       </div>
