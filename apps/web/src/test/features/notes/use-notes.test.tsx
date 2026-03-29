@@ -6,9 +6,14 @@ const queryCalls: Array<{
   textSearch: string | null;
   gte: string | null;
   lte: string | null;
+  selectOptions: Record<string, unknown> | null;
 }> = [];
 
-const queryResults = new Map<string, { data: Array<Record<string, string>>; error: null }>();
+const queryResults = new Map<string, {
+  data: Array<Record<string, string>>;
+  error: null;
+  count: number | null;
+}>();
 
 class MockNotesQuery {
   private readonly call = {
@@ -16,9 +21,11 @@ class MockNotesQuery {
     textSearch: null as string | null,
     gte: null as string | null,
     lte: null as string | null,
+    selectOptions: null as Record<string, unknown> | null,
   };
 
-  select() {
+  select(_columns?: string, options?: Record<string, unknown>) {
+    this.call.selectOptions = options ?? null;
     return this;
   }
 
@@ -47,12 +54,16 @@ class MockNotesQuery {
   }
 
   then<TResult1 = unknown, TResult2 = never>(
-    onfulfilled?: ((value: { data: Array<Record<string, string>>; error: null }) => TResult1 | PromiseLike<TResult1>) | null,
+    onfulfilled?: ((value: {
+      data: Array<Record<string, string>>;
+      error: null;
+      count: number | null;
+    }) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ) {
     queryCalls.push({ ...this.call });
     const key = this.call.range ? `${this.call.range[0]}:${this.call.range[1]}` : 'default';
-    const result = queryResults.get(key) ?? { data: [], error: null };
+    const result = queryResults.get(key) ?? { data: [], error: null, count: null };
 
     return Promise.resolve(result).then(onfulfilled, onrejected);
   }
@@ -61,7 +72,8 @@ class MockNotesQuery {
 vi.mock('@/lib/supabase/client.ts', () => ({
   supabase: {
     from: vi.fn(() => ({
-      select: () => new MockNotesQuery(),
+      select: (columns?: string, options?: Record<string, unknown>) =>
+        new MockNotesQuery().select(columns, options),
       insert: vi.fn(),
       update: vi.fn(() => ({ eq: vi.fn() })),
       delete: vi.fn(() => ({ eq: vi.fn() })),
@@ -69,7 +81,8 @@ vi.mock('@/lib/supabase/client.ts', () => ({
   },
 }));
 
-import { useNotes, useNotesStore } from '@/features/notes/hooks/use-notes.ts';
+import { useNotes } from '@/features/notes/hooks/use-notes.ts';
+import { useNotesStore } from '@/features/notes/store/notes.ts';
 
 const createRow = (id: number) => ({
   id: `note-${id}`,
@@ -92,17 +105,23 @@ describe('useNotes', () => {
     });
   });
 
-  it('loads the first page on mount and appends the next page', async () => {
+  it('loads the first page and appends the next page', async () => {
     queryResults.set('0:19', {
       data: Array.from({ length: 20 }, (_, index) => createRow(index + 1)),
       error: null,
+      count: 21,
     });
     queryResults.set('20:39', {
       data: [createRow(21)],
       error: null,
+      count: 21,
     });
 
     const { result } = renderHook(() => useNotes());
+
+    await act(async () => {
+      await result.current.loadNotes({ limit: 20 });
+    });
 
     await waitFor(() => {
       expect(result.current.notes).toHaveLength(20);
@@ -112,7 +131,7 @@ describe('useNotes', () => {
     expect(result.current.hasMore).toBe(true);
 
     await act(async () => {
-      await result.current.loadMoreNotes();
+      await result.current.loadNotes({ page: 1, append: true, limit: 20 });
     });
 
     await waitFor(() => {
@@ -121,6 +140,27 @@ describe('useNotes', () => {
 
     expect(queryCalls[1]?.range).toEqual([20, 39]);
     expect(result.current.currentPage).toBe(1);
+    expect(result.current.hasMore).toBe(false);
+  });
+
+  it('sets hasMore to false when the fetched page reaches the total count', async () => {
+    queryResults.set('0:19', {
+      data: Array.from({ length: 20 }, (_, index) => createRow(index + 1)),
+      error: null,
+      count: 20,
+    });
+
+    const { result } = renderHook(() => useNotes());
+
+    await act(async () => {
+      await result.current.loadNotes({ limit: 20 });
+    });
+
+    await waitFor(() => {
+      expect(result.current.notes).toHaveLength(20);
+    });
+
+    expect(queryCalls[0]?.selectOptions).toEqual({ count: 'exact' });
     expect(result.current.hasMore).toBe(false);
   });
 });

@@ -75,7 +75,7 @@ export const useNotesStore = create<NotesState>((set) => ({
 
     let query = supabase
       .from('notes')
-      .select('id, user_id, content, created_at, updated_at')
+      .select('id, user_id, content, created_at, updated_at', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(rangeStart, rangeEnd);
 
@@ -95,8 +95,7 @@ export const useNotesStore = create<NotesState>((set) => ({
     }
 
     const response = await query;
-    const { data, error: selectError } = response;
-    console.log('response', response);
+    const { data, error: selectError, count } = response;
 
     if (selectError) {
       set({
@@ -108,13 +107,14 @@ export const useNotesStore = create<NotesState>((set) => ({
     }
 
     const mappedNotes = (data ?? []).map(mapNote);
+    const totalLoadedNotes = rangeStart + mappedNotes.length;
 
     set((state) => ({
       notes: append ? [...state.notes, ...mappedNotes] : mappedNotes,
       error: null,
       isLoading: false,
       currentPage: page,
-      hasMore: mappedNotes.length === normalizedFilter.limit,
+      hasMore: count!==null && totalLoadedNotes < count,
     }));
   },
 }));
