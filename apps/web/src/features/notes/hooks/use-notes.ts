@@ -25,7 +25,7 @@ interface NoteRow {
   updated_at: string;
 }
 
-const DEFAULT_LIMIT = 50;
+const DEFAULT_LIMIT = 20;
 
 const mapNote = (note: NoteRow): Note => ({
   id: note.id,
