@@ -100,6 +100,7 @@ export const useNotes = () => {
 
   //========== Refs ==========//
   const notesRef = useRef(notes)
+  const userIdRef = useRef<string | null>(null);
 
   //========== Store Functions==========//
   const setNotes = useNotesStore((state) => state.setNotes);
@@ -110,6 +111,7 @@ export const useNotes = () => {
 
   //========== Effects ==========//
   useEffect(() => {notesRef.current = notes}, [notes])
+  useEffect(()=>{userIdRef.current = session?.user?.id ?? null;}, [session?.user?.id])
 
   //========== Callbacks ==========//
   const loadNotes = useCallback(async (filter?: NotesFilter & PaginationOptions) => {
@@ -156,8 +158,8 @@ export const useNotes = () => {
     setHasMore(count !== null && totalLoadedNotes < count);
   }, [setCurrentPage, setError, setHasMore, setIsLoading, setNotes]);
 
-  const createNote = async (content: string) => {
-    const userId = session?.user?.id;
+  const createNote = useCallback(async (content: string): Promise<string | null> => {
+    const userId = userIdRef.current;
 
     if (!userId) {
       const authError = new Error('You must be signed in to create notes.');
@@ -165,11 +167,30 @@ export const useNotes = () => {
       throw authError;
     }
 
-    supabase.from('notes').insert({
-      content,
-      user_id: userId,
-    });
-  };
+    const { data, error } = await supabase
+      .from('notes')
+      .insert({
+        content,
+        user_id: userId,
+      })
+      .select('id, user_id, content, created_at, updated_at')
+      .single();
+
+    if (error) {
+      setError(error.message);
+      throw error;
+    }
+
+    if (!data) {
+      const insertError = new Error('Failed to create note');
+      setError(insertError.message);
+      throw insertError;
+    }
+
+    setNotes([mapNote(data), ...notesRef.current]);
+
+    return data.id;
+  }, [setError, setNotes]);
 
   const updateNote = async (id: string, content: string) => {
     const index = notesRef.current.findIndex((note) => note.id === id);

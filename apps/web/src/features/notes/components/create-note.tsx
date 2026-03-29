@@ -1,16 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
 import { RiAddFill } from '@remixicon/react';
 
 type CreateNoteProps = {
-  displayText?: string;
   onSave?: (data: string) => void | Promise<void>;
+  onOpen?: () => void | Promise<void>;
+  onClose?: () => void | Promise<void>;
 };
 
-export const CreateNote = ({ onSave, displayText }: CreateNoteProps) => {
+export const CreateNote = ({ onSave, onOpen, onClose }: CreateNoteProps) => {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if(open && onOpen) {
+      onOpen()
+    }
+    if(!open && onClose) {
+      onClose()
+    }
+  }, [onClose, onOpen, open])
 
   return (
     <>
@@ -19,7 +29,7 @@ export const CreateNote = ({ onSave, displayText }: CreateNoteProps) => {
         onClick={() => setOpen(true)}
         type='button'
       >
-        <div className={'my-auto'}>{displayText ?? 'Take a note...'}</div>
+        <div className={'my-auto'}>Take a note...</div>
         <div className={''}>
           <RiAddFill />
         </div>
