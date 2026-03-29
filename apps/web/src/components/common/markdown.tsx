@@ -65,6 +65,7 @@ export const Markdown = ({ className, content, emptyMessage }: MarkdownProps) =>
       mode='static'
       plugins={markdownPlugins}
       rehypePlugins={markdownRehypePlugins}
+      linkSafety={{ enabled: false }}
     >
       {content}
     </Streamdown>
