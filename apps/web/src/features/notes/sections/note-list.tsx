@@ -1,16 +1,20 @@
-'use client';
-
 import { NoteCard } from '@/features/notes/components/note-card.tsx';
-// import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
-// import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
 import { useNotes } from '@/features/notes/hooks/use-notes.ts';
 import { cn } from '@/lib/utils.ts';
 import { Spinner } from '@/components/ui/spinner.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { useEffect } from 'react';
+import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
+import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
 
 export const NoteListSection = () => {
-  // const query = useNoteSearchStore((state) => state.query);
-  // const selectedDate = useNoteDateStore((state) => state.selectedDate);
-  const { notes, isLoading, error, updateNote, deleteNote } = useNotes();
+  const query = useNoteSearchStore((state) => state.query);
+  const selectedDate = useNoteDateStore((state) => state.selectedDate);
+  const { notes, isLoading, error, hasMore, updateNote, deleteNote, loadNotes, loadMoreNotes } = useNotes();
+
+  useEffect(() => {
+    loadNotes({date:selectedDate, query}).then();
+  }, [loadNotes, query, selectedDate]);
 
   return (
     <>
@@ -40,6 +44,13 @@ export const NoteListSection = () => {
           <p className='text-sm text-muted-foreground'>No notes found.</p>
         )}
       </div>
+      {notes.length > 0 && hasMore && (
+        <div className='mt-6 flex justify-center'>
+          <Button disabled={isLoading} onClick={() => void loadMoreNotes()} variant='outline'>
+            {isLoading ? 'Loading more...' : 'Load more'}
+          </Button>
+        </div>
+      )}
     </>
   );
 };

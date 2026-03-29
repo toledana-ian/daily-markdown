@@ -1,7 +1,7 @@
-import { startOfDay, endOfDay } from 'date-fns';
 import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { useNotesStore } from '@/features/notes/store/notes.ts';
 
 export interface Note {
   id: string;
@@ -17,85 +17,39 @@ export interface NotesFilter {
   limit?: number;
 }
 
-interface NoteRow {
-  id: string;
-  user_id: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-}
-
-const DEFAULT_LIMIT = 20;
-
-const mapNote = (note: NoteRow): Note => ({
-  id: note.id,
-  userId: note.user_id,
-  content: note.content,
-  createdAt: note.created_at,
-  updatedAt: note.updated_at,
-});
-
-
 export const useNotes = () => {
+  //========== Store States==========//
   const session = useAuthStore((state) => state.session);
+  const notes = useNotesStore((state) => state.notes);
+  const isLoading = useNotesStore((state) => state.isLoading);
+  const error = useNotesStore((state) => state.error);
+  const currentPage = useNotesStore((state) => state.currentPage);
+  const hasMore = useNotesStore((state) => state.hasMore);
 
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  //========== Store Functions==========//
+  const loadNotes = useNotesStore((state) => state.loadNotes);
 
-
-  const loadNotes = useCallback(async (filter?: NotesFilter) => {
-    const selectedDateMs = filter?.date?.getTime();
-    const normalizedQuery = filter?.query?.trim() ?? '';
-    const limit = filter?.limit ?? DEFAULT_LIMIT;
-
-    let query = supabase
-      .from('notes')
-      .select('id, user_id, content, created_at, updated_at')
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (selectedDateMs !== undefined) {
-      const selectedDate = new Date(selectedDateMs);
-
-      query = query
-        .gte('created_at', startOfDay(selectedDate).toISOString())
-        .lte('created_at', endOfDay(selectedDate).toISOString());
-    }
-
-    if (normalizedQuery) {
-      query = query.textSearch('search', normalizedQuery, {
-        config: 'english',
-        type: 'websearch',
-      });
-    }
-
-    const { data, error: selectError } = await query;
-
-    if (selectError) {
-      setNotes([]);
-      setError(selectError.message);
-      setIsLoading(false);
-      return;
-    }
-
-    setNotes((data ?? []).map(mapNote));
-    setIsLoading(false);
-  }, []);
+  //========== Functions ==========//
+  const loadMoreNotes = useCallback(async () => {
+    await loadNotes({
+      page: currentPage + 1,
+      append: true,
+    });
+  }, [currentPage, loadNotes]);
 
   const createNote = async (content: string) => {
     const userId = session?.user?.id;
 
     if (!userId) {
       const authError = new Error('You must be signed in to create notes.');
-      setError(authError.message);
+      useNotesStore.setState({ error: authError.message });
       throw authError;
     }
 
     supabase.from('notes').insert({
       content,
       user_id: userId,
-    })
+    });
   };
 
   const updateNote = async (id: string, content: string) => {
@@ -105,24 +59,25 @@ export const useNotes = () => {
         content,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', id)
+      .eq('id', id);
   };
 
   const deleteNote = async (id: string) => {
     supabase.from('notes').delete().eq('id', id);
   };
 
-  useEffect(() => {
-    loadNotes().then();
-  }, [loadNotes])
+  //========== useEffects ==========//
 
   return {
     notes,
     isLoading,
     error,
+    hasMore,
+    currentPage,
     createNote,
     updateNote,
     deleteNote,
     loadNotes,
+    loadMoreNotes,
   };
 };
