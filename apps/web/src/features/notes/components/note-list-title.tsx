@@ -19,7 +19,7 @@ export const NoteListTitle = ({ date, searchValue }: NoteListTitleProps) => {
     secondaryText = `“${normalizedSearchValue}”`;
   } else if (!date) {
     primaryText = 'All Notes';
-    secondaryText = 'Pick a day to filter';
+    secondaryText = 'Welcome. Small notes, big progress.';
   } else if (hasSearch) {
     primaryText = 'Search';
     secondaryText = `${format(date, 'MMMM d, yyyy')}: “${normalizedSearchValue}”`;
