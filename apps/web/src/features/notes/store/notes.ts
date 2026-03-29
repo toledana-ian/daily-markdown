@@ -94,7 +94,9 @@ export const useNotesStore = create<NotesState>((set) => ({
       });
     }
 
-    const { data, error: selectError } = await query;
+    const response = await query;
+    const { data, error: selectError } = response;
+    console.log('response', response);
 
     if (selectError) {
       set({
