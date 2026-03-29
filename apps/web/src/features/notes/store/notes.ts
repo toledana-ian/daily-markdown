@@ -107,27 +107,19 @@ export const useNotesStore = create<NotesState>((set) => ({
 
     const dataQuery = applyNotesFilter(
       supabase
-      .from('notes')
-      .select('id, user_id, content, created_at, updated_at')
-      .order('created_at', { ascending: false })
-      .range(rangeStart, rangeEnd),
+        .from('notes')
+        .select('id, user_id, content, created_at, updated_at', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(rangeStart, rangeEnd),
       normalizedFilter,
     );
 
-    const countQuery = applyNotesFilter(
-      supabase.from('notes').select('*', { count: 'exact', head: true }),
-      normalizedFilter,
-    );
+    const { data, count, error: selectError } = await dataQuery;
 
-    const [{ data, error: selectError }, { count, error: countError }] = await Promise.all([
-      dataQuery,
-      countQuery,
-    ]);
-
-    if (selectError || countError) {
+    if (selectError ) {
       set({
         notes: append ? useNotesStore.getState().notes : [],
-        error: selectError?.message ?? countError?.message ?? 'Failed to load notes',
+        error: selectError?.message ?? 'Failed to load notes',
         isLoading: false,
       });
       return;
