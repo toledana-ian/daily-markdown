@@ -187,14 +187,9 @@ export const useNotes = () => {
     error,
     hasMore,
     currentPage,
-    setNotes,
-    setIsLoading,
-    setError,
-    setCurrentPage,
-    setHasMore,
+    loadNotes,
     createNote,
     updateNote,
     deleteNote,
-    loadNotes,
   };
 };
