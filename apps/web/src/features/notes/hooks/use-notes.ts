@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
 import { useNotesStore } from '@/features/notes/store/notes.ts';
 import { endOfDay, startOfDay } from 'date-fns';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 //========== Constants ==========//
 const DEFAULT_LIMIT = 10;
@@ -98,12 +98,18 @@ export const useNotes = () => {
   const currentPage = useNotesStore((state) => state.currentPage);
   const hasMore = useNotesStore((state) => state.hasMore);
 
+  //========== Refs ==========//
+  const notesRef = useRef(notes)
+
   //========== Store Functions==========//
   const setNotes = useNotesStore((state) => state.setNotes);
   const setIsLoading = useNotesStore((state) => state.setIsLoading);
   const setError = useNotesStore((state) => state.setError);
   const setCurrentPage = useNotesStore((state) => state.setCurrentPage);
   const setHasMore = useNotesStore((state) => state.setHasMore);
+
+  //========== Effects ==========//
+  useEffect(() => {notesRef.current = notes}, [notes])
 
   //========== Callbacks ==========//
   const loadNotes = useCallback(async (filter?: NotesFilter & PaginationOptions) => {
@@ -175,9 +181,11 @@ export const useNotes = () => {
       .eq('id', id);
   };
 
-  const deleteNote = async (id: string) => {
-    supabase.from('notes').delete().eq('id', id);
-  };
+  const deleteNote = useCallback(async (id: string) => {
+    const newNotes = notesRef.current.filter((note) => note.id !== id);
+    setNotes(newNotes);
+    await supabase.from('notes').delete().eq('id', id);
+  }, [setNotes]);
 
   //========== useEffects ==========//
 

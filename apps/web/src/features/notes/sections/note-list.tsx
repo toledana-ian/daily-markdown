@@ -45,7 +45,7 @@ export const NoteListSection = () => {
           <NoteCard
             key={note.id}
             content={note.content}
-            onDelete={() => deleteNote(note.id)}
+            onDelete={() => deleteNote(note.id).then()}
             onSave={(content) => updateNote(note.id, content)}
           />
         ))}
