@@ -28,6 +28,7 @@ interface PaginationOptions {
 
 interface NotesState {
   notes: Note[];
+  setNotes: (notes: Note[]) => void;
   isLoading: boolean;
   error: string | null;
   currentPage: number;
@@ -86,6 +87,7 @@ const applyNotesFilter = <T extends {
 //========== Store ==========//
 export const useNotesStore = create<NotesState>((set) => ({
   notes: [],
+  setNotes: (notes) => set({ notes }),
   isLoading: true,
   error: null,
   currentPage: 0,
