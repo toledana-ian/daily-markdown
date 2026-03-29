@@ -27,4 +27,14 @@ describe('@daily-markdown/web package manifest', () => {
       ]),
     );
   });
+
+  it('declares the rehype plugin used for GitHub-style markdown alerts', () => {
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as PackageManifest;
+    const declaredPackages = new Set([
+      ...Object.keys(packageJson.dependencies ?? {}),
+      ...Object.keys(packageJson.devDependencies ?? {}),
+    ]);
+
+    expect(declaredPackages).toContain('rehype-github-alerts');
+  });
 });

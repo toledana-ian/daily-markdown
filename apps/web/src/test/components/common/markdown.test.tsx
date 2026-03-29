@@ -14,6 +14,18 @@ describe('Markdown', () => {
     expect(screen.getByText(/done/i)).toBeInTheDocument();
   });
 
+  it('renders GitHub alert blockquotes as callouts', () => {
+    const { container } = render(
+      <Markdown content={'> [!NOTE]  \n> Keep this visible in the note preview.'} />,
+    );
+
+    expect(container.querySelector('.markdown-alert')).toBeInTheDocument();
+    expect(container.querySelector('.markdown-alert-note')).toBeInTheDocument();
+    expect(screen.getByText('Note')).toBeInTheDocument();
+    expect(screen.getByText(/keep this visible in the note preview/i)).toBeInTheDocument();
+    expect(screen.queryByText('[!NOTE]')).not.toBeInTheDocument();
+  });
+
   it('renders empty-state copy when content is blank', () => {
     render(<Markdown content='   ' emptyMessage='This note is empty.' />);
 

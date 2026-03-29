@@ -4,6 +4,8 @@ import { math } from '@streamdown/math';
 import { mermaid } from '@streamdown/mermaid';
 import type { Element } from 'hast';
 import 'katex/dist/katex.min.css';
+import 'rehype-github-alerts/styling/css/index.css';
+import { rehypeGithubAlerts } from 'rehype-github-alerts';
 import 'streamdown/styles.css';
 import { Streamdown, type StreamdownProps } from 'streamdown';
 import { cn } from '@/lib/utils';
@@ -14,6 +16,10 @@ const markdownPlugins: NonNullable<StreamdownProps['plugins']> = {
   math,
   mermaid,
 };
+
+const markdownRehypePlugins: NonNullable<StreamdownProps['rehypePlugins']> = [
+  [rehypeGithubAlerts, {}],
+];
 
 const hasImageDescendant = (node: Element): boolean => {
   return node.children.some((child) => {
@@ -58,6 +64,7 @@ export const Markdown = ({ className, content, emptyMessage }: MarkdownProps) =>
       components={markdownComponents}
       mode='static'
       plugins={markdownPlugins}
+      rehypePlugins={markdownRehypePlugins}
     >
       {content}
     </Streamdown>
