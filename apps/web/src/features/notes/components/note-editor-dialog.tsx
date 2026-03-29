@@ -420,10 +420,10 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
 
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className='h-[80vh] max-h-[80vh] gap-0 p-0 before:inset-0 before:rounded-t-[calc(theme(borderRadius.4xl)-0.25rem)]'>
+        <DrawerContent className='h-[80vh] max-h-[80vh] gap-0 p-0 before:inset-0 before:rounded-t-[calc(var(--radius-4xl)-0.25rem)]'>
           <DrawerTitle className='sr-only'>Edit note</DrawerTitle>
           <DrawerDescription className='sr-only'>Edit the note markdown content.</DrawerDescription>
-          <div className='relative h-full overflow-auto rounded-t-[calc(theme(borderRadius.4xl)-0.25rem)] bg-background'>
+          <div className='relative h-full overflow-auto rounded-t-[calc(var(--radius-4xl)-0.25rem)] bg-background'>
             {editor}
           </div>
         </DrawerContent>

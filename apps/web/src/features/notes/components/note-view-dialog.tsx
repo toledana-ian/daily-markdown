@@ -39,10 +39,10 @@ export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteView
 
   return (
     <Drawer onOpenChange={onOpenChange} open={open}>
-      <DrawerContent className='max-h-[80vh] gap-0 p-0 before:inset-0 before:rounded-t-[calc(theme(borderRadius.4xl)-0.25rem)]'>
+      <DrawerContent className='max-h-[80vh] gap-0 p-0 before:inset-0 before:rounded-t-[calc(var(--radius-4xl)-0.25rem)]'>
         <DrawerTitle className='sr-only'>Preview note</DrawerTitle>
         <DrawerDescription className='sr-only'>Preview the current note content.</DrawerDescription>
-        <div className='overflow-auto rounded-t-[calc(theme(borderRadius.4xl)-0.25rem)] bg-background'>
+        <div className='overflow-auto rounded-t-[calc(var(--radius-4xl)-0.25rem)] bg-background'>
           {preview}
         </div>
       </DrawerContent>
