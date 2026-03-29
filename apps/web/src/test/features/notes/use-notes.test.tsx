@@ -242,4 +242,38 @@ describe('useNotes', () => {
     expect(queryCalls[1]?.lte).toBe(lte);
     expect(result.current.hasMore).toBe(false);
   });
+
+  it('exposes store setters for note pagination state', () => {
+    const { result } = renderHook(() => useNotes());
+
+    act(() => {
+      result.current.setCurrentPage(3);
+      result.current.setHasMore(true);
+      result.current.setIsLoading(false);
+      result.current.setError('Request failed');
+      result.current.setNotes([
+        {
+          id: 'note-99',
+          userId: 'user-1',
+          content: 'Setter note',
+          createdAt: '2026-03-29T00:00:00.000Z',
+          updatedAt: '2026-03-29T00:00:00.000Z',
+        },
+      ]);
+    });
+
+    expect(result.current.currentPage).toBe(3);
+    expect(result.current.hasMore).toBe(true);
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.error).toBe('Request failed');
+    expect(result.current.notes).toEqual([
+      {
+        id: 'note-99',
+        userId: 'user-1',
+        content: 'Setter note',
+        createdAt: '2026-03-29T00:00:00.000Z',
+        updatedAt: '2026-03-29T00:00:00.000Z',
+      },
+    ]);
+  });
 });
