@@ -2,7 +2,6 @@ import { NoteCard } from '@/features/notes/components/note-card.tsx';
 import { useNotes } from '@/features/notes/hooks/use-notes.ts';
 import { cn } from '@/lib/utils.ts';
 import { Spinner } from '@/components/ui/spinner.tsx';
-import { Button } from '@/components/ui/button.tsx';
 import { useCallback, useEffect } from 'react';
 import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
@@ -49,9 +48,7 @@ export const NoteListSection = () => {
         )}
 
         {notes.length > 0 && hasMore && !isLoading && (
-          <Button disabled={isLoading} onClick={() => void loadMoreNotes()} variant='outline'>
-            Load more
-          </Button>
+          <p onClick={() => void loadMoreNotes()} className='text-sm text-muted-foreground cursor-pointer'>Load more</p>
         )}
       </div>
     </>
