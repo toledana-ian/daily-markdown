@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase/client.ts';
 import { endOfDay, startOfDay } from 'date-fns';
 
 //========== Constants ==========//
-const DEFAULT_LIMIT = 4;
+const DEFAULT_LIMIT = 10;
 
 //========== Interface ==========//
 interface NoteRow {
