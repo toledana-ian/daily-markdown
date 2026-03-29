@@ -1,19 +1,16 @@
 'use client';
 
 import { NoteCard } from '@/features/notes/components/note-card.tsx';
-import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
-import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
+// import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
+// import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
 import { useNotes } from '@/features/notes/hooks/use-notes.ts';
 import { cn } from '@/lib/utils.ts';
 import { Spinner } from '@/components/ui/spinner.tsx';
 
 export const NoteListSection = () => {
-  const query = useNoteSearchStore((state) => state.query);
-  const selectedDate = useNoteDateStore((state) => state.selectedDate);
-  const { notes, isLoading, error, updateNote, deleteNote } = useNotes({
-    date: selectedDate,
-    query,
-  });
+  // const query = useNoteSearchStore((state) => state.query);
+  // const selectedDate = useNoteDateStore((state) => state.selectedDate);
+  const { notes, isLoading, error, updateNote, deleteNote } = useNotes();
 
   return (
     <>
