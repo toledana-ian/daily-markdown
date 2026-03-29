@@ -110,7 +110,7 @@ export const useNotes = () => {
   const setHasMore = useNotesStore((state) => state.setHasMore);
 
   //========== Effects ==========//
-  useEffect(() => {notesRef.current = notes}, [notes])
+  useEffect(() => {notesRef.current = notes; console.log(notes)}, [notes])
   useEffect(()=>{userIdRef.current = session?.user?.id ?? null;}, [session?.user?.id])
 
   //========== Callbacks ==========//
@@ -215,8 +215,6 @@ export const useNotes = () => {
     setNotes(newNotes);
     await supabase.from('notes').delete().eq('id', id);
   }, [setNotes]);
-
-  //========== useEffects ==========//
 
   return {
     notes,
