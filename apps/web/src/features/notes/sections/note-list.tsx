@@ -5,6 +5,7 @@ import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
 import { useNotes } from '@/features/notes/hooks/use-notes.ts';
 import { cn } from '@/lib/utils.ts';
+import { Spinner } from '@/components/ui/spinner.tsx';
 
 export const NoteListSection = () => {
   const query = useNoteSearchStore((state) => state.query);
@@ -30,7 +31,13 @@ export const NoteListSection = () => {
             onSave={(content) => updateNote(note.id, content)}
           />
         ))}
-        {isLoading && <p className='text-sm text-muted-foreground'>Loading notes...</p>}
+
+        {isLoading && (
+          <p className='text-sm text-muted-foreground flex gap-1'>
+            <Spinner className={'my-auto'} />
+            Loading notes...
+          </p>
+        )}
         {error && <p className='text-sm text-destructive'>{error}</p>}
         {notes.length === 0 && !isLoading && (
           <p className='text-sm text-muted-foreground'>No notes found.</p>
