@@ -19,7 +19,7 @@ export const NoteListSection = () => {
       <div
         className={cn(
           'columns-1 sm:columns-2 md:columns-2 lg:columns-3 xl:columns-4',
-          notes.length === 0 ? 'flex-1 items-center -mt-8' : '',
+          notes.length === 0 ? 'flex w-full justify-center flex-1 items-center -mt-8' : '',
         )}
       >
         {notes.map((note) => (
