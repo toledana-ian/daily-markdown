@@ -18,17 +18,12 @@ export const NoteListSection = () => {
   }, [currentPage, loadNotes, query, selectedDate]);
 
   useEffect(() => {
-    loadNotes({date:selectedDate, query}).then();
+    loadNotes({ date: selectedDate, query }).then();
   }, [loadNotes, query, selectedDate]);
 
   return (
     <>
-      <div
-        className={cn(
-          'columns-1 sm:columns-2 md:columns-2 lg:columns-3 xl:columns-4',
-          notes.length === 0 ? 'flex w-full justify-center flex-1 items-center -mt-8' : '',
-        )}
-      >
+      <div className={cn('columns-1 sm:columns-2 md:columns-2 lg:columns-3 xl:columns-4')}>
         {notes.map((note) => (
           <NoteCard
             key={note.id}
@@ -37,25 +32,28 @@ export const NoteListSection = () => {
             onSave={(content) => updateNote(note.id, content)}
           />
         ))}
+      </div>
 
+      <div className='mt-6 flex justify-center'>
         {isLoading && (
           <p className='text-sm text-muted-foreground flex gap-1'>
             <Spinner className={'my-auto'} />
             Loading notes...
           </p>
         )}
+
         {error && <p className='text-sm text-destructive'>{error}</p>}
+
         {notes.length === 0 && !isLoading && (
           <p className='text-sm text-muted-foreground'>No notes found.</p>
         )}
-      </div>
-      {notes.length > 0 && hasMore && (
-        <div className='mt-6 flex justify-center'>
+
+        {notes.length > 0 && hasMore && !isLoading && (
           <Button disabled={isLoading} onClick={() => void loadMoreNotes()} variant='outline'>
-            {isLoading ? 'Loading more...' : 'Load more'}
+            Load more
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 };
