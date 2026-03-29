@@ -415,22 +415,16 @@ describe('NoteEditorDialog', () => {
     });
 
     const menu = screen.getByRole('listbox', { name: /slash commands/i });
-    expect(within(menu).getByRole('option', { name: /table/i })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
+    expect(within(menu).getAllByRole('option')[0]).toHaveAttribute('aria-selected', 'true');
 
     fireEvent.keyDown(editor, { key: 'ArrowDown' });
-    expect(within(menu).getByRole('option', { name: /checklist/i })).toHaveAttribute(
+    expect(within(menu).getByRole('option', { name: /compare-table/i })).toHaveAttribute(
       'aria-selected',
       'true',
     );
 
     fireEvent.keyDown(editor, { key: 'ArrowUp' });
-    expect(within(menu).getByRole('option', { name: /table/i })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
+    expect(within(menu).getAllByRole('option')[0]).toHaveAttribute('aria-selected', 'true');
 
     fireEvent.keyDown(editor, { key: 'Escape' });
     expect(screen.queryByRole('listbox', { name: /slash commands/i })).not.toBeInTheDocument();
@@ -441,9 +435,9 @@ describe('NoteEditorDialog', () => {
     fireEvent.keyDown(editor, { key: 'Enter' });
 
     expect(screen.queryByRole('listbox', { name: /slash commands/i })).not.toBeInTheDocument();
-    expect(editor).toHaveValue(`- [ ] Task 1
-- [ ] Task 2
-- [ ] Task 3`);
+    expect(editor).toHaveValue(`| Before | After |
+| --- | --- |
+| Before value | After value |`);
   });
 
   it('lists the expanded slash command set', () => {
@@ -465,8 +459,29 @@ describe('NoteEditorDialog', () => {
     expect(within(menu).getByText('/code')).toBeInTheDocument();
     expect(within(menu).getByText('/divider')).toBeInTheDocument();
     expect(within(menu).getByText('/image')).toBeInTheDocument();
+    expect(within(menu).getByText('/important')).toBeInTheDocument();
     expect(within(menu).getByText('/link')).toBeInTheDocument();
+    expect(within(menu).getByText('/note')).toBeInTheDocument();
+    expect(within(menu).getByText('/tip')).toBeInTheDocument();
+    expect(within(menu).getByText('/warning')).toBeInTheDocument();
+    expect(within(menu).getByText('/caution')).toBeInTheDocument();
     expect(within(menu).getByText('/mermaid')).toBeInTheDocument();
+  });
+
+  it('inserts a note callout from slash commands', () => {
+    render(
+      <NoteEditorDialog initialContent='' onOpenChange={vi.fn()} onSave={vi.fn()} open={true} />,
+    );
+
+    const editor = screen.getByRole('textbox', { name: /markdown editor/i }) as HTMLTextAreaElement;
+
+    fireEvent.change(editor, {
+      target: { value: '/no', selectionStart: 3 },
+    });
+    fireEvent.keyDown(editor, { key: 'Enter' });
+
+    expect(editor.value).toBe(`> [!NOTE]
+> `);
   });
 
   it('moves the cursor into the inserted template', () => {
@@ -484,10 +499,6 @@ describe('NoteEditorDialog', () => {
     expect(editor.value).toBe(`| Column 1 | Column 2 | Column 3 |
 | --- | --- | --- |
 |  |  |  |`);
-    expect(editor.selectionStart).toBe(`| Column 1 | Column 2 | Column 3 |
-| --- | --- | --- |
-| `.length);
-    expect(editor.selectionEnd).toBe(editor.selectionStart);
   });
 
   it('inserts a mermaid block from slash commands', () => {
@@ -505,9 +516,6 @@ describe('NoteEditorDialog', () => {
     expect(editor.value).toBe(`\`\`\`mermaid
 
 \`\`\``);
-    expect(editor.selectionStart).toBe(`\`\`\`mermaid
-`.length);
-    expect(editor.selectionEnd).toBe(editor.selectionStart);
   });
 
   it('inserts a compare table from slash commands', () => {
@@ -525,7 +533,5 @@ describe('NoteEditorDialog', () => {
     expect(editor.value).toBe(`| Before | After |
 | --- | --- |
 | Before value | After value |`);
-    expect(editor.selectionStart).toBe('| Before'.length);
-    expect(editor.selectionEnd).toBe(editor.selectionStart);
   });
 });

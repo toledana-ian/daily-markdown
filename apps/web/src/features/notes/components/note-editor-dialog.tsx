@@ -87,6 +87,41 @@ ${CURSOR_MARKER}`,
     value: 'link',
     template: `[link${CURSOR_MARKER}](https://google.com)`,
   }),
+  createCommand({
+    description: 'Highlights information that users should take into account, even when skimming.',
+    label: 'Note',
+    value: 'note',
+    template: `> [!NOTE]
+> ${CURSOR_MARKER}`,
+  }),
+  createCommand({
+    description: 'Optional information to help a user be more successful.',
+    label: 'Tip',
+    value: 'tip',
+    template: `> [!TIP]
+> ${CURSOR_MARKER}`,
+  }),
+  createCommand({
+    description: 'Crucial information necessary for users to succeed.',
+    label: 'Important',
+    value: 'important',
+    template: `> [!IMPORTANT]
+> ${CURSOR_MARKER}`,
+  }),
+  createCommand({
+    description: 'Critical content demanding immediate user attention due to potential risks.',
+    label: 'Warning',
+    value: 'warning',
+    template: `> [!WARNING]
+> ${CURSOR_MARKER}`,
+  }),
+  createCommand({
+    description: 'Negative potential consequences of an action.',
+    label: 'Caution',
+    value: 'caution',
+    template: `> [!CAUTION]
+> ${CURSOR_MARKER}`,
+  }),
 ];
 
 const getSlashCommandMatch = (textBeforeCursor: string) => {
@@ -137,10 +172,6 @@ export const NoteEditorDialog = ({
     const { state } = currentView;
     const cursor = state.selection.main.head;
     const line = state.doc.lineAt(cursor);
-    const totalLines = state.doc.lines;
-    const height = currentView.contentHeight;
-    const slashY = (height / totalLines) * line.number;
-
     const textBeforeCursor = state.doc.sliceString(line.from, cursor);
 
     const match = getSlashCommandMatch(textBeforeCursor);
@@ -151,7 +182,7 @@ export const NoteEditorDialog = ({
       setSelectedCommandIndex(0);
       setSlashQuery(match.query);
       setSlashFrom(line.from + match.from);
-      setSlashPopupPosition(coords ? { left: coords.left - 40, top: slashY } : null);
+      setSlashPopupPosition(coords ? { left: coords.left, top: coords.bottom } : null);
     } else {
       setSlashOpen(false);
       setSelectedCommandIndex(0);
@@ -194,6 +225,9 @@ export const NoteEditorDialog = ({
 
     setContent(nextContent);
     activeView.focus();
+    if (document.activeElement instanceof HTMLTextAreaElement) {
+      document.activeElement.setSelectionRange(cursorPosition, cursorPosition);
+    }
     closeSlashCommands();
   }, [closeSlashCommands, slashFrom, view]);
 
