@@ -70,8 +70,6 @@ export const useNotes = () => {
       });
     }
 
-    console.log('query', query);
-
     const { data, error: selectError } = await query;
 
     if (selectError) {
