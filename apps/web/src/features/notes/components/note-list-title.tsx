@@ -12,7 +12,7 @@ export const NoteListTitle = ({ date, searchValue }: NoteListTitleProps) => {
   const isToday = date ? isSameDay(date, today) : false;
 
   let primaryText;
-  let secondaryText = '';
+  let secondaryText;
 
   if (!date && hasSearch) {
     primaryText = 'Search';
