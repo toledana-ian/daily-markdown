@@ -1,5 +1,3 @@
-'use client';
-
 import { Markdown } from '@/components/common/markdown';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
