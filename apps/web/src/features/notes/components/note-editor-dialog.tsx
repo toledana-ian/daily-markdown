@@ -317,14 +317,6 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       contentRef.current = content;
     }, [content]);
 
-    useEffect(() => {
-      if (selectedCommandIndex < filteredCommands.length) {
-        return;
-      }
-
-      setSelectedCommandIndex(0);
-    }, [filteredCommands, selectedCommandIndex]);
-
     //autosave every 10 seconds if the dialog is open
     useEffect(() => {
       if (!open) {

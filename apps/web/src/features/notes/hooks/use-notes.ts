@@ -110,7 +110,7 @@ export const useNotes = () => {
   const setHasMore = useNotesStore((state) => state.setHasMore);
 
   //========== Effects ==========//
-  useEffect(() => {notesRef.current = notes; console.log(notes)}, [notes])
+  useEffect(() => {notesRef.current = notes;}, [notes])
   useEffect(()=>{userIdRef.current = session?.user?.id ?? null;}, [session?.user?.id])
 
   //========== Callbacks ==========//
