@@ -22,7 +22,7 @@ export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteView
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog disablePointerDismissal onOpenChange={onOpenChange} open={open}>
         <DialogContent
           className='max-h-[80vh] w-[calc(100%-4rem)] max-w-5xl overflow-auto rounded-sm p-0 sm:max-w-5xl'
           showCloseButton={false}
@@ -38,7 +38,7 @@ export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteView
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer onOpenChange={onOpenChange} open={open}>
       <DrawerContent className='max-h-[80vh] gap-0 p-0 before:inset-0 before:rounded-t-[calc(theme(borderRadius.4xl)-0.25rem)]'>
         <DrawerTitle className='sr-only'>Preview note</DrawerTitle>
         <DrawerDescription className='sr-only'>Preview the current note content.</DrawerDescription>
