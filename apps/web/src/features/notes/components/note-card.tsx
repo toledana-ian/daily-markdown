@@ -1,24 +1,8 @@
 import { useRef } from 'react';
 import { useState } from 'react';
-import { RiDeleteBinLine, RiEditLine, RiEyeLine } from '@remixicon/react';
-import { Markdown } from '@/components/common/markdown';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+import { NoteCardDeleteDialog } from '@/features/notes/components/note-card-delete-dialog';
+import { NoteCardMenu } from '@/features/notes/components/note-card-menu';
+import { NoteCardPreview } from '@/features/notes/components/note-card-preview';
 import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
 import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
 
@@ -60,49 +44,13 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
   return (
     <>
       <div className='break-inside-avoid mb-4 relative w-full'>
-        <ContextMenu>
-          <ContextMenuTrigger>
-            <div
-              aria-label='Open note'
-              className='flex max-h-96 cursor-pointer flex-col overflow-auto rounded-sm bg-white p-4 shadow-sm outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
-              onClick={openPreview}
-              onDoubleClick={openEditor}
-              role='button'
-              tabIndex={0}
-            >
-              <Markdown content={content} emptyMessage='This note is empty.' />
-              {/*<div*/}
-              {/*  className='absolute bottom-0 left-0 w-full h-16*/}
-              {/*  bg-linear-to-t from-chart-1*/}
-              {/*  pointer-events-none'*/}
-              {/*>*/}
-              {/*  <div className={'flex flex-row bg-red-300  my-auto gap-2 '}>*/}
-              {/*    {tags.map((tag, index) => (*/}
-              {/*      <span key={index} className='text-xs text-gray-500'>*/}
-              {/*        {tag}*/}
-              {/*      </span>*/}
-              {/*    ))}*/}
-              {/*  </div>*/}
-              {/*</div>*/}
-            </div>
-          </ContextMenuTrigger>
-          <ContextMenuContent className='w-auto rounded-sm shadow-xl'>
-            <ContextMenuGroup>
-              <ContextMenuItem onClick={openPreview}>
-                <RiEyeLine />
-                View
-              </ContextMenuItem>
-              <ContextMenuItem onClick={openEditor}>
-                <RiEditLine />
-                Edit
-              </ContextMenuItem>
-              <ContextMenuItem onClick={() => setIsDeleteDialogOpen(true)} variant='destructive'>
-                <RiDeleteBinLine />
-                Delete
-              </ContextMenuItem>
-            </ContextMenuGroup>
-          </ContextMenuContent>
-        </ContextMenu>
+        <NoteCardMenu
+          onDelete={() => setIsDeleteDialogOpen(true)}
+          onEdit={openEditor}
+          onView={openPreview}
+        >
+          <NoteCardPreview content={content} onClick={openPreview} onDoubleClick={openEditor} />
+        </NoteCardMenu>
       </div>
       <NoteViewDialog
         content={content}
@@ -122,22 +70,11 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
         onSave={onSave}
         open={mode === 'edit'}
       />
-      <AlertDialog onOpenChange={setIsDeleteDialogOpen} open={isDeleteDialogOpen}>
-        <AlertDialogContent size='sm'>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete note</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone and will permanently remove this note.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} variant='destructive'>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <NoteCardDeleteDialog
+        onConfirm={handleDelete}
+        onOpenChange={setIsDeleteDialogOpen}
+        open={isDeleteDialogOpen}
+      />
     </>
   );
 };
