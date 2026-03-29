@@ -2,7 +2,7 @@ import { NoteCard } from '@/features/notes/components/note-card.tsx';
 import { useNotes } from '@/features/notes/hooks/use-notes.ts';
 import { cn } from '@/lib/utils.ts';
 import { Spinner } from '@/components/ui/spinner.tsx';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
 
@@ -11,14 +11,32 @@ export const NoteListSection = () => {
   const selectedDate = useNoteDateStore((state) => state.selectedDate);
   const { notes, currentPage, isLoading, error, hasMore, updateNote, deleteNote, loadNotes } =
     useNotes();
+  const loadMoreRef = useRef<HTMLParagraphElement | null>(null);
+  const currentPageRef = useRef(currentPage);
 
   const loadMoreNotes = useCallback(() => {
-    loadNotes({ date: selectedDate, query, append: true, page: currentPage + 1 }).then();
-  }, [currentPage, loadNotes, query, selectedDate]);
+    loadNotes({ date: selectedDate, query, append: true, page: currentPageRef.current + 1 }).then();
+  }, [loadNotes, query, selectedDate]);
 
   useEffect(() => {
     loadNotes({ date: selectedDate, query }).then();
   }, [loadNotes, query, selectedDate]);
+
+  useEffect(()=>{currentPageRef.current = currentPage;}, [currentPage])
+
+  useEffect(() => {
+    if (!hasMore || isLoading || !loadMoreRef.current) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) {
+        loadMoreNotes();
+      }
+    });
+
+    observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+  }, [hasMore, isLoading, loadMoreNotes]);
 
   return (
     <>
@@ -48,7 +66,9 @@ export const NoteListSection = () => {
         )}
 
         {notes.length > 0 && hasMore && !isLoading && (
-          <p onClick={() => void loadMoreNotes()} className='text-sm text-muted-foreground cursor-pointer'>Load more</p>
+          <p ref={loadMoreRef} className='text-sm text-muted-foreground'>
+            Load more
+          </p>
         )}
       </div>
     </>
