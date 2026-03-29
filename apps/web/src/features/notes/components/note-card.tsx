@@ -1,9 +1,12 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { NoteCardDeleteDialog } from '@/features/notes/components/note-card-delete-dialog';
 import { NoteCardMenu } from '@/features/notes/components/note-card-menu';
 import { NoteCardPreview } from '@/features/notes/components/note-card-preview';
-import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
+import {
+  NoteEditorDialog,
+  type NoteEditorDialogRef,
+} from '@/features/notes/components/note-editor-dialog';
 import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
 
 type NoteCardProps = {
@@ -16,6 +19,7 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
   const [mode, setMode] = useState<'closed' | 'view' | 'edit'>('closed');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const prevModeRef = useRef<'closed' | 'view' | 'edit'>(mode);
+  const noteEditorRef = useRef<NoteEditorDialogRef | null>(null);
 
   const openPreview = () => {
     setMode('view');
@@ -38,6 +42,11 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
     setMode('closed');
     return result;
   };
+
+  useEffect(() => {
+    if (!noteEditorRef.current) return;
+    noteEditorRef.current.loadContent(content);
+  }, [content])
 
   // const tags = ['#test', '#example', '#markdown']
 
@@ -63,6 +72,7 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
       />
       <NoteEditorDialog
         initialContent={content}
+        ref={noteEditorRef}
         onOpenChange={(open) => {
           if (open) openEditor();
           else closeEditor();

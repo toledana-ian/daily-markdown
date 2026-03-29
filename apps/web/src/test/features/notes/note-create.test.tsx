@@ -27,7 +27,7 @@ vi.mock('@/features/notes/components/note-editor-dialog.tsx', () => {
     React.useImperativeHandle(
       ref,
       () => ({
-        clearContent: () => setContent(''),
+        loadContent: () => setContent(''),
       }),
       [],
     );

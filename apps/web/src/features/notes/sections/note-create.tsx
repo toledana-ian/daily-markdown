@@ -15,7 +15,7 @@ export const NoteCreateSection = () => {
     if (!noteEditorRef.current) return;
 
     noteIdRef.current = null;
-    noteEditorRef.current.clearContent();
+    noteEditorRef.current.loadContent('');
   }, []);
 
   const onClose = useCallback(() => {
@@ -27,6 +27,7 @@ export const NoteCreateSection = () => {
     if (noteIdRef.current) {
       console.log("update")
       updateNote(noteIdRef.current, content).then();
+
     } else {
       console.log("create")
       createNote(content).then((id) => {
