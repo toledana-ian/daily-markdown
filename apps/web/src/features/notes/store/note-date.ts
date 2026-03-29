@@ -6,6 +6,6 @@ interface NoteDateState {
 }
 
 export const useNoteDateStore = create<NoteDateState>((set) => ({
-  selectedDate: null,
+  selectedDate: new Date(),
   setSelectedDate: (selectedDate) => set({ selectedDate }),
 }));
