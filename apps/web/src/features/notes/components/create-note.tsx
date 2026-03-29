@@ -1,7 +1,8 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { NoteEditorDialog } from '@/features/notes/components/note-editor-dialog';
+import { forwardRef, useEffect, useState } from 'react';
+import {
+  NoteEditorDialog,
+  type NoteEditorDialogRef,
+} from '@/features/notes/components/note-editor-dialog';
 import { RiAddFill } from '@remixicon/react';
 
 type CreateNoteProps = {
@@ -10,7 +11,11 @@ type CreateNoteProps = {
   onClose?: () => void | Promise<void>;
 };
 
-export const CreateNote = ({ onSave, onOpen, onClose }: CreateNoteProps) => {
+export const CreateNote = forwardRef<NoteEditorDialogRef, CreateNoteProps>(({
+  onSave,
+  onOpen,
+  onClose,
+}, ref) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -34,7 +39,15 @@ export const CreateNote = ({ onSave, onOpen, onClose }: CreateNoteProps) => {
           <RiAddFill />
         </div>
       </button>
-      <NoteEditorDialog initialContent={''} onOpenChange={setOpen} onSave={onSave} open={open} />
+      <NoteEditorDialog
+        ref={ref}
+        initialContent={''}
+        onOpenChange={setOpen}
+        onSave={onSave}
+        open={open}
+      />
     </>
   );
-};
+});
+
+CreateNote.displayName = 'CreateNote';

@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
 import CodeMirror from '@uiw/react-codemirror';
@@ -14,6 +22,10 @@ type NoteEditorDialogProps = {
   onOpenChange: (open: boolean) => void;
   onSave?: (data: string) => void | Promise<void>;
   open: boolean;
+};
+
+export type NoteEditorDialogRef = {
+  clearContent: () => void;
 };
 
 type CommandItem = {
@@ -137,12 +149,12 @@ const getSlashCommandMatch = (textBeforeCursor: string) => {
   };
 };
 
-export const NoteEditorDialog = ({
+export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialogProps>(({
   initialContent,
   onOpenChange,
   onSave,
   open,
-}: NoteEditorDialogProps) => {
+}, ref) => {
   const screen = useTailwindScreen();
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
   const [content, setContent] = useState(initialContent);
@@ -199,6 +211,21 @@ export const NoteEditorDialog = ({
     setSlashFrom(null);
     setSlashPopupPosition(null);
   }, []);
+
+  const clearContent = useCallback(() => {
+    setContent('');
+    contentRef.current = '';
+    lastSavedContentRef.current = '';
+    closeSlashCommands();
+  }, [closeSlashCommands]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      clearContent,
+    }),
+    [clearContent],
+  );
 
   const insertCommand = useCallback((command: CommandItem, currentView?: EditorView | null) => {
     const activeView = currentView ?? view;
@@ -393,4 +420,6 @@ export const NoteEditorDialog = ({
       </DrawerContent>
     </Drawer>
   );
-};
+});
+
+NoteEditorDialog.displayName = 'NoteEditorDialog';
