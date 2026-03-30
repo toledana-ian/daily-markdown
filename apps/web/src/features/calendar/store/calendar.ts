@@ -2,22 +2,14 @@ import { create } from 'zustand';
 
 interface CalendarState {
   selectedDate: Date | null;
-  displayedMonth: number;
-  displayedYear: number;
+  displayedDate: Date;
   setSelectedDate: (selectedDate: Date | null) => void;
   setDisplayedDate: (displayedDate: Date) => void;
 }
 
-const initialDisplayedDate = new Date();
-
 export const useCalendarStore = create<CalendarState>((set) => ({
   selectedDate: new Date(),
-  displayedMonth: initialDisplayedDate.getMonth(),
-  displayedYear: initialDisplayedDate.getFullYear(),
+  displayedDate: new Date(),
   setSelectedDate: (selectedDate) => set({ selectedDate }),
-  setDisplayedDate: (displayedDate) =>
-    set({
-      displayedMonth: displayedDate.getMonth(),
-      displayedYear: displayedDate.getFullYear(),
-    }),
+  setDisplayedDate: (displayedDate) => set({ displayedDate }),
 }));
