@@ -1,6 +1,6 @@
 import { useCalendarStore } from '@/features/calendar/store/calendar.ts';
 import { supabase } from '@/lib/supabase/client.ts';
-import { endOfMonth, format, startOfMonth } from 'date-fns';
+import { endOfMonth, startOfMonth } from 'date-fns';
 import { useCallback, useState } from 'react';
 
 export type NoteCountByDate = {
@@ -9,6 +9,11 @@ export type NoteCountByDate = {
 };
 
 type NoteCountsByDate = NoteCountByDate[];
+
+type NoteCountByDateRow = {
+  date: string;
+  count: number;
+};
 
 export const useCalendar = () => {
   const selectedDate = useCalendarStore((state) => state.selectedDate);
@@ -21,36 +26,21 @@ export const useCalendar = () => {
     displayedDate: Date,
     searchQuery?: string,
   ): Promise<NoteCountsByDate> {
-    let query = supabase
-      .from('notes')
-      .select('created_at')
-      .gte('created_at', startOfMonth(displayedDate).toISOString())
-      .lte('created_at', endOfMonth(displayedDate).toISOString());
-
     const normalizedSearchQuery = searchQuery?.trim();
-
-    if (normalizedSearchQuery) {
-      query = query.textSearch('search', normalizedSearchQuery, {
-        config: 'english',
-        type: 'websearch',
-      });
-    }
-
-    const { data, error } = await query;
+    const { data, error } = await supabase.rpc('get_note_counts_by_date', {
+      client_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      start_date: startOfMonth(displayedDate).toISOString(),
+      end_date: endOfMonth(displayedDate).toISOString(),
+      search_query: normalizedSearchQuery || null,
+    });
 
     if (error || !data) {
       return [];
     }
 
-    return Array.from(
-      data.reduce((countMap, row) => {
-        const key = format(new Date(row.created_at), 'yyyy-MM-dd');
-        countMap.set(key, (countMap.get(key) ?? 0) + 1);
-        return countMap;
-      }, new Map<string, number>()),
-    ).map(([key, count]) => ({
-      date: new Date(key),
-      count,
+    return (data as NoteCountByDateRow[]).map((row) => ({
+      date: new Date(row.date),
+      count: row.count,
     }));
   }, []);
 
