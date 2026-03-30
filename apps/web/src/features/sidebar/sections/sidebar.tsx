@@ -5,7 +5,8 @@ import { useSearch } from '@/features/search/hooks/useSearch.ts';
 
 export const SidebarSection = () => {
   const { isVisible } = useSidebar();
-  const { selectedDate, setSelectedDate } = useCalendar();
+  const { selectedDate, setSelectedDate, setDisplayedDate, noteCountsByDate } =
+    useCalendar();
   const { query, setQuery } = useSearch();
 
   return (
@@ -14,6 +15,8 @@ export const SidebarSection = () => {
         isVisible={isVisible}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
+        setDisplayedDate={setDisplayedDate}
+        noteCountsByDate={noteCountsByDate}
         query={query}
         setQuery={setQuery}
       />
