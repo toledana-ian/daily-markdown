@@ -277,18 +277,8 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       contentRef.current = nextContent;
     }, []);
 
-    const handleEditorPaste = useCallback(
-      async (event: React.ClipboardEvent<HTMLDivElement>) => {
-        const imageItem = Array.from(event.clipboardData?.items ?? []).find((item) =>
-          item.type.startsWith('image/'),
-        );
-        const file = imageItem?.getAsFile();
-
-        if (!file) {
-          return;
-        }
-
-        event.preventDefault();
+    const uploadEditorImage = useCallback(
+      async (file: File, failureMessage: string) => {
         closeSlashCommands();
         setImageUploadError(null);
 
@@ -341,14 +331,59 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         } catch (error) {
           const resolvedContent = contentRef.current.replace(placeholder, '');
           replaceContent(resolvedContent);
-          setImageUploadError(
-            error instanceof Error ? error.message : 'Failed to upload the pasted image.',
-          );
+          setImageUploadError(error instanceof Error ? error.message : failureMessage);
         } finally {
           setImageUploadCount((count) => Math.max(0, count - 1));
         }
       },
       [closeSlashCommands, replaceContent, session?.user?.id, view],
+    );
+
+    const handleEditorPaste = useCallback(
+      async (event: React.ClipboardEvent<HTMLDivElement>) => {
+        const imageItem = Array.from(event.clipboardData?.items ?? []).find((item) =>
+          item.type.startsWith('image/'),
+        );
+        const file = imageItem?.getAsFile();
+
+        if (!file) {
+          return;
+        }
+
+        event.preventDefault();
+        await uploadEditorImage(file, 'Failed to upload the pasted image.');
+      },
+      [uploadEditorImage],
+    );
+
+    const handleEditorDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+      const hasImage = Array.from(event.dataTransfer?.items ?? []).some((item) =>
+        item.type.startsWith('image/'),
+      );
+
+      if (!hasImage) {
+        return;
+      }
+
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'copy';
+    }, []);
+
+    const handleEditorDrop = useCallback(
+      async (event: React.DragEvent<HTMLDivElement>) => {
+        const imageItem = Array.from(event.dataTransfer?.items ?? []).find((item) =>
+          item.type.startsWith('image/'),
+        );
+        const file = imageItem?.getAsFile() ?? Array.from(event.dataTransfer?.files ?? [])[0];
+
+        if (!file || !file.type.startsWith('image/')) {
+          return;
+        }
+
+        event.preventDefault();
+        await uploadEditorImage(file, 'Failed to upload the dropped image.');
+      },
+      [uploadEditorImage],
     );
 
     const handleEditorKeyDown = useCallback(
@@ -437,7 +472,12 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
             view && view.state.doc.lines >= 10 ? 'ml-[35.5px]' : 'ml-[30.5px]',
           )}
         ></div>
-        <div onKeyDownCapture={handleEditorKeyDown} onPasteCapture={handleEditorPaste}>
+        <div
+          onDragOverCapture={handleEditorDragOver}
+          onDropCapture={handleEditorDrop}
+          onKeyDownCapture={handleEditorKeyDown}
+          onPasteCapture={handleEditorPaste}
+        >
           <CodeMirror
             aria-label='Markdown editor'
             className='max-w-full min-w-0 p-0 [&_.cm-editor]:max-w-full [&_.cm-scroller]:overflow-x-hidden [&_.cm-content]:whitespace-pre-wrap [&_.cm-line]:break-words'
