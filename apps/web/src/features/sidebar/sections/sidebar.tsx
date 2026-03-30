@@ -1,13 +1,12 @@
 import { Sidebar } from '@/components/common/sidebar.tsx';
-import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { useSidebar } from '@/features/sidebar/hooks/useSidebar.ts';
 import { useCalendar } from '@/features/calendar/hooks/useCalendar.ts';
+import { useSearch } from '@/features/search/hooks/useSearch.ts';
 
 export const SidebarSection = () => {
   const { isVisible } = useSidebar();
   const { selectedDate, setSelectedDate } = useCalendar();
-  const query = useNoteSearchStore((state) => state.query);
-  const setQuery = useNoteSearchStore((state) => state.setQuery);
+  const { query, setQuery } = useSearch();
 
   return (
     <>
@@ -20,4 +19,4 @@ export const SidebarSection = () => {
       />
     </>
   );
-}
+};

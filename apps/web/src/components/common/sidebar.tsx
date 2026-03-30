@@ -1,7 +1,7 @@
 import { RiQuestionLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
 import { Tag } from '@/features/tags/components/tag.tsx';
-import { SearchNote } from '@/features/notes/components/search-note.tsx';
+import { SearchNote } from '@/features/search/components/search-note.tsx';
 import { NotesCalendar } from '@/features/calendar/components/notes-calendar.tsx';
 import { cn } from '@/lib/utils.ts';
 

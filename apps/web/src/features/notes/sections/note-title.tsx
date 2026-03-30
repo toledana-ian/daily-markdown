@@ -1,9 +1,9 @@
 import { NoteListTitle } from '@/features/notes/components/note-list-title.tsx';
-import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { useCalendar } from '@/features/calendar/hooks/useCalendar.ts';
+import { useSearch } from '@/features/search/hooks/useSearch.ts';
 
 export const NoteTitleSection = () => {
-  const query = useNoteSearchStore((state) => state.query);
+  const { query } = useSearch();
   const { selectedDate } = useCalendar();
 
   return (

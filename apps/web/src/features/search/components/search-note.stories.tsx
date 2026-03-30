@@ -5,7 +5,7 @@ import { fn } from 'storybook/test';
 import { SearchNote } from './search-note';
 
 const meta = {
-  title: 'Features/Notes/SearchNote',
+  title: 'Features/Search/SearchNote',
   component: SearchNote,
   parameters: {
     layout: 'centered',

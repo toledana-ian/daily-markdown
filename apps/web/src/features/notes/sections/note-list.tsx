@@ -3,11 +3,11 @@ import { useNotes } from '@/features/notes/hooks/use-notes.ts';
 import { cn } from '@/lib/utils.ts';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { useCallback, useEffect, useRef } from 'react';
-import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
 import { useCalendar } from '@/features/calendar/hooks/useCalendar.ts';
+import { useSearch } from '@/features/search/hooks/useSearch.ts';
 
 export const NoteListSection = () => {
-  const query = useNoteSearchStore((state) => state.query);
+  const { query } = useSearch();
   const { selectedDate } = useCalendar();
   const { notes, currentPage, isLoading, error, hasMore, updateNote, deleteNote, loadNotes } =
     useNotes();
