@@ -12,8 +12,8 @@ export const SidebarSection = () => {
   const { query, setQuery } = useSearch();
 
   const { data: noteCountsByDate = [] } = useQuery({
-    queryKey: ['note-counts-by-date', format(displayedDate, 'yyyy-MM')],
-    queryFn: () => loadNoteCountsByDate(displayedDate),
+    queryKey: ['note-counts-by-date', format(displayedDate, 'yyyy-MM'), query.trim()],
+    queryFn: () => loadNoteCountsByDate(displayedDate, query),
   });
 
   return (

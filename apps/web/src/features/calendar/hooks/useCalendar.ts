@@ -19,12 +19,24 @@ export const useCalendar = () => {
 
   const loadNoteCountsByDate = useCallback(async function loadNoteCountsByDate(
     displayedDate: Date,
+    searchQuery?: string,
   ): Promise<NoteCountsByDate> {
-    const { data, error } = await supabase
+    let query = supabase
       .from('notes')
       .select('created_at')
       .gte('created_at', startOfMonth(displayedDate).toISOString())
       .lte('created_at', endOfMonth(displayedDate).toISOString());
+
+    const normalizedSearchQuery = searchQuery?.trim();
+
+    if (normalizedSearchQuery) {
+      query = query.textSearch('search', normalizedSearchQuery, {
+        config: 'english',
+        type: 'websearch',
+      });
+    }
+
+    const { data, error } = await query;
 
     if (error || !data) {
       return [];
