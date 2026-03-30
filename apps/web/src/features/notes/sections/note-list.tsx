@@ -61,11 +61,11 @@ export const NoteListSection = () => {
 
         {error && <p className='text-sm text-destructive'>{error}</p>}
 
-        {notes.length === 0 && !isLoading && (
+        {!isLoading && !error && notes.length === 0 && (
           <p className='text-sm text-muted-foreground'>No notes found.</p>
         )}
 
-        {notes.length > 0 && hasMore && !isLoading && (
+        {!isLoading && !error && notes.length > 0 && hasMore && (
           <p ref={loadMoreRef} className='text-sm text-muted-foreground'>
             Load more
           </p>
