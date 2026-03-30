@@ -16,6 +16,14 @@ import { languages } from '@codemirror/language-data';
 import { vscodeLight } from '@uiw/codemirror-theme-vscode';
 import { cn } from '@/lib/utils.ts';
 import { useTailwindScreen } from '@/hooks/useTailwindScreen';
+import { supabase } from '@/lib/supabase/client.ts';
+import { useAuthStore } from '@/features/auth/store/auth.ts';
+import {
+  createUploadingImageMarkdown,
+  noteEditorImageUpload,
+  replaceImagePlaceholder,
+  uploadNoteImage,
+} from '@/features/notes/lib/note-editor-image-upload.ts';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -152,11 +160,14 @@ const getSlashCommandMatch = (textBeforeCursor: string) => {
 export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialogProps>(
   ({ initialContent, onOpenChange, onSave, open }, ref) => {
     const screen = useTailwindScreen();
+    const session = useAuthStore((state) => state.session);
     const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
     const [content, setContent] = useState(initialContent);
     const [view, setView] = useState<EditorView | null>(null);
     const contentRef = useRef(content);
     const lastSavedContentRef = useRef(initialContent);
+    const [imageUploadCount, setImageUploadCount] = useState(0);
+    const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
     const [slashOpen, setSlashOpen] = useState(false);
     const [slashFrom, setSlashFrom] = useState<number | null>(null);
@@ -261,6 +272,85 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       [closeSlashCommands, slashFrom, view],
     );
 
+    const replaceContent = useCallback((nextContent: string) => {
+      setContent(nextContent);
+      contentRef.current = nextContent;
+    }, []);
+
+    const handleEditorPaste = useCallback(
+      async (event: React.ClipboardEvent<HTMLDivElement>) => {
+        const imageItem = Array.from(event.clipboardData?.items ?? []).find((item) =>
+          item.type.startsWith('image/'),
+        );
+        const file = imageItem?.getAsFile();
+
+        if (!file) {
+          return;
+        }
+
+        event.preventDefault();
+        closeSlashCommands();
+        setImageUploadError(null);
+
+        if (!view) {
+          setImageUploadError('The editor is not ready to upload images yet.');
+          return;
+        }
+
+        const userId = session?.user?.id;
+
+        if (!userId) {
+          setImageUploadError('You must be signed in to upload images.');
+          return;
+        }
+
+        const selection = view.state.selection.main;
+        const currentContent = view.state.doc.toString();
+        const alt = file.name.replace(/\.[^.]+$/, '').trim() || 'Image';
+        const placeholder = createUploadingImageMarkdown(alt, crypto.randomUUID());
+        const nextContent =
+          currentContent.slice(0, selection.from) + placeholder + currentContent.slice(selection.to);
+        const nextCursorPosition = selection.from + placeholder.length;
+
+        view.dispatch({
+          changes: {
+            from: selection.from,
+            to: selection.to,
+            insert: placeholder,
+          },
+          selection: {
+            anchor: nextCursorPosition,
+          },
+        });
+
+        replaceContent(nextContent);
+        setImageUploadCount((count) => count + 1);
+
+        try {
+          const result = await uploadNoteImage({
+            bucket: noteEditorImageUpload.bucket,
+            file,
+            supabase,
+            userId,
+          });
+          const resolvedContent = contentRef.current.includes(placeholder)
+            ? replaceImagePlaceholder(contentRef.current, placeholder, result.markdown)
+            : `${contentRef.current}\n${result.markdown}`;
+
+          replaceContent(resolvedContent);
+        } catch (error) {
+          const resolvedContent = contentRef.current.replace(placeholder, '');
+          replaceContent(resolvedContent);
+          setImageUploadError(
+            error instanceof Error ? error.message : 'Failed to upload the pasted image.',
+          );
+        } finally {
+          setImageUploadCount((count) => Math.max(0, count - 1));
+        }
+      },
+      [closeSlashCommands, replaceContent, session?.user?.id, view],
+    );
+
     const handleEditorKeyDown = useCallback(
       (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (!slashOpen || filteredCommands.length === 0) {
@@ -347,7 +437,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
             view && view.state.doc.lines >= 10 ? 'ml-[35.5px]' : 'ml-[30.5px]',
           )}
         ></div>
-        <div onKeyDownCapture={handleEditorKeyDown}>
+        <div onKeyDownCapture={handleEditorKeyDown} onPasteCapture={handleEditorPaste}>
           <CodeMirror
             aria-label='Markdown editor'
             className='max-w-full p-0'
@@ -360,6 +450,21 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
             extensions={[markdown({ base: markdownLanguage, codeLanguages: languages })]}
           />
         </div>
+
+        {(imageUploadCount > 0 || imageUploadError) && (
+          <div
+            aria-live='polite'
+            className='pointer-events-none fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-md border bg-white px-3 py-2 text-sm shadow-lg'
+          >
+            {imageUploadCount > 0 && (
+              <div className='text-gray-700'>
+                Uploading {imageUploadCount} image{imageUploadCount === 1 ? '' : 's'} to{' '}
+                {noteEditorImageUpload.bucket}...
+              </div>
+            )}
+            {imageUploadError && <div className='text-red-600'>{imageUploadError}</div>}
+          </div>
+        )}
 
         {slashOpen && filteredCommands.length > 0 && slashPopupPosition && (
           <div
