@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
+import { extractTagsFromContent } from '@/features/tags/utils/tags.ts';
 import { useNotesStore } from '@/features/notes/store/notes.ts';
 import { endOfDay, startOfDay } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
@@ -114,6 +115,46 @@ export const useNotes = () => {
   useEffect(()=>{userIdRef.current = session?.user?.id ?? null;}, [session?.user?.id])
 
   //========== Callbacks ==========//
+  const updateTags = useCallback(async (userId:string, noteId: string, content: string) => {
+    await supabase.from('note_tags').delete().eq('note_id', noteId);
+
+    const extractedTags = extractTagsFromContent(content);
+    if (extractedTags.length===0) return;
+
+    const { data: tagRows, error: tagsError } = await supabase
+      .from('tags')
+      .upsert(
+        extractedTags.map((name) => ({
+          name,
+        })),
+        {
+          onConflict: 'user_id,name',
+        },
+      )
+      .select('id, name');
+
+    if (tagsError) {
+      setError(tagsError.message);
+      throw tagsError;
+    }
+
+    const insertedTags = tagRows ?? [];
+    if (insertedTags.length===0) return;
+
+    const { error: noteTagsError } = await supabase.from('note_tags').insert(
+      insertedTags.map((tag) => ({
+        note_id: noteId,
+        tag_id: tag.id,
+        user_id: userId,
+      })),
+    );
+
+    if (noteTagsError) {
+      setError(noteTagsError.message);
+      throw noteTagsError;
+    }
+  }, [setError]);
+
   const loadNotes = useCallback(async (filter?: NotesFilter & PaginationOptions) => {
     const normalizedFilter = normalizeFilter(filter);
     const page = filter?.page ?? 0;
@@ -189,10 +230,20 @@ export const useNotes = () => {
 
     setNotes([mapNote(data), ...notesRef.current]);
 
+    await updateTags(userId, data.id, content);
+
     return data.id;
   }, [setError, setNotes]);
 
   const updateNote = async (id: string, content: string) => {
+    const userId = userIdRef.current;
+
+    if (!userId) {
+      const authError = new Error('You must be signed in to create notes.');
+      setError(authError.message);
+      throw authError;
+    }
+
     const index = notesRef.current.findIndex((note) => note.id === id);
 
     if (index === -1) return;
@@ -208,6 +259,8 @@ export const useNotes = () => {
         updated_at: new Date().toISOString(),
       })
       .eq('id', id);
+
+    await updateTags(userId, id, content);
   };
 
   const deleteNote = useCallback(async (id: string) => {
