@@ -128,7 +128,7 @@ export const useNotes = () => {
           name,
         })),
         {
-          onConflict: 'user_id,name',
+          onConflict: 'name',
         },
       )
       .select('id, name');
@@ -233,9 +233,9 @@ export const useNotes = () => {
     await updateTags(userId, data.id, content);
 
     return data.id;
-  }, [setError, setNotes]);
+  }, [setError, setNotes, updateTags]);
 
-  const updateNote = async (id: string, content: string) => {
+  const updateNote = useCallback(async (id: string, content: string) => {
     const userId = userIdRef.current;
 
     if (!userId) {
@@ -250,7 +250,7 @@ export const useNotes = () => {
 
     const newNotes = [...notesRef.current];
     newNotes[index] = { ...newNotes[index], content };
-    setNotes(newNotes)
+    setNotes(newNotes);
 
     await supabase
       .from('notes')
@@ -261,7 +261,7 @@ export const useNotes = () => {
       .eq('id', id);
 
     await updateTags(userId, id, content);
-  };
+  }, [setError, setNotes, updateTags]);
 
   const deleteNote = useCallback(async (id: string) => {
     const newNotes = notesRef.current.filter((note) => note.id !== id);
