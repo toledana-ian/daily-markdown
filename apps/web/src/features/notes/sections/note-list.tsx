@@ -4,11 +4,11 @@ import { cn } from '@/lib/utils.ts';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { useCallback, useEffect, useRef } from 'react';
 import { useNoteSearchStore } from '@/features/notes/store/note-search.ts';
-import { useNoteDateStore } from '@/features/notes/store/note-date.ts';
+import { useCalendar } from '@/features/calendar/hooks/useCalendar.ts';
 
 export const NoteListSection = () => {
   const query = useNoteSearchStore((state) => state.query);
-  const selectedDate = useNoteDateStore((state) => state.selectedDate);
+  const { selectedDate } = useCalendar();
   const { notes, currentPage, isLoading, error, hasMore, updateNote, deleteNote, loadNotes } =
     useNotes();
   const loadMoreRef = useRef<HTMLParagraphElement | null>(null);
@@ -22,7 +22,9 @@ export const NoteListSection = () => {
     loadNotes({ date: selectedDate, query }).then();
   }, [loadNotes, query, selectedDate]);
 
-  useEffect(()=>{currentPageRef.current = currentPage;}, [currentPage])
+  useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
 
   useEffect(() => {
     if (!hasMore || isLoading || !loadMoreRef.current) return;

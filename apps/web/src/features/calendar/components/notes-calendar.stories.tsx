@@ -13,7 +13,7 @@ const sampleCounts = [
 ];
 
 const meta = {
-  title: 'Features/Notes/NotesCalendar',
+  title: 'Features/Calendar/NotesCalendar',
   component: NotesCalendar,
   parameters: {
     layout: 'centered',

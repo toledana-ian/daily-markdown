@@ -2,7 +2,7 @@ import { RiQuestionLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
 import { Tag } from '@/features/tags/components/tag.tsx';
 import { SearchNote } from '@/features/notes/components/search-note.tsx';
-import { NotesCalendar } from '@/features/notes/components/notes-calendar.tsx';
+import { NotesCalendar } from '@/features/calendar/components/notes-calendar.tsx';
 import { cn } from '@/lib/utils.ts';
 
 const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
