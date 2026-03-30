@@ -440,14 +440,17 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         <div onKeyDownCapture={handleEditorKeyDown} onPasteCapture={handleEditorPaste}>
           <CodeMirror
             aria-label='Markdown editor'
-            className='max-w-full p-0'
+            className='max-w-full min-w-0 p-0 [&_.cm-editor]:max-w-full [&_.cm-scroller]:overflow-x-hidden [&_.cm-content]:whitespace-pre-wrap [&_.cm-line]:wrap-break-word'
             onCreateEditor={(view) => setView(view)}
             onChange={handleChange}
             onUpdate={handleEditorUpdate}
             placeholder='Write your note in markdown...'
             value={content}
             theme={vscodeLight}
-            extensions={[markdown({ base: markdownLanguage, codeLanguages: languages })]}
+            extensions={[
+              markdown({ base: markdownLanguage, codeLanguages: languages }),
+              EditorView.lineWrapping,
+            ]}
           />
         </div>
 
