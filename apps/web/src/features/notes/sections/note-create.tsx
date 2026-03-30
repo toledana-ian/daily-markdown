@@ -11,7 +11,6 @@ export const NoteCreateSection = () => {
   const noteEditorRef = useRef<NoteEditorDialogRef | null>(null);
 
   const onOpen = useCallback(() => {
-    console.log("clearing content and id")
     if (!noteEditorRef.current) return;
 
     noteIdRef.current = null;
@@ -23,16 +22,11 @@ export const NoteCreateSection = () => {
   }, []);
 
   const onSave = useCallback((content: string) => {
-    console.log('saving note ', noteIdRef.current, content);
     if (noteIdRef.current) {
-      console.log("update")
       updateNote(noteIdRef.current, content).then();
-
     } else {
-      console.log("create")
       createNote(content).then((id) => {
         noteIdRef.current = id;
-        console.log("new id: ", id)
       });
     }
   }, [createNote, updateNote]);
