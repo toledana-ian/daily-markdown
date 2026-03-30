@@ -24,10 +24,9 @@ export const Default: Story = {
   args: {
     isVisible: true,
     selectedDate: null,
-    displayedMonth: 2,
-    displayedYear: 2026,
     setSelectedDate: () => {},
     setDisplayedDate: () => {},
+    noteCountsByDate: [],
     query: '',
     setQuery: () => {},
   },
@@ -37,10 +36,9 @@ export const Hidden: Story = {
   args: {
     isVisible: false,
     selectedDate: null,
-    displayedMonth: 2,
-    displayedYear: 2026,
     setSelectedDate: () => {},
     setDisplayedDate: () => {},
+    noteCountsByDate: [],
     query: '',
     setQuery: () => {},
   },
