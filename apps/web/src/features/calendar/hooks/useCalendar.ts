@@ -2,7 +2,6 @@ import { useCalendarStore } from '@/features/calendar/store/calendar.ts';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase/client.ts';
 import { endOfMonth, format, startOfMonth } from 'date-fns';
-import { useEffect } from 'react';
 
 export type NoteCountByDate = {
   date: Date;
@@ -45,10 +44,5 @@ export const useCalendar = () => {
     queryFn: () => loadNoteCountsByDate(displayedDate),
   });
 
-  useEffect(() => {
-    console.log('displayedDate', displayedDate);
-    console.log('noteCountsByDate', noteCountsByDate);
-  }, [displayedDate, noteCountsByDate]);
-
-  return { selectedDate, setSelectedDate, setDisplayedDate, noteCountsByDate };
+  return { selectedDate, displayedDate,  setSelectedDate, setDisplayedDate, noteCountsByDate };
 };
