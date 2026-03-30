@@ -121,28 +121,40 @@ export const useNotes = () => {
     const extractedTags = extractTagsFromContent(content);
     if (extractedTags.length===0) return;
 
-    const { data: tagRows, error: tagsError } = await supabase
-      .from('tags')
-      .upsert(
-        extractedTags.map((name) => ({
-          name,
-        })),
-        {
-          onConflict: 'name',
-        },
-      )
-      .select('id, name');
+    let tags: { id: string; name: string }[] = [];
 
-    if (tagsError) {
-      setError(tagsError.message);
-      throw tagsError;
+    //load existing tags
+    const { data: existingTags, error: existingTagsError } = await supabase
+      .from('tags')
+      .select('id, name')
+      .in('name', extractedTags);
+
+    if (existingTagsError) {
+      setError(existingTagsError.message);
+      throw existingTagsError;
     }
 
-    const insertedTags = tagRows ?? [];
-    if (insertedTags.length===0) return;
+    tags = [...tags, ...(existingTags ?? [])];
+
+    //check for missing tags and
+    const missingTags = extractedTags.filter((tag) => !tags.some((t) => t.name === tag));
+    if (missingTags.length !== 0){
+      const { data: insertedTags, error: insertedTagsError } = await supabase
+        .from('tags')
+        .insert(missingTags.map((name) => ({ name })))
+        .select('id, name');
+
+      if (insertedTagsError) {
+        setError(insertedTagsError.message);
+        throw insertedTagsError;
+      }
+
+      tags = [...tags, ...(insertedTags ?? [])];
+    }
+
 
     const { error: noteTagsError } = await supabase.from('note_tags').insert(
-      insertedTags.map((tag) => ({
+      tags.map((tag) => ({
         note_id: noteId,
         tag_id: tag.id,
         user_id: userId,
