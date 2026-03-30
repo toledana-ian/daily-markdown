@@ -42,7 +42,7 @@ export const NoteListSection = () => {
 
   return (
     <>
-      <div className={cn('columns-1 sm:columns-2 md:columns-2 lg:columns-3 xl:columns-4')}>
+      <div className={cn('columns-1 sm:columns-2 md:columns-2 lg:columns-3 xl:columns-4 gap-4')}>
         {notes.map((note) => (
           <NoteCard
             key={note.id}
