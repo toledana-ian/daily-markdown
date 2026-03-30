@@ -30,5 +30,12 @@ describe('NoteEditorDialog', () => {
         className: expect.stringContaining('[&_.cm-line]:break-words'),
       }),
     );
+    expect(codeMirrorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        basicSetup: expect.objectContaining({
+          closeBrackets: false,
+        }),
+      }),
+    );
   });
 });
