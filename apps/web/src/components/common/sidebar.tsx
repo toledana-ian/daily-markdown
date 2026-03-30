@@ -4,18 +4,22 @@ import { Tag } from '@/features/tags/components/tag.tsx';
 import { SearchNote } from '@/features/search/components/search-note.tsx';
 import { NotesCalendar } from '@/features/calendar/components/notes-calendar.tsx';
 import { cn } from '@/lib/utils.ts';
+import type { NoteCountByDate } from '@/features/calendar/hooks/useCalendar.ts';
 
 const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
 
 interface SidebarContentProps {
   selectedDate: Date | null;
   setSelectedDate: (date: Date | null) => void;
+  setDisplayedDate: (date: Date) => void;
+  noteCountsByDate: NoteCountByDate[];
   query: string;
   setQuery: (query: string) => void;
 }
 
 const SidebarContent = (props: SidebarContentProps) => {
-  const { selectedDate, setSelectedDate, query, setQuery } = props;
+  const { selectedDate, setSelectedDate, setDisplayedDate, noteCountsByDate, query, setQuery } =
+    props;
 
   return (
     <div className='bg-sidebar w-72 flex h-full flex-col text-sidebar-foreground'>
@@ -23,7 +27,12 @@ const SidebarContent = (props: SidebarContentProps) => {
         <div className='space-y-4'>
           <SearchNote query={query} setQuery={setQuery} />
 
-          <NotesCalendar selected={selectedDate} onSelect={setSelectedDate} noteCountsByDate={[]} />
+          <NotesCalendar
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            noteCountsByDate={noteCountsByDate}
+            onMonthChange={setDisplayedDate}
+          />
 
           <section className='space-y-1 mt-8'>
             <h2 className='px-1 text-xs font-semibold text-muted-foreground'>HASHTAGS</h2>
@@ -53,7 +62,15 @@ interface SidebarProps extends SidebarContentProps {
 }
 
 export const Sidebar = (props: SidebarProps) => {
-  const { isVisible, selectedDate, setSelectedDate, query, setQuery } = props;
+  const {
+    isVisible,
+    selectedDate,
+    setSelectedDate,
+    setDisplayedDate,
+    noteCountsByDate,
+    query,
+    setQuery,
+  } = props;
 
   return (
     <>
@@ -66,6 +83,8 @@ export const Sidebar = (props: SidebarProps) => {
         <SidebarContent
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
+          setDisplayedDate={setDisplayedDate}
+          noteCountsByDate={noteCountsByDate}
           query={query}
           setQuery={setQuery}
         />
@@ -89,6 +108,8 @@ export const Sidebar = (props: SidebarProps) => {
           <SidebarContent
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
+            setDisplayedDate={setDisplayedDate}
+            noteCountsByDate={noteCountsByDate}
             query={query}
             setQuery={setQuery}
           />
