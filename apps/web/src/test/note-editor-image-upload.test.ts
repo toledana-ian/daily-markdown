@@ -138,6 +138,26 @@ describe('note editor image upload', () => {
     expect(embeddedIconTag?.match(/\bwidth=/g)).toHaveLength(1);
   });
 
+  it('keeps the default width for short titles and expands for long titles', () => {
+    const shortSvg = getThumbnailSvgFromMarkdown(
+      createFileMarkdown('Quarterly Report', 'https://example.com/report.pdf', 'pdf'),
+    );
+    const longSvg = getThumbnailSvgFromMarkdown(
+      createFileMarkdown(
+        'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW',
+        'https://example.com/report.txt',
+        'txt',
+      ),
+    );
+
+    expect(shortSvg).toContain('width="320"');
+    expect(shortSvg).toContain('viewBox="0 0 320 160"');
+    expect(longSvg).not.toContain('width="320"');
+    expect(longSvg).not.toContain('viewBox="0 0 320 160"');
+    expect(longSvg).toMatch(/<rect width="(\d+)" height="160" rx="20" fill="#f8fafc"\/>/);
+    expect(longSvg).toMatch(/<rect x="20" y="20" width="(\d+)" height="120" rx="16" fill="#e2e8f0"\/>/);
+  });
+
   it('renders distinct react-file-icon variants for common file types and a fallback for unknown types', () => {
     const pdfSvg = getThumbnailSvgFromMarkdown(
       createFileMarkdown('Quarterly Report', 'https://example.com/report.pdf', 'pdf'),
