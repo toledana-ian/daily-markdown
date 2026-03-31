@@ -9,8 +9,8 @@ VALUES (
   'note-images',
   'note-images',
   true,
-  5242880,
-  ARRAY['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif']
+  10485760, -- 10MB (10 * 1024 * 1024)
+  NULL -- allow any file type
 )
 ON CONFLICT ("id") DO UPDATE
 SET
