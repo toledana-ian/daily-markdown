@@ -1,15 +1,14 @@
 import { render, screen } from '@testing-library/react';
-import * as markdownModule from '@/components/common/markdown';
+import { markdownComponents } from '@/components/common/markdown-renderers';
+import { Markdown } from '@/components/common/markdown';
 
 describe('markdownComponents', () => {
   test('registers an explicit img renderer', () => {
-    expect(markdownModule.markdownComponents?.img).toEqual(expect.any(Function));
+    expect(markdownComponents?.img).toEqual(expect.any(Function));
   });
 
   test('renders markdown images with streamdown wrapper markup', () => {
-    render(
-      <markdownModule.Markdown content='![Example image](https://example.com/example.png)' />
-    );
+    render(<Markdown content='![Example image](https://example.com/example.png)' />);
 
     const image = screen.getByRole('img', { name: 'Example image' });
 
@@ -30,9 +29,7 @@ describe('markdownComponents', () => {
 
   test('does not render the download button when the image is inside a link', () => {
     render(
-      <markdownModule.Markdown
-        content='[![Linked image](https://example.com/example.png)](https://example.com)'
-      />
+      <Markdown content='[![Linked image](https://example.com/example.png)](https://example.com)' />
     );
 
     expect(screen.getByRole('img', { name: 'Linked image' })).toBeInTheDocument();
