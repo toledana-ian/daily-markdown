@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 
 export const SidebarSection = () => {
-  const { isVisible } = useSidebar();
+  const { isVisible, setVisible } = useSidebar();
   const { selectedDate, displayedDate, setSelectedDate, setDisplayedDate, loadNoteCountsByDate } =
     useCalendar();
   const { query, setQuery } = useSearch();
@@ -20,6 +20,7 @@ export const SidebarSection = () => {
     <>
       <Sidebar
         isVisible={isVisible}
+        setVisible={setVisible}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
         setDisplayedDate={setDisplayedDate}

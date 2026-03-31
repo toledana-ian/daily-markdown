@@ -59,11 +59,13 @@ const SidebarContent = (props: SidebarContentProps) => {
 
 interface SidebarProps extends SidebarContentProps {
   isVisible: boolean;
+  setVisible: (visible: boolean) => void;
 }
 
 export const Sidebar = (props: SidebarProps) => {
   const {
     isVisible,
+    setVisible,
     selectedDate,
     setSelectedDate,
     setDisplayedDate,
@@ -92,7 +94,7 @@ export const Sidebar = (props: SidebarProps) => {
 
       <div
         className={cn(
-          'fixed inset-0 z-40 bg-foreground/20 md:hidden transition-opacity duration-150 ease-in-out',
+          'fixed flex inset-0 z-40 bg-foreground/20 md:hidden transition-opacity duration-150 ease-in-out',
           isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
       >
@@ -114,6 +116,12 @@ export const Sidebar = (props: SidebarProps) => {
             setQuery={setQuery}
           />
         </div>
+        <div
+          className={'h-full w-full '}
+          onClick={() => {
+            setVisible(false);
+          }}
+        ></div>
       </div>
     </>
   );
