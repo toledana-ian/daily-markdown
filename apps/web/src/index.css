@@ -9,7 +9,7 @@
 @source '../../../node_modules/@streamdown/cjk/dist/*.js';
 @source '../../../node_modules/@streamdown/math/dist/*.js';
 @source '../../../node_modules/@streamdown/mermaid/dist/*.js';
-@source inline('max-h-[90vh]');
+@source inline('h-[90vh]');
 
 @custom-variant dark (&:is(.dark *));
 
