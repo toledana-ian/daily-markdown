@@ -94,7 +94,7 @@ const getFileIconMarkup = (extension: string) => {
   return icon
     .replace(' width="100%"', '')
     .replace(' style="max-width:100%"', '')
-    .replace('<svg ', '<svg x="34" y="26" width="88" height="106" aria-hidden="true" ');
+    .replace('<svg ', '<svg x="14" y="6" width="88" height="106" aria-hidden="true" ');
 };
 
 const formatTimestamp = (date: Date) => {
@@ -144,10 +144,10 @@ const createFileThumbnailDataUrl = (label: string, extension: string) => {
   const fileTypeLabel = getFileIconLabel(extension);
   const iconSvg = getFileIconMarkup(extension);
   const cardMinWidth = 320;
-  const cardHeight = 160;
-  const outerPadding = 20;
-  const textStartX = 144;
-  const rightPadding = 20;
+  const cardHeight = 120;
+  const outerPadding = 0;
+  const textStartX = 124;
+  const rightPadding = 0;
   const contentWidth = Math.max(
     estimateSvgTextWidth(fileTypeLabel, 14, 1.4),
     estimateSvgTextWidth(rawTitle, 18),
@@ -157,12 +157,11 @@ const createFileThumbnailDataUrl = (label: string, extension: string) => {
   const innerCardWidth = cardWidth - outerPadding * 2;
   const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="${cardWidth}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}" role="img" aria-label="${title}">
-  <rect width="${cardWidth}" height="${cardHeight}" rx="20" fill="#f8fafc"/>
   <rect x="${outerPadding}" y="${outerPadding}" width="${innerCardWidth}" height="120" rx="16" fill="#e2e8f0"/>
   ${iconSvg}
-  <text x="${textStartX}" y="70" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#475569" letter-spacing="1.4">${fileTypeLabel}</text>
-  <text x="${textStartX}" y="96" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#0f172a">${title}</text>
-  <text x="${textStartX}" y="120" font-family="Arial, sans-serif" font-size="14" fill="#64748b">Open attachment</text>
+  <text x="${textStartX}" y="50" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#475569" letter-spacing="1.4">${fileTypeLabel}</text>
+  <text x="${textStartX}" y="76" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#0f172a">${title}</text>
+  <text x="${textStartX}" y="100" font-family="Arial, sans-serif" font-size="14" fill="#64748b">Open attachment</text>
 </svg>`.trim();
 
   return encodeSvgDataUrl(svg);
