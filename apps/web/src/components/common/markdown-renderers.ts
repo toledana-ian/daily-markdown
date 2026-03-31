@@ -13,7 +13,7 @@ export const markdownPlugins: NonNullable<StreamdownProps['plugins']> = {
   mermaid,
 };
 
-export const markdownComponents: StreamdownProps['components'] = {
+export const markdownComponents = {
   img: MarkdownImage,
   p: MarkdownParagraph,
-};
+} satisfies NonNullable<StreamdownProps['components']>;

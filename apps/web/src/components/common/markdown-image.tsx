@@ -1,8 +1,12 @@
 import { RiDownloadLine } from '@remixicon/react';
-import { type JSX, useCallback, useEffect, useRef, useState } from 'react';
+import type { Components } from 'streamdown';
+import { type ComponentProps, type JSX, useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const IMAGE_EXTENSION_PATTERN = /\.[^/.]+$/;
+type MarkdownImageProps = ComponentProps<
+  Exclude<NonNullable<Components['img']>, keyof JSX.IntrinsicElements>
+>;
 
 const downloadFile = (filename: string, blob: Blob) => {
   const url = URL.createObjectURL(blob);
@@ -22,7 +26,7 @@ export const MarkdownImage = ({
   onLoad,
   src,
   ...props
-}: JSX.IntrinsicElements['img']) => {
+}: MarkdownImageProps) => {
   const imageRef = useRef<HTMLImageElement>(null);
   const [isMissing, setIsMissing] = useState(false);
   const [isInsideLink, setIsInsideLink] = useState(false);
