@@ -135,7 +135,7 @@ const estimateSvgTextWidth = (value: string, fontSize: number, letterSpacing = 0
   }, 0);
 
   const trackingWidth = Math.max(value.length - 1, 0) * letterSpacing;
-  return averageCharacterWidth * fontSize * 0.9 + trackingWidth;
+  return averageCharacterWidth * fontSize * 1.05 + trackingWidth;
 };
 
 const createFileThumbnailDataUrl = (label: string, extension: string) => {
