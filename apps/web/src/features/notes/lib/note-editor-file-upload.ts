@@ -253,9 +253,3 @@ export const uploadNoteFile = async ({
     publicUrl,
   };
 };
-
-export const noteEditorImageUpload = {
-  bucket: DEFAULT_BUCKET,
-};
-
-export const noteEditorFileUpload = noteEditorImageUpload;

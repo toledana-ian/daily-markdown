@@ -20,10 +20,9 @@ import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
 import {
   createUploadingFileMarkdown,
-  noteEditorFileUpload,
   replaceImagePlaceholder,
   uploadNoteFile,
-} from '@/features/notes/lib/note-editor-image-upload.ts';
+} from '@/features/notes/lib/note-editor-file-upload.ts';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -318,7 +317,6 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
 
         try {
           const result = await uploadNoteFile({
-            bucket: noteEditorFileUpload.bucket,
             file,
             supabase,
             userId,
@@ -498,8 +496,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
           >
             {fileUploadCount > 0 && (
               <div className='text-gray-700'>
-                Uploading {fileUploadCount} file{fileUploadCount === 1 ? '' : 's'} to{' '}
-                {noteEditorFileUpload.bucket}...
+                Uploading {fileUploadCount} file{fileUploadCount === 1 ? '' : 's'}...
               </div>
             )}
             {fileUploadError && <div className='text-red-600'>{fileUploadError}</div>}
