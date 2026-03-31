@@ -31,7 +31,7 @@ const hasImageDescendant = (node: Element): boolean => {
   });
 };
 
-export const isImageParagraph = (node?: Element) => {
+const isImageParagraph = (node?: Element) => {
   return node?.tagName === 'p' && hasImageDescendant(node);
 };
 
