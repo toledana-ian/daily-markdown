@@ -23,6 +23,22 @@ const supabase = {
   },
 };
 
+const getThumbnailSvgFromMarkdown = (markdown: string) => {
+  const match = /!\[[^\]]*]\((data:image\/svg\+xml(?:;base64)?,[^)]+)\)/.exec(markdown);
+
+  if (!match) {
+    throw new Error('Missing thumbnail data URL');
+  }
+
+  const dataUrl = match[1];
+
+  if (dataUrl.startsWith('data:image/svg+xml;base64,')) {
+    return Buffer.from(dataUrl.replace('data:image/svg+xml;base64,', ''), 'base64').toString('utf-8');
+  }
+
+  return decodeURIComponent(dataUrl.replace('data:image/svg+xml;charset=utf-8,', ''));
+};
+
 describe('note editor image upload', () => {
   beforeEach(() => {
     upload.mockReset();
@@ -108,5 +124,38 @@ describe('note editor image upload', () => {
       path: 'u1/20260331-102030-abc123-quarterly-report.pdf',
       publicUrl: 'https://example.supabase.co/storage/v1/object/public/note-images/u1/report.pdf',
     });
+  });
+
+  it('renders file icon thumbnails as svg data urls', () => {
+    const markdown = createFileMarkdown('Quarterly Report', 'https://example.com/report.pdf', 'pdf');
+    const svg = getThumbnailSvgFromMarkdown(markdown);
+    const embeddedIconTag = svg.match(/<svg x="34" y="26"[^>]+>/)?.[0];
+
+    expect(markdown).toContain('data:image/svg+xml;base64,');
+    expect(svg).toContain('<svg');
+    expect(svg).toContain('viewBox="0 0 40 48"');
+    expect(svg).toContain('>PDF<');
+    expect(embeddedIconTag?.match(/\bwidth=/g)).toHaveLength(1);
+  });
+
+  it('renders distinct react-file-icon variants for common file types and a fallback for unknown types', () => {
+    const pdfSvg = getThumbnailSvgFromMarkdown(
+      createFileMarkdown('Quarterly Report', 'https://example.com/report.pdf', 'pdf'),
+    );
+    const docSvg = getThumbnailSvgFromMarkdown(
+      createFileMarkdown('Offer Letter', 'https://example.com/offer.docx', 'docx'),
+    );
+    const zipSvg = getThumbnailSvgFromMarkdown(
+      createFileMarkdown('Archive', 'https://example.com/archive.zip', 'zip'),
+    );
+    const unknownSvg = getThumbnailSvgFromMarkdown(
+      createFileMarkdown('Blob', 'https://example.com/blob.xyz', 'xyz'),
+    );
+
+    expect(pdfSvg).toContain('#D93831');
+    expect(docSvg).toContain('#2C5898');
+    expect(zipSvg).toContain('>ZIP<');
+    expect(unknownSvg).toContain('>XYZ<');
+    expect(pdfSvg).not.toBe(docSvg);
   });
 });

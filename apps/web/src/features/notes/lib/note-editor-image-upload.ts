@@ -1,3 +1,7 @@
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { FileIcon, defaultStyles } from 'react-file-icon';
+
 const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_NOTE_IMAGES_BUCKET ?? 'note-images';
 
 type StorageBucketClient = {
@@ -67,6 +71,32 @@ const escapeSvgText = (value: string) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
+const encodeSvgDataUrl = (svg: string) => {
+  if (typeof globalThis.btoa === 'function') {
+    const utf8Bytes = new TextEncoder().encode(svg);
+    const binary = Array.from(utf8Bytes, (byte) => String.fromCharCode(byte)).join('');
+    return `data:image/svg+xml;base64,${globalThis.btoa(binary)}`;
+  }
+
+  return `data:image/svg+xml;base64,${Buffer.from(svg, 'utf-8').toString('base64')}`;
+};
+
+const getFileIconLabel = (extension: string) => extension.slice(0, 4).toUpperCase() || 'FILE';
+
+const getFileIconMarkup = (extension: string) => {
+  const icon = renderToStaticMarkup(
+    createElement(FileIcon, {
+      extension: getFileIconLabel(extension),
+      ...(defaultStyles[extension as keyof typeof defaultStyles] ?? {}),
+    }),
+  );
+
+  return icon
+    .replace(' width="100%"', '')
+    .replace(' style="max-width:100%"', '')
+    .replace('<svg ', '<svg x="34" y="26" width="88" height="106" aria-hidden="true" ');
+};
+
 const formatTimestamp = (date: Date) => {
   const pad = (value: number) => value.toString().padStart(2, '0');
 
@@ -84,22 +114,19 @@ const formatTimestamp = (date: Date) => {
 export const createImageMarkdown = (alt: string, url: string) => `![${alt}](${url})`;
 
 const createFileThumbnailDataUrl = (label: string, extension: string) => {
-  const badge = escapeSvgText(extension.slice(0, 4).toUpperCase() || 'FILE');
   const title = escapeSvgText(label.slice(0, 24) || 'Attachment');
+  const iconSvg = getFileIconMarkup(extension);
   const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180" role="img" aria-label="${title}">
-  <rect width="320" height="180" rx="20" fill="#f8fafc"/>
-  <rect x="20" y="20" width="280" height="140" rx="16" fill="#e2e8f0"/>
-  <rect x="36" y="36" width="84" height="108" rx="14" fill="#ffffff"/>
-  <path d="M92 36h16l20 20v88H92z" fill="#dbeafe"/>
-  <path d="M108 36v20h20" fill="#bfdbfe"/>
-  <rect x="146" y="52" width="126" height="42" rx="12" fill="#1d4ed8"/>
-  <text x="209" y="79" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff" text-anchor="middle">${badge}</text>
-  <text x="146" y="122" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#0f172a">${title}</text>
-  <text x="146" y="146" font-family="Arial, sans-serif" font-size="14" fill="#475569">Open attachment</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="160" viewBox="0 0 320 160" role="img" aria-label="${title}">
+  <rect width="320" height="160" rx="20" fill="#f8fafc"/>
+  <rect x="20" y="20" width="280" height="120" rx="16" fill="#e2e8f0"/>
+  ${iconSvg}
+  <text x="144" y="70" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#475569" letter-spacing="1.4">${getFileIconLabel(extension)}</text>
+  <text x="144" y="96" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#0f172a">${title}</text>
+  <text x="144" y="120" font-family="Arial, sans-serif" font-size="14" fill="#64748b">Open attachment</text>
 </svg>`.trim();
 
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  return encodeSvgDataUrl(svg);
 };
 
 export const createFileMarkdown = (label: string, url: string, extension: string) => {
