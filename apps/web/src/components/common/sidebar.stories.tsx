@@ -23,6 +23,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     isVisible: true,
+    setVisible: () => {},
     selectedDate: null,
     setSelectedDate: () => {},
     setDisplayedDate: () => {},
@@ -35,6 +36,7 @@ export const Default: Story = {
 export const Hidden: Story = {
   args: {
     isVisible: false,
+    setVisible: () => {},
     selectedDate: null,
     setSelectedDate: () => {},
     setDisplayedDate: () => {},
