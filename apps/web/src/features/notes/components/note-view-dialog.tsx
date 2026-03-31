@@ -15,7 +15,7 @@ export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteView
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
 
   const preview = (
-    <div aria-label='Preview note' className='p-6' onDoubleClick={onEdit} role='document'>
+    <div aria-label='Preview note' className='p-6 h-full' onDoubleClick={onEdit} role='document'>
       <Markdown content={content} emptyMessage='This note is empty.' />
     </div>
   );
@@ -42,7 +42,7 @@ export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteView
       <DrawerContent className='mt-0 gap-0 p-0 before:inset-0 before:rounded-t-[calc(var(--radius-4xl)-0.25rem)]'>
         <DrawerTitle className='sr-only'>Preview note</DrawerTitle>
         <DrawerDescription className='sr-only'>Preview the current note content.</DrawerDescription>
-        <div className='overflow-auto rounded-t-[calc(var(--radius-4xl)-0.25rem)] bg-background'>
+        <div className='h-full overflow-auto rounded-t-[calc(var(--radius-4xl)-0.25rem)] bg-background'>
           {preview}
         </div>
       </DrawerContent>
