@@ -19,10 +19,10 @@ import { useTailwindScreen } from '@/hooks/useTailwindScreen';
 import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
 import {
-  createUploadingImageMarkdown,
-  noteEditorImageUpload,
+  createUploadingFileMarkdown,
+  noteEditorFileUpload,
   replaceImagePlaceholder,
-  uploadNoteImage,
+  uploadNoteFile,
 } from '@/features/notes/lib/note-editor-image-upload.ts';
 
 type NoteEditorDialogProps = {
@@ -166,8 +166,8 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
     const [view, setView] = useState<EditorView | null>(null);
     const contentRef = useRef(content);
     const lastSavedContentRef = useRef(initialContent);
-    const [imageUploadCount, setImageUploadCount] = useState(0);
-    const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+    const [fileUploadCount, setFileUploadCount] = useState(0);
+    const [fileUploadError, setFileUploadError] = useState<string | null>(null);
 
     const [slashOpen, setSlashOpen] = useState(false);
     const [slashFrom, setSlashFrom] = useState<number | null>(null);
@@ -277,27 +277,27 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       contentRef.current = nextContent;
     }, []);
 
-    const uploadEditorImage = useCallback(
+    const uploadEditorFile = useCallback(
       async (file: File, failureMessage: string) => {
         closeSlashCommands();
-        setImageUploadError(null);
+        setFileUploadError(null);
 
         if (!view) {
-          setImageUploadError('The editor is not ready to upload images yet.');
+          setFileUploadError('The editor is not ready to upload files yet.');
           return;
         }
 
         const userId = session?.user?.id;
 
         if (!userId) {
-          setImageUploadError('You must be signed in to upload images.');
+          setFileUploadError('You must be signed in to upload files.');
           return;
         }
 
         const selection = view.state.selection.main;
         const currentContent = view.state.doc.toString();
-        const alt = file.name.replace(/\.[^.]+$/, '').trim() || 'Image';
-        const placeholder = createUploadingImageMarkdown(alt, crypto.randomUUID());
+        const label = file.name.replace(/\.[^.]+$/, '').trim() || 'File';
+        const placeholder = createUploadingFileMarkdown(label, crypto.randomUUID(), file);
         const nextContent =
           currentContent.slice(0, selection.from) + placeholder + currentContent.slice(selection.to);
         const nextCursorPosition = selection.from + placeholder.length;
@@ -314,11 +314,11 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         });
 
         replaceContent(nextContent);
-        setImageUploadCount((count) => count + 1);
+        setFileUploadCount((count) => count + 1);
 
         try {
-          const result = await uploadNoteImage({
-            bucket: noteEditorImageUpload.bucket,
+          const result = await uploadNoteFile({
+            bucket: noteEditorFileUpload.bucket,
             file,
             supabase,
             userId,
@@ -331,9 +331,9 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         } catch (error) {
           const resolvedContent = contentRef.current.replace(placeholder, '');
           replaceContent(resolvedContent);
-          setImageUploadError(error instanceof Error ? error.message : failureMessage);
+          setFileUploadError(error instanceof Error ? error.message : failureMessage);
         } finally {
-          setImageUploadCount((count) => Math.max(0, count - 1));
+          setFileUploadCount((count) => Math.max(0, count - 1));
         }
       },
       [closeSlashCommands, replaceContent, session?.user?.id, view],
@@ -341,27 +341,23 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
 
     const handleEditorPaste = useCallback(
       async (event: React.ClipboardEvent<HTMLDivElement>) => {
-        const imageItem = Array.from(event.clipboardData?.items ?? []).find((item) =>
-          item.type.startsWith('image/'),
-        );
-        const file = imageItem?.getAsFile();
+        const fileItem = Array.from(event.clipboardData?.items ?? []).find((item) => item.kind === 'file');
+        const file = fileItem?.getAsFile();
 
         if (!file) {
           return;
         }
 
         event.preventDefault();
-        await uploadEditorImage(file, 'Failed to upload the pasted image.');
+        await uploadEditorFile(file, 'Failed to upload the pasted file.');
       },
-      [uploadEditorImage],
+      [uploadEditorFile],
     );
 
     const handleEditorDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-      const hasImage = Array.from(event.dataTransfer?.items ?? []).some((item) =>
-        item.type.startsWith('image/'),
-      );
+      const hasFile = Array.from(event.dataTransfer?.items ?? []).some((item) => item.kind === 'file');
 
-      if (!hasImage) {
+      if (!hasFile) {
         return;
       }
 
@@ -371,19 +367,17 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
 
     const handleEditorDrop = useCallback(
       async (event: React.DragEvent<HTMLDivElement>) => {
-        const imageItem = Array.from(event.dataTransfer?.items ?? []).find((item) =>
-          item.type.startsWith('image/'),
-        );
-        const file = imageItem?.getAsFile() ?? Array.from(event.dataTransfer?.files ?? [])[0];
+        const fileItem = Array.from(event.dataTransfer?.items ?? []).find((item) => item.kind === 'file');
+        const file = fileItem?.getAsFile() ?? Array.from(event.dataTransfer?.files ?? [])[0];
 
-        if (!file || !file.type.startsWith('image/')) {
+        if (!file) {
           return;
         }
 
         event.preventDefault();
-        await uploadEditorImage(file, 'Failed to upload the dropped image.');
+        await uploadEditorFile(file, 'Failed to upload the dropped file.');
       },
-      [uploadEditorImage],
+      [uploadEditorFile],
     );
 
     const handleEditorKeyDown = useCallback(
@@ -497,18 +491,18 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
           />
         </div>
 
-        {(imageUploadCount > 0 || imageUploadError) && (
+        {(fileUploadCount > 0 || fileUploadError) && (
           <div
             aria-live='polite'
             className='pointer-events-none fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-md border bg-white px-3 py-2 text-sm shadow-lg'
           >
-            {imageUploadCount > 0 && (
+            {fileUploadCount > 0 && (
               <div className='text-gray-700'>
-                Uploading {imageUploadCount} image{imageUploadCount === 1 ? '' : 's'} to{' '}
-                {noteEditorImageUpload.bucket}...
+                Uploading {fileUploadCount} file{fileUploadCount === 1 ? '' : 's'} to{' '}
+                {noteEditorFileUpload.bucket}...
               </div>
             )}
-            {imageUploadError && <div className='text-red-600'>{imageUploadError}</div>}
+            {fileUploadError && <div className='text-red-600'>{fileUploadError}</div>}
           </div>
         )}
 
