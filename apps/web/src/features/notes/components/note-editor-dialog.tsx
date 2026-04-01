@@ -20,8 +20,10 @@ import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
 import {
   createUploadingFileMarkdown,
+  getMaxFileUploadSizeBytes,
   replaceImagePlaceholder,
   uploadNoteFile,
+  validateFileUploadSize,
 } from '@/features/notes/lib/note-editor-file-upload.ts';
 
 type NoteEditorDialogProps = {
@@ -280,6 +282,13 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       async (file: File, failureMessage: string) => {
         closeSlashCommands();
         setFileUploadError(null);
+
+        const fileSizeError = validateFileUploadSize(file, getMaxFileUploadSizeBytes());
+
+        if (fileSizeError) {
+          setFileUploadError(fileSizeError);
+          return;
+        }
 
         if (!view) {
           setFileUploadError('The editor is not ready to upload files yet.');

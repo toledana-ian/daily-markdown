@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { FileIcon, defaultStyles } from 'react-file-icon';
 
 const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_NOTE_IMAGES_BUCKET ?? 'note-images';
+export const DEFAULT_MAX_FILE_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
 
 type StorageBucketClient = {
   upload: (
@@ -109,6 +110,37 @@ const formatTimestamp = (date: Date) => {
     pad(date.getUTCMinutes()),
     pad(date.getUTCSeconds()),
   ].join('');
+};
+
+const formatFileSize = (bytes: number) => {
+  const megabytes = bytes / (1024 * 1024);
+
+  if (Number.isInteger(megabytes)) {
+    return `${megabytes} MB`;
+  }
+
+  return `${megabytes.toFixed(1)} MB`;
+};
+
+export const getMaxFileUploadSizeBytes = (
+  envValue = import.meta.env.VITE_MAX_FILE_UPLOAD_SIZE_BYTES,
+) => {
+  const parsedValue = Number(envValue);
+
+  if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+    return DEFAULT_MAX_FILE_UPLOAD_SIZE_BYTES;
+  }
+
+  return Math.floor(parsedValue);
+};
+
+export const validateFileUploadSize = (file: File, maxBytes = getMaxFileUploadSizeBytes()) => {
+  console.log("validateFileUploadSize", file.size, maxBytes)
+  if (file.size <= maxBytes) {
+    return null;
+  }
+
+  return `Files larger than ${formatFileSize(maxBytes)} cannot be uploaded.`;
 };
 
 export const createImageMarkdown = (alt: string, url: string) => `![${alt}](${url})`;

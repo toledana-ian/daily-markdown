@@ -23,6 +23,11 @@ bun install
 bun run dev
 ```
 
+## Environment
+
+- `DATABASE_URL`: Postgres connection string for the API.
+- `VITE_MAX_FILE_UPLOAD_SIZE_BYTES`: Maximum client-side editor upload size in bytes. Defaults to `10485760` (10 MB).
+
 ## Scripts
 
 | Command                   | Description                            |
