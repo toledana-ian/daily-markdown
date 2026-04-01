@@ -135,7 +135,6 @@ export const getMaxFileUploadSizeBytes = (
 };
 
 export const validateFileUploadSize = (file: File, maxBytes = getMaxFileUploadSizeBytes()) => {
-  console.log("validateFileUploadSize", file.size, maxBytes)
   if (file.size <= maxBytes) {
     return null;
   }
