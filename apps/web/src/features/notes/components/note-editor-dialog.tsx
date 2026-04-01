@@ -495,7 +495,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         >
           <CodeMirror
             aria-label='Markdown editor'
-            className='max-w-full min-w-0 p-0 [&_.cm-editor]:max-w-full [&_.cm-scroller]:overflow-x-hidden [&_.cm-content]:whitespace-pre-wrap [&_.cm-line]:break-words'
+            className='max-w-full min-w-0 p-0 [&_.cm-editor]:max-w-full [&_.cm-scroller]:overflow-x-hidden [&_.cm-content]:whitespace-pre-wrap [&_.cm-line]:wrap-break-word'
             basicSetup={{
               closeBrackets: false,
             }}
