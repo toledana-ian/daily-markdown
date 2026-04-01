@@ -458,6 +458,20 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       };
     }, [open, handleSave]);
 
+    useEffect(() => {
+      if (!fileUploadError) {
+        return;
+      }
+
+      const fileUploadErrorTimer = window.setTimeout(() => {
+        setFileUploadError(null);
+      }, 3_000);
+
+      return () => {
+        window.clearTimeout(fileUploadErrorTimer);
+      };
+    }, [fileUploadError]);
+
     //trigger autosave when the dialog is closed
     useEffect(() => {
       if (!open) {
