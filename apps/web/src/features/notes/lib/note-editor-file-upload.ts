@@ -190,31 +190,6 @@ export const replaceImagePlaceholder = (
   nextMarkdown: string,
 ) => content.replace(placeholder, nextMarkdown);
 
-export const uploadNoteImage = async ({
-  bucket = DEFAULT_BUCKET,
-  file,
-  now = () => new Date(),
-  randomId = () => crypto.randomUUID().slice(0, 8),
-  supabase,
-  userId,
-}: UploadNoteImageParams) => {
-  const result = await uploadNoteFile({
-    bucket,
-    file,
-    now,
-    randomId,
-    supabase,
-    userId,
-  });
-
-  return {
-    alt: result.alt,
-    markdown: result.markdown,
-    path: result.path,
-    publicUrl: result.publicUrl,
-  };
-};
-
 export const uploadNoteFile = async ({
   bucket = DEFAULT_BUCKET,
   file,
