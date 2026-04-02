@@ -1,6 +1,5 @@
 import { NoteCard } from '@/features/notes/components/note-card.tsx';
 import { useNotes } from '@/features/notes/hooks/use-notes.ts';
-import { cn } from '@/lib/utils.ts';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { useCallback, useEffect, useRef } from 'react';
 import { useCalendar } from '@/features/calendar/hooks/useCalendar.ts';
@@ -42,14 +41,15 @@ export const NoteListSection = () => {
 
   return (
     <>
-      <div className={cn('columns-1 sm:columns-2 md:columns-2 lg:columns-3 xl:columns-4 gap-4')}>
+      <div className='flex flex-wrap gap-4 justify-center '>
         {notes.map((note) => (
-          <NoteCard
-            key={note.id}
-            content={note.content}
-            onDelete={() => deleteNote(note.id).then()}
-            onSave={(content) => updateNote(note.id, content).then()}
-          />
+          <div key={note.id} className='w-full max-w-full  sm:max-w-xs'>
+            <NoteCard
+              content={note.content}
+              onDelete={() => deleteNote(note.id).then()}
+              onSave={(content) => updateNote(note.id, content).then()}
+            />
+          </div>
         ))}
       </div>
 
