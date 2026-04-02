@@ -10,7 +10,8 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
 import CodeMirror from '@uiw/react-codemirror';
-import { EditorView } from '@codemirror/view';
+import { Prec } from '@codemirror/state';
+import { EditorView, keymap } from '@codemirror/view';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { vscodeLight } from '@uiw/codemirror-theme-vscode';
@@ -25,6 +26,7 @@ import {
   uploadNoteFile,
   validateFileUploadSize,
 } from '@/features/notes/lib/note-editor-file-upload.ts';
+import { toggleMarkdownWrap } from '@/features/notes/lib/note-editor-markdown-shortcuts.ts';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -278,6 +280,64 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       contentRef.current = nextContent;
     }, []);
 
+    const applyMarkdownShortcut = useCallback(
+      (currentView: EditorView, marker: string) => {
+        const selection = currentView.state.selection.main;
+        const currentContent = currentView.state.doc.toString();
+        const nextState = toggleMarkdownWrap(
+          currentContent,
+          { from: selection.from, to: selection.to },
+          marker,
+        );
+
+        if (!nextState) {
+          return false;
+        }
+
+        currentView.dispatch({
+          changes: {
+            from: 0,
+            to: currentContent.length,
+            insert: nextState.content,
+          },
+          selection: {
+            anchor: nextState.selection.from,
+            head: nextState.selection.to,
+          },
+        });
+
+        replaceContent(nextState.content);
+        closeSlashCommands();
+        return true;
+      },
+      [closeSlashCommands, replaceContent],
+    );
+
+    const markdownShortcutExtensions = useMemo(
+      () => [
+        Prec.highest(
+          keymap.of([
+            {
+              key: 'Mod-b',
+              preventDefault: true,
+              run: (currentView) => applyMarkdownShortcut(currentView, '**'),
+            },
+            {
+              key: 'Mod-i',
+              preventDefault: true,
+              run: (currentView) => applyMarkdownShortcut(currentView, '_'),
+            },
+            {
+              key: 'Mod-Shift-x',
+              preventDefault: true,
+              run: (currentView) => applyMarkdownShortcut(currentView, '~~'),
+            },
+          ]),
+        ),
+      ],
+      [applyMarkdownShortcut],
+    );
+
     const uploadEditorFile = useCallback(
       async (file: File, failureMessage: string) => {
         closeSlashCommands();
@@ -508,6 +568,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
             extensions={[
               markdown({ base: markdownLanguage, codeLanguages: languages }),
               EditorView.lineWrapping,
+              ...markdownShortcutExtensions,
             ]}
           />
         </div>
