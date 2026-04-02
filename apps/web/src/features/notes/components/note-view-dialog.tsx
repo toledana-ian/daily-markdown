@@ -15,7 +15,12 @@ export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteView
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
 
   const preview = (
-    <div aria-label='Preview note' className='p-6 h-full' onDoubleClick={onEdit} role='document'>
+    <div
+      aria-label='Preview note'
+      className='p-6 h-full wrap-anywhere'
+      onDoubleClick={onEdit}
+      role='document'
+    >
       <Markdown content={content} emptyMessage='This note is empty.' />
     </div>
   );
