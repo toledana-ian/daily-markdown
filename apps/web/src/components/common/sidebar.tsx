@@ -1,5 +1,3 @@
-import { RiQuestionLine } from '@remixicon/react';
-import { Button } from '@/components/ui/button.tsx';
 import { Tag } from '@/features/tags/components/tag.tsx';
 import { SearchNote } from '@/features/search/components/search-note.tsx';
 import { NotesCalendar } from '@/features/calendar/components/notes-calendar.tsx';
@@ -43,15 +41,6 @@ const SidebarContent = (props: SidebarContentProps) => {
             </div>
           </section>
         </div>
-
-        <Button
-          type='button'
-          variant='outline'
-          className='mt-auto w-full justify-start gap-2 rounded-2xl border-sidebar-border bg-background/80'
-        >
-          <RiQuestionLine className='size-4' />
-          <span>Help</span>
-        </Button>
       </nav>
     </div>
   );
