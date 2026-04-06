@@ -102,13 +102,13 @@ ${CURSOR_MARKER}`,
     description: 'Insert markdown image',
     label: 'Image',
     value: 'image',
-    template: `![${CURSOR_MARKER}](https://placehold.co/600x400)`,
+    template: `![Image](https://placehold.co/600x400${CURSOR_MARKER})`,
   }),
   createCommand({
     description: 'Insert markdown link',
     label: 'Link',
     value: 'link',
-    template: `[link${CURSOR_MARKER}](https://google.com)`,
+    template: `[link](https://google.com${CURSOR_MARKER})`,
   }),
   createCommand({
     description: 'Highlights information that users should take into account, even when skimming.',
@@ -555,7 +555,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         >
           <CodeMirror
             aria-label='Markdown editor'
-            className='max-w-full min-w-0 p-0 [&_.cm-editor]:max-w-full [&_.cm-scroller]:overflow-x-hidden [&_.cm-content]:whitespace-pre-wrap [&_.cm-line]:wrap-break-word'
+            className='max-w-full h-full min-w-0 p-0 [&_.cm-editor]:max-w-full [&_.cm-scroller]:overflow-x-hidden [&_.cm-content]:whitespace-pre-wrap [&_.cm-line]:wrap-break-word'
             basicSetup={{
               closeBrackets: false,
             }}
