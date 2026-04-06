@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useState } from 'react';
+import { RiPushpinFill } from '@remixicon/react';
 import { NoteCardDeleteDialog } from '@/features/notes/components/note-card-delete-dialog';
 import { NoteCardMenu } from '@/features/notes/components/note-card-menu';
 import { NoteCardPreview } from '@/features/notes/components/note-card-preview';
@@ -11,11 +12,13 @@ import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
 
 type NoteCardProps = {
   content: string;
+  isPinned?: boolean;
   onDelete?: () => void | Promise<void>;
+  onPin?: () => void | Promise<void>;
   onSave?: (data: string) => void | Promise<void>;
 };
 
-export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
+export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }: NoteCardProps) => {
   const [mode, setMode] = useState<'closed' | 'view' | 'edit'>('closed');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const prevModeRef = useRef<'closed' | 'view' | 'edit'>(mode);
@@ -54,12 +57,19 @@ export const NoteCard = ({ content, onDelete, onSave }: NoteCardProps) => {
     <>
       <div className='break-inside-avoid mb-4 relative w-full'>
         <NoteCardMenu
+          isPinned={isPinned}
           onDelete={() => setIsDeleteDialogOpen(true)}
           onEdit={openEditor}
+          onPin={() => onPin?.()}
           onView={openPreview}
         >
           <NoteCardPreview content={content} onClick={openPreview} onDoubleClick={openEditor} />
         </NoteCardMenu>
+        {isPinned && (
+          <div className='absolute top-2 right-2 text-muted-foreground pointer-events-none'>
+            <RiPushpinFill className='size-3.5' />
+          </div>
+        )}
       </div>
       <NoteViewDialog
         content={content}

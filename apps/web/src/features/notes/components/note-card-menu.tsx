@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { RiDeleteBinLine, RiEditLine, RiEyeLine } from '@remixicon/react';
+import { RiDeleteBinLine, RiEditLine, RiEyeLine, RiPushpinFill, RiPushpinLine } from '@remixicon/react';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -10,12 +10,14 @@ import {
 
 type NoteCardMenuProps = {
   children: ReactNode;
+  isPinned: boolean;
   onDelete: () => void;
   onEdit: () => void;
+  onPin: () => void;
   onView: () => void;
 };
 
-export const NoteCardMenu = ({ children, onDelete, onEdit, onView }: NoteCardMenuProps) => {
+export const NoteCardMenu = ({ children, isPinned, onDelete, onEdit, onPin, onView }: NoteCardMenuProps) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
@@ -28,6 +30,10 @@ export const NoteCardMenu = ({ children, onDelete, onEdit, onView }: NoteCardMen
           <ContextMenuItem onClick={onEdit}>
             <RiEditLine />
             Edit
+          </ContextMenuItem>
+          <ContextMenuItem onClick={onPin}>
+            {isPinned ? <RiPushpinFill /> : <RiPushpinLine />}
+            {isPinned ? 'Unpin' : 'Pin'}
           </ContextMenuItem>
           <ContextMenuItem onClick={onDelete} variant='destructive'>
             <RiDeleteBinLine />

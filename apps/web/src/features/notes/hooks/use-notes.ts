@@ -13,6 +13,7 @@ export interface Note {
   id: string;
   userId: string;
   content: string;
+  isPinned: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,6 +28,7 @@ interface NoteRow {
   id: string;
   user_id: string;
   content: string;
+  is_pinned: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -54,40 +56,37 @@ const mapNote = (note: NoteRow): Note => ({
   id: note.id,
   userId: note.user_id,
   content: note.content,
+  isPinned: note.is_pinned,
   createdAt: note.created_at,
   updatedAt: note.updated_at,
 });
 
 const applyNotesFilter = <T extends {
-  gte: (column: string, value: string) => T;
-  lte: (column: string, value: string) => T;
-  textSearch: (
-    column: string,
-    query: string,
-    options: {
-      config: string;
-      type: 'websearch';
-    },
-  ) => T;
+  or: (filters: string) => T;
 }>(query: T, filter: NormalizedNotesFilter): T => {
-  let filteredQuery = query;
+  const hasDate = filter.dateMs !== undefined;
+  const hasQuery = !!filter.query;
 
-  if (filter.dateMs !== undefined) {
-    const selectedDate = new Date(filter.dateMs);
+  if (!hasDate && !hasQuery) return query;
 
-    filteredQuery = filteredQuery
-      .gte('created_at', startOfDay(selectedDate).toISOString())
-      .lte('created_at', endOfDay(selectedDate).toISOString());
+  const filterParts: string[] = [];
+
+  if (hasDate) {
+    const selectedDate = new Date(filter.dateMs!);
+    const start = startOfDay(selectedDate).toISOString();
+    const end = endOfDay(selectedDate).toISOString();
+    filterParts.push(`and(created_at.gte.${start},created_at.lte.${end})`);
   }
 
-  if (filter.query) {
-    filteredQuery = filteredQuery.textSearch('search', filter.query, {
-      config: 'english',
-      type: 'websearch',
-    });
+  if (hasQuery) {
+    filterParts.push(`search.wfts(english).${filter.query}`);
   }
 
-  return filteredQuery;
+  const combined = filterParts.length > 1
+    ? `and(${filterParts.join(',')})`
+    : filterParts[0]!;
+
+  return query.or(`is_pinned.eq.true,${combined}`);
 };
 
 export const useNotes = () => {
@@ -185,7 +184,8 @@ export const useNotes = () => {
     const dataQuery = applyNotesFilter(
       supabase
         .from('notes')
-        .select('id, user_id, content, created_at, updated_at', { count: 'exact' })
+        .select('id, user_id, content, is_pinned, created_at, updated_at', { count: 'exact' })
+        .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false })
         .range(rangeStart, rangeEnd),
       normalizedFilter,
@@ -226,7 +226,7 @@ export const useNotes = () => {
         content,
         user_id: userId,
       })
-      .select('id, user_id, content, created_at, updated_at')
+      .select('id, user_id, content, is_pinned, created_at, updated_at')
       .single();
 
     if (error) {
@@ -281,6 +281,18 @@ export const useNotes = () => {
     await supabase.from('notes').delete().eq('id', id);
   }, [setNotes]);
 
+  const togglePinNote = useCallback(async (id: string) => {
+    const index = notesRef.current.findIndex((note) => note.id === id);
+    if (index === -1) return;
+
+    const isPinned = !notesRef.current[index]!.isPinned;
+    const newNotes = [...notesRef.current];
+    newNotes[index] = { ...newNotes[index]!, isPinned };
+    setNotes(newNotes);
+
+    await supabase.from('notes').update({ is_pinned: isPinned }).eq('id', id);
+  }, [setNotes]);
+
   return {
     notes,
     isLoading,
@@ -291,5 +303,6 @@ export const useNotes = () => {
     createNote,
     updateNote,
     deleteNote,
+    togglePinNote,
   };
 };
