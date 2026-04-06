@@ -51,8 +51,6 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
     noteEditorRef.current.loadContent(content);
   }, [content])
 
-  // const tags = ['#test', '#example', '#markdown']
-
   return (
     <>
       <div className='break-inside-avoid mb-4 relative w-full'>
