@@ -26,7 +26,7 @@ import {
   uploadNoteFile,
   validateFileUploadSize,
 } from '@/features/notes/lib/note-editor-file-upload.ts';
-import { toggleMarkdownWrap } from '@/features/notes/lib/note-editor-markdown-shortcuts.ts';
+import { toggleMarkdownWrap, toggleMarkdownWrapAsymmetric } from '@/features/notes/lib/note-editor-markdown-shortcuts.ts';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -313,6 +313,40 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       [closeSlashCommands, replaceContent],
     );
 
+    const applyMarkdownShortcutAsymmetric = useCallback(
+      (currentView: EditorView, openMarker: string, closeMarker: string) => {
+        const selection = currentView.state.selection.main;
+        const currentContent = currentView.state.doc.toString();
+        const nextState = toggleMarkdownWrapAsymmetric(
+          currentContent,
+          { from: selection.from, to: selection.to },
+          openMarker,
+          closeMarker,
+        );
+
+        if (!nextState) {
+          return false;
+        }
+
+        currentView.dispatch({
+          changes: {
+            from: 0,
+            to: currentContent.length,
+            insert: nextState.content,
+          },
+          selection: {
+            anchor: nextState.selection.from,
+            head: nextState.selection.to,
+          },
+        });
+
+        replaceContent(nextState.content);
+        closeSlashCommands();
+        return true;
+      },
+      [closeSlashCommands, replaceContent],
+    );
+
     const markdownShortcutExtensions = useMemo(
       () => [
         Prec.highest(
@@ -332,10 +366,16 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
               preventDefault: true,
               run: (currentView) => applyMarkdownShortcut(currentView, '~~'),
             },
+            {
+              key: 'Mod-Shift-m',
+              preventDefault: true,
+              run: (currentView) =>
+                applyMarkdownShortcutAsymmetric(currentView, '<mark>', '</mark>'),
+            },
           ]),
         ),
       ],
-      [applyMarkdownShortcut],
+      [applyMarkdownShortcut, applyMarkdownShortcutAsymmetric],
     );
 
     const uploadEditorFile = useCallback(

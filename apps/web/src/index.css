@@ -143,6 +143,18 @@
   .markdown-container img {
     @apply rounded-full;
   }
+
+  /* GitHub-style highlight */
+  .markdownnote-editor-container mark {
+    background-color: #fff8c5;
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 2px;
+  }
+
+  .dark .markdownnote-editor-container mark {
+    background-color: rgba(210, 153, 34, 0.4);
+  }
 }
 
 
