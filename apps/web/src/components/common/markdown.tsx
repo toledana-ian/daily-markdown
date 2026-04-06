@@ -25,14 +25,14 @@ export const Markdown = ({ className, content, emptyMessage }: MarkdownProps) =>
 
   return (
     <Streamdown
+      key={content}
       className={cn('markdown-container', className)}
       components={markdownComponents}
       mode='static'
       plugins={markdownPlugins}
       rehypePlugins={markdownRehypePlugins}
       linkSafety={{ enabled: false }}
-    >
-      {content}
-    </Streamdown>
+      children={content}
+    />
   );
 };
