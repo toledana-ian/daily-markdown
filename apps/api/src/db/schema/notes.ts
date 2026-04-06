@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { customType, pgTable, uuid, text, timestamp, index, pgPolicy } from 'drizzle-orm/pg-core';
+import { customType, pgTable, uuid, text, timestamp, boolean, index, pgPolicy } from 'drizzle-orm/pg-core';
 import { authenticatedRole } from 'drizzle-orm/supabase';
 
 const tsvector = customType<{ data: string }>({
@@ -17,6 +17,7 @@ export const notes = pgTable(
     search: tsvector('search').generatedAlwaysAs(
       sql`to_tsvector('english', coalesce("content", ''))`,
     ),
+    isPinned: boolean('is_pinned').default(false).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
