@@ -2,10 +2,11 @@ import { Tag } from '@/features/tags/components/tag.tsx';
 
 interface TaglistProps {
   tags: string[];
+  onClick?: (tag:string) => void;
 }
 
 export const TagListSection = (props:TaglistProps) => {
-  const { tags } = props;
+  const { tags, onClick } = props;
 
   return (
     <>
@@ -13,7 +14,7 @@ export const TagListSection = (props:TaglistProps) => {
         <h2 className='px-1 text-xs font-semibold text-muted-foreground'>HASHTAGS</h2>
         <div className=''>
           {tags.map((tag) => (
-            <Tag key={tag} textContent={tag} />
+            <Tag key={tag} textContent={tag} onClick={()=>{onClick?.(tag)}} />
           ))}
         </div>
       </section>

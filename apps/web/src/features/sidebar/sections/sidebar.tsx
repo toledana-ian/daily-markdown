@@ -5,7 +5,7 @@ import { useSearch } from '@/features/search/hooks/useSearch.ts';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { useTags } from '@/features/tags/hooks/use-tags.ts';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 export const SidebarSection = () => {
   const { isVisible, setVisible } = useSidebar();
@@ -27,6 +27,10 @@ export const SidebarSection = () => {
     queryFn: () => loadNoteCountsByDate(displayedDate, query),
   });
 
+  const onClikTag = useCallback((tag: string) => {
+    setQuery(tag);
+  }, [setQuery]);
+
   return (
     <>
       <Sidebar
@@ -39,6 +43,7 @@ export const SidebarSection = () => {
         query={query}
         setQuery={setQuery}
         tags={tags}
+        onClickTag={onClikTag}
       />
     </>
   );

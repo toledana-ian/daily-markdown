@@ -12,6 +12,7 @@ interface SidebarContentProps {
   query: string;
   setQuery: (query: string) => void;
   tags: string[];
+  onClickTag?: (tag: string) => void;
 }
 
 const SidebarContent = (props: SidebarContentProps) => {
@@ -23,6 +24,7 @@ const SidebarContent = (props: SidebarContentProps) => {
     query,
     setQuery,
     tags,
+    onClickTag,
   } = props;
 
   return (
@@ -38,7 +40,7 @@ const SidebarContent = (props: SidebarContentProps) => {
             onMonthChange={setDisplayedDate}
           />
 
-          <TagListSection tags={tags} />
+          <TagListSection tags={tags} onClick={onClickTag} />
         </div>
       </nav>
     </div>
@@ -60,7 +62,8 @@ export const Sidebar = (props: SidebarProps) => {
     noteCountsByDate,
     query,
     setQuery,
-    tags
+    tags,
+    onClickTag,
   } = props;
 
   return (
@@ -79,6 +82,7 @@ export const Sidebar = (props: SidebarProps) => {
           query={query}
           setQuery={setQuery}
           tags={tags}
+          onClickTag={onClickTag}
         />
       </aside>
 
@@ -105,6 +109,7 @@ export const Sidebar = (props: SidebarProps) => {
             query={query}
             setQuery={setQuery}
             tags={tags}
+            onClickTag={onClickTag}
           />
         </div>
         <div
