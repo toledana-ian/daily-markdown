@@ -30,6 +30,7 @@ export const Default: Story = {
     noteCountsByDate: [],
     query: '',
     setQuery: () => {},
+    tags: [],
   },
 };
 
@@ -43,5 +44,6 @@ export const Hidden: Story = {
     noteCountsByDate: [],
     query: '',
     setQuery: () => {},
+    tags: [],
   },
 };
