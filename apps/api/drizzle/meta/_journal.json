@@ -43,6 +43,13 @@
       "when": 1775480414717,
       "tag": "0005_woozy_nico_minoru",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1775912414000,
+      "tag": "0006_get_user_tags",
+      "breakpoints": true
     }
   ]
 }
