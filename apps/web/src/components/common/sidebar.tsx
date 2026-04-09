@@ -1,10 +1,8 @@
-import { Tag } from '@/features/tags/components/tag.tsx';
 import { SearchNote } from '@/features/search/components/search-note.tsx';
 import { NotesCalendar } from '@/features/calendar/components/notes-calendar.tsx';
 import { cn } from '@/lib/utils.ts';
 import type { NoteCountByDate } from '@/features/calendar/hooks/useCalendar.ts';
-
-const temporaryHashtags = ['work', 'ideas', 'journal', 'personal'] as const;
+import { TagListSection } from '@/features/tags/sections/tag-list.tsx';
 
 interface SidebarContentProps {
   selectedDate: Date | null;
@@ -13,11 +11,19 @@ interface SidebarContentProps {
   noteCountsByDate: NoteCountByDate[];
   query: string;
   setQuery: (query: string) => void;
+  tags: string[];
 }
 
 const SidebarContent = (props: SidebarContentProps) => {
-  const { selectedDate, setSelectedDate, setDisplayedDate, noteCountsByDate, query, setQuery } =
-    props;
+  const {
+    selectedDate,
+    setSelectedDate,
+    setDisplayedDate,
+    noteCountsByDate,
+    query,
+    setQuery,
+    tags,
+  } = props;
 
   return (
     <div className='bg-sidebar w-72 flex h-full flex-col text-sidebar-foreground'>
@@ -32,14 +38,7 @@ const SidebarContent = (props: SidebarContentProps) => {
             onMonthChange={setDisplayedDate}
           />
 
-          <section className='space-y-1 mt-8'>
-            <h2 className='px-1 text-xs font-semibold text-muted-foreground'>HASHTAGS</h2>
-            <div className=''>
-              {temporaryHashtags.map((hashtag) => (
-                <Tag key={hashtag} textContent={hashtag} />
-              ))}
-            </div>
-          </section>
+          <TagListSection tags={tags} />
         </div>
       </nav>
     </div>
@@ -61,6 +60,7 @@ export const Sidebar = (props: SidebarProps) => {
     noteCountsByDate,
     query,
     setQuery,
+    tags
   } = props;
 
   return (
@@ -78,6 +78,7 @@ export const Sidebar = (props: SidebarProps) => {
           noteCountsByDate={noteCountsByDate}
           query={query}
           setQuery={setQuery}
+          tags={tags}
         />
       </aside>
 
@@ -103,6 +104,7 @@ export const Sidebar = (props: SidebarProps) => {
             noteCountsByDate={noteCountsByDate}
             query={query}
             setQuery={setQuery}
+            tags={tags}
           />
         </div>
         <div
