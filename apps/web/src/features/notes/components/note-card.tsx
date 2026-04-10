@@ -61,7 +61,7 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
           onPin={() => onPin?.()}
           onView={openPreview}
         >
-          <NoteCardPreview content={content} onClick={openPreview} onDoubleClick={openEditor} />
+          <NoteCardPreview content={content} onClick={openPreview} />
         </NoteCardMenu>
         {isPinned && (
           <div className='absolute top-2 right-2 text-muted-foreground pointer-events-none'>
