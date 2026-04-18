@@ -86,6 +86,10 @@ const applyNotesFilter = <T extends {
     ? `and(${filterParts.join(',')})`
     : filterParts[0]!;
 
+  if (hasQuery) {
+    return query.or(combined);
+  }
+
   return query.or(`is_pinned.eq.true,${combined}`);
 };
 
@@ -185,6 +189,7 @@ export const useNotes = () => {
       supabase
         .from('notes')
         .select('id, user_id, content, is_pinned, created_at, updated_at', { count: 'exact' })
+        .order('is_pinned', { ascending: true })
         .order('created_at', { ascending: false })
         .range(rangeStart, rangeEnd),
       normalizedFilter,
