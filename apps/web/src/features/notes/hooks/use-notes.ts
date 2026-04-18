@@ -185,7 +185,6 @@ export const useNotes = () => {
       supabase
         .from('notes')
         .select('id, user_id, content, is_pinned, created_at, updated_at', { count: 'exact' })
-        .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false })
         .range(rangeStart, rangeEnd),
       normalizedFilter,
