@@ -18,9 +18,9 @@ export const MarkdownListItem = ({
     })
   }
 
-  // if there is an input in the list item, wrap it in a div so that it does not render a list item checkbox
+  // if there is an input in the list item, suppress the bullet but keep <li> so nested lists retain indentation
   if (renderChildren && Array.isArray(renderChildren) && renderChildren.some((child) => child.type === 'input')) {
-    return <div>{renderChildren}</div>
+    return <li {...props} style={{ ...props.style, listStyle: 'none' }}>{renderChildren}</li>
   }
 
   return <li {...props}>{renderChildren}</li>;
