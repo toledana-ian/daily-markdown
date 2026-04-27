@@ -582,12 +582,6 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
     const editor = (
       <>
         <div
-          className={cn(
-            'absolute h-full w-1 border-l border-[#ddd]',
-            view && view.state.doc.lines >= 10 ? 'ml-[35.5px]' : 'ml-[30.5px]',
-          )}
-        ></div>
-        <div
           onDragOverCapture={handleEditorDragOver}
           onDropCapture={handleEditorDrop}
           onKeyDownCapture={handleEditorKeyDown}
@@ -596,6 +590,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
           <CodeMirror
             aria-label='Markdown editor'
             className='max-w-full h-full min-w-0 p-0 [&_.cm-editor]:max-w-full [&_.cm-scroller]:overflow-x-hidden [&_.cm-content]:whitespace-pre-wrap [&_.cm-line]:wrap-break-word'
+            height='100%'
             basicSetup={{
               closeBrackets: false,
             }}
