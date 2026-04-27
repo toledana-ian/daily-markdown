@@ -1,25 +1,32 @@
 import type { Element } from 'hast';
+import { type ReactNode, isValidElement, useLayoutEffect, useRef } from 'react';
 import type { JSX } from 'react';
-import { useLayoutEffect, useRef, useState } from 'react';
 
 const LIST_STYLES = ['disc', 'circle', 'square'];
+
+const isNestedList = (child: ReactNode): boolean => {
+  if (!isValidElement(child)) return false;
+  const node = (child.props as { node?: Element }).node;
+  return node?.tagName === 'ul' || node?.tagName === 'ol';
+};
 
 export const MarkdownListItem = ({
   children,
   ...props
 }: JSX.IntrinsicElements['li'] & { node?: Element }) => {
   const liRef = useRef<HTMLLIElement>(null);
-  const [listStyle, setListStyle] = useState('disc');
 
   useLayoutEffect(() => {
     if (!liRef.current) return;
+    // Checkbox items have listStyle: none set via inline style — skip them
+    if (liRef.current.style.listStyle === 'none') return;
     let depth = 0;
     let parent = liRef.current.parentElement;
     while (parent) {
       if (parent.tagName === 'UL' || parent.tagName === 'OL') depth++;
       parent = parent.parentElement;
     }
-    setListStyle(LIST_STYLES[(depth - 1) % LIST_STYLES.length] ?? 'disc');
+    liRef.current.style.listStyleType = LIST_STYLES[(depth - 1) % LIST_STYLES.length] ?? 'disc';
   }, []);
 
   let renderChildren = children;
@@ -27,9 +34,9 @@ export const MarkdownListItem = ({
   // remove empty lines so that they don't render new line then the list item
   if (children && Array.isArray(children)) {
     renderChildren = children.filter((child) => child !== '\n');
-    renderChildren = renderChildren.map(child => {
-      if (child.props && child.props.node && child.props.node.tagName === 'p') {
-        return child.props.children;
+    renderChildren = renderChildren.map((child) => {
+      if (isValidElement(child) && (child.props as { node?: Element }).node?.tagName === 'p') {
+        return (child.props as { children?: ReactNode }).children;
       }
       return child;
     });
@@ -38,11 +45,13 @@ export const MarkdownListItem = ({
   // flat() handles the case where paragraph unwrapping returns an array as a child element,
   // burying the input one level deep (e.g. [input, " ", strong] as a single array child)
   const flatChildren = Array.isArray(renderChildren) ? renderChildren.flat() : [];
-  if (flatChildren.some((child) => child?.type === 'input')) {
-    const isNestedList = (child: any) =>
-      child?.props?.node?.tagName === 'ul' || child?.props?.node?.tagName === 'ol';
-    const inlineContent = (renderChildren as any[]).filter((child) => !isNestedList(child));
-    const blockContent = (renderChildren as any[]).filter(isNestedList);
+  const isCheckboxItem = flatChildren.some(
+    (child) => isValidElement(child) && child.type === 'input',
+  );
+
+  if (isCheckboxItem) {
+    const inlineContent = (renderChildren as ReactNode[]).filter((child) => !isNestedList(child));
+    const blockContent = (renderChildren as ReactNode[]).filter(isNestedList);
 
     return (
       <li ref={liRef} {...props} style={{ ...props.style, listStyle: 'none' }}>
@@ -52,5 +61,5 @@ export const MarkdownListItem = ({
     );
   }
 
-  return <li ref={liRef} {...props} style={{ ...props.style, listStyleType: listStyle }}>{renderChildren}</li>;
+  return <li ref={liRef} {...props}>{renderChildren}</li>;
 };
