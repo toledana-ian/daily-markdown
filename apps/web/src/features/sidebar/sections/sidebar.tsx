@@ -18,10 +18,6 @@ export const SidebarSection = () => {
     loadTags().then();
   }, [loadTags]);
 
-  useEffect(() => {
-    console.log(tags);
-  }, [tags]);
-
   const { data: noteCountsByDate = [] } = useQuery({
     queryKey: ['note-counts-by-date', format(displayedDate, 'yyyy-MM'), query.trim()],
     queryFn: () => loadNoteCountsByDate(displayedDate, query),
