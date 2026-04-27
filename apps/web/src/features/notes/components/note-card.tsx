@@ -53,7 +53,7 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
 
   return (
     <>
-      <div className='break-inside-avoid mb-4 relative w-full'>
+      <div className='break-inside-avoid mb-4 relative w-full group'>
         <NoteCardMenu
           isPinned={isPinned}
           onDelete={() => setIsDeleteDialogOpen(true)}
@@ -64,7 +64,7 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
           <NoteCardPreview content={content} onClick={openPreview} />
         </NoteCardMenu>
         {isPinned && (
-          <div className='absolute top-2 right-2 text-muted-foreground pointer-events-none'>
+          <div className='absolute top-2 right-2 text-muted-foreground pointer-events-none transition group-hover:-translate-y-0.5'>
             <RiPushpinFill className='size-3.5' />
           </div>
         )}
