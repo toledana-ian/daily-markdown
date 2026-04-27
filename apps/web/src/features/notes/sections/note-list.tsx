@@ -43,7 +43,7 @@ export const NoteListSection = () => {
     <>
       <div className='flex flex-wrap gap-4 justify-center '>
         {notes.map((note) => {
-          if(note.isPinned) return <></>
+          //if(note.isPinned) return <></>
           return (
             <div key={note.id} className='w-full max-w-full  sm:max-w-xs'>
               <NoteCard
