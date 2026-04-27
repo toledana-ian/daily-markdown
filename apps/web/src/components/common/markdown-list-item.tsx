@@ -29,21 +29,23 @@ export const MarkdownListItem = ({
     liRef.current.style.listStyleType = LIST_STYLES[(depth - 1) % LIST_STYLES.length] ?? 'disc';
   }, []);
 
-  let renderChildren = children;
+  let renderChildren: ReactNode = children;
 
   // remove empty lines so that they don't render new line then the list item
   if (children && Array.isArray(children)) {
-    renderChildren = children.filter((child) => child !== '\n');
-    renderChildren = renderChildren.map((child) => {
-      if (isValidElement(child) && (child.props as { node?: Element }).node?.tagName === 'p') {
-        return (child.props as { children?: ReactNode }).children;
-      }
-      return child;
-    });
+    const childArray = children as ReactNode[];
+    renderChildren = childArray
+      .filter((child) => child !== '\n')
+      .map((child: ReactNode) => {
+        if (isValidElement(child) && (child.props as { node?: Element }).node?.tagName === 'p') {
+          return (child.props as { children?: ReactNode }).children;
+        }
+        return child;
+      });
   }
 
   // flat() handles the case where paragraph unwrapping returns an array as a child element,
-  // burying the input one level deep (e.g. [input, " ", strong] as a single array child)
+  // burying the input one level deep (e.g. [input, "", strong] as a single array child)
   const flatChildren = Array.isArray(renderChildren) ? renderChildren.flat() : [];
   const isCheckboxItem = flatChildren.some(
     (child) => isValidElement(child) && child.type === 'input',
