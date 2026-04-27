@@ -39,10 +39,18 @@ export const MarkdownListItem = ({
   // burying the input one level deep (e.g. [input, " ", strong] as a single array child)
   const flatChildren = Array.isArray(renderChildren) ? renderChildren.flat() : [];
   if (flatChildren.some((child) => child?.type === 'input')) {
-    return <li ref={liRef} {...props} style={{ ...props.style, listStyle: 'none' }}>{renderChildren}</li>;
-  }
+    const isNestedList = (child: any) =>
+      child?.props?.node?.tagName === 'ul' || child?.props?.node?.tagName === 'ol';
+    const inlineContent = (renderChildren as any[]).filter((child) => !isNestedList(child));
+    const blockContent = (renderChildren as any[]).filter(isNestedList);
 
-  console.log(renderChildren);
+    return (
+      <li ref={liRef} {...props} style={{ ...props.style, listStyle: 'none' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>{inlineContent}</div>
+        {blockContent}
+      </li>
+    );
+  }
 
   return <li ref={liRef} {...props} style={{ ...props.style, listStyleType: listStyle }}>{renderChildren}</li>;
 };
