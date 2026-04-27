@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
 import { extractTagsFromContent } from '@/features/tags/utils/tags.ts';
 import { useNotesStore } from '@/features/notes/store/notes.ts';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, isToday, startOfDay } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
 
 //========== Constants ==========//
@@ -90,7 +90,13 @@ const applyNotesFilter = <T extends {
     return query.or(combined);
   }
 
-  return query.or(`is_pinned.eq.true,${combined}`);
+  const isSelectedDateToday = hasDate && isToday(new Date(filter.dateMs!));
+
+  if (isSelectedDateToday) {
+    return query.or(`is_pinned.eq.true,${combined}`);
+  }
+
+  return query.or(combined);
 };
 
 export const useNotes = () => {
