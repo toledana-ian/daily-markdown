@@ -42,17 +42,20 @@ export const NoteListSection = () => {
   return (
     <>
       <div className='flex flex-wrap gap-4 justify-center '>
-        {notes.map((note) => (
-          <div key={note.id} className='w-full max-w-full  sm:max-w-xs'>
-            <NoteCard
-              content={note.content}
-              isPinned={note.isPinned}
-              onDelete={() => deleteNote(note.id).then()}
-              onPin={() => togglePinNote(note.id).then()}
-              onSave={(content) => updateNote(note.id, content).then()}
-            />
-          </div>
-        ))}
+        {notes.map((note) => {
+          if(note.isPinned) return <></>
+          return (
+            <div key={note.id} className='w-full max-w-full  sm:max-w-xs'>
+              <NoteCard
+                content={note.content}
+                isPinned={note.isPinned}
+                onDelete={() => deleteNote(note.id).then()}
+                onPin={() => togglePinNote(note.id).then()}
+                onSave={(content) => updateNote(note.id, content).then()}
+              />
+            </div>
+          );
+        })}
       </div>
 
       <div className='mt-6 flex justify-center'>
