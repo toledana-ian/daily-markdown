@@ -31,9 +31,14 @@ export const NoteCardMenu = ({ children, isPinned, onDelete, onEdit, onPin, onVi
             <RiEditLine />
             Edit
           </ContextMenuItem>
-          <ContextMenuItem onClick={onPin}>
-            {isPinned ? <RiPushpinFill /> : <RiPushpinLine />}
-            {isPinned ? 'Unpin' : 'Pin'}
+          <ContextMenuItem onClick={onPin} className='items-start'>
+            <span className='mt-0.5'>{isPinned ? <RiPushpinFill /> : <RiPushpinLine />}</span>
+            <div className='flex flex-col'>
+              <span>{isPinned ? 'Unpin' : 'Pin'}</span>
+              <span className='text-xs text-muted-foreground leading-tight'>
+                {isPinned ? 'Remove from today' : 'Always show on today\'s date'}
+              </span>
+            </div>
           </ContextMenuItem>
           <ContextMenuItem onClick={onDelete} variant='destructive'>
             <RiDeleteBinLine />
