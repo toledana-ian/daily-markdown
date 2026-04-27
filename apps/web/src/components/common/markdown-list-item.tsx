@@ -35,8 +35,10 @@ export const MarkdownListItem = ({
     });
   }
 
-  // if there is an input in the list item, suppress the bullet but keep <li> so nested lists retain indentation
-  if (renderChildren && Array.isArray(renderChildren) && renderChildren.some((child) => child.type === 'input')) {
+  // flat() handles the case where paragraph unwrapping returns an array as a child element,
+  // burying the input one level deep (e.g. [input, " ", strong] as a single array child)
+  const flatChildren = Array.isArray(renderChildren) ? renderChildren.flat() : [];
+  if (flatChildren.some((child) => child?.type === 'input')) {
     return <li ref={liRef} {...props} style={{ ...props.style, listStyle: 'none' }}>{renderChildren}</li>;
   }
 
