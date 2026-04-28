@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { format, isSameDay } from 'date-fns';
-import type { DayButton, DayEventHandler } from 'react-day-picker';
+import { format } from 'date-fns';
+import type { DayButton } from 'react-day-picker';
 
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
@@ -74,38 +74,24 @@ export function NotesCalendar(props: NotesCalendarProps) {
   const resolvedSelected = isControlled ? selected : internalSelected;
 
   const handleSelect = React.useCallback(
-    (date: Date | null) => {
+    (date: Date | undefined) => {
+      const nextDate = date ?? null;
       if (!isControlled) {
-        setInternalSelected(date);
+        setInternalSelected(nextDate);
       }
-
-      onSelect?.(date);
+      onSelect?.(nextDate);
     },
     [isControlled, onSelect],
   );
 
-  const handleDayClick = React.useCallback<DayEventHandler<React.MouseEvent>>(
-    (date, modifiers, event) => {
-      onDayClick?.(date, modifiers, event);
-
-      if (modifiers.disabled || modifiers.outside) {
-        return;
-      }
-
-      const nextSelected = resolvedSelected && isSameDay(date, resolvedSelected) ? null : date;
-
-      handleSelect(nextSelected);
-    },
-    [handleSelect, onDayClick, resolvedSelected],
-  );
-
-  return (
+  return(
     <Calendar
       mode='single'
       selected={resolvedSelected ?? undefined}
+      onSelect={handleSelect}
       month={month}
       defaultMonth={defaultMonth ?? resolvedSelected ?? new Date()}
-      onDayClick={handleDayClick}
+      onDayClick={onDayClick}
       className='bg-transparent'
       components={{
         DayButton: (dayButtonProps) => (
