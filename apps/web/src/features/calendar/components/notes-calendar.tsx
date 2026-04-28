@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { format, isSameDay } from 'date-fns';
 import type { DayButton, DayEventHandler } from 'react-day-picker';
@@ -7,6 +5,7 @@ import type { DayButton, DayEventHandler } from 'react-day-picker';
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 
+//========== Types  ==========//
 type NoteCountByDate = {
   date: Date;
   count: number;
@@ -34,6 +33,8 @@ const INTENSITY_STYLES: Record<number, string> = {
   5: 'bg-[#2aa6ab] text-white hover:bg-[#24979b] hover:text-white',
 };
 
+//========== Helper Functions  ==========//
+
 function getDateKey(date: Date) {
   return format(date, 'yyyy-MM-dd');
 }
@@ -53,45 +54,7 @@ function getNoteCountForDate(noteCountsByDate: NoteCountsByDate, date: Date) {
   return noteCountsByDate.find((entry) => getDateKey(entry.date) === dateKey)?.count ?? 0;
 }
 
-function NotesCalendarDayButton({
-  className,
-  day,
-  modifiers,
-  noteCountsByDate,
-  ...props
-}: React.ComponentProps<typeof DayButton> & {
-  noteCountsByDate: NoteCountsByDate;
-}) {
-  const noteCount = getNoteCountForDate(noteCountsByDate, day.date);
-  const intensityLevel = getIntensityLevel(noteCount);
-  const isInteractive = !modifiers.disabled && !modifiers.outside;
-
-  return (
-    <CalendarDayButton
-      day={day}
-      modifiers={modifiers}
-      data-intensity-level={intensityLevel}
-      data-note-count={noteCount}
-      className={cn(
-        'transition-all duration-200',
-        isInteractive && 'border border-transparent',
-        isInteractive && !modifiers.selected && INTENSITY_STYLES[intensityLevel],
-        isInteractive &&
-          modifiers.today &&
-          !modifiers.selected &&
-          'border-2 border-[#6bc0c4] shadow-none',
-        modifiers.outside &&
-          'border-transparent bg-transparent text-[#9ca3af] hover:bg-transparent',
-        modifiers.disabled &&
-          'border-transparent bg-transparent text-[#9ca3af] hover:bg-transparent',
-        modifiers.selected &&
-          'border-[#0f766e] bg-[#0f766e] text-white shadow-[0_0_0_3px_rgba(107,192,196,0.3)] hover:bg-[#0b5f59]',
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+//========== Components  ==========//
 
 export function NotesCalendar(props: NotesCalendarProps) {
   const {
@@ -150,6 +113,46 @@ export function NotesCalendar(props: NotesCalendarProps) {
         ),
       }}
       {...calendarProps}
+    />
+  );
+}
+
+function NotesCalendarDayButton({
+  className,
+  day,
+  modifiers,
+  noteCountsByDate,
+  ...props
+}: React.ComponentProps<typeof DayButton> & {
+  noteCountsByDate: NoteCountsByDate;
+}) {
+  const noteCount = getNoteCountForDate(noteCountsByDate, day.date);
+  const intensityLevel = getIntensityLevel(noteCount);
+  const isInteractive = !modifiers.disabled && !modifiers.outside;
+
+  return (
+    <CalendarDayButton
+      day={day}
+      modifiers={modifiers}
+      data-intensity-level={intensityLevel}
+      data-note-count={noteCount}
+      className={cn(
+        'transition-all duration-200',
+        isInteractive && 'border border-transparent',
+        isInteractive && !modifiers.selected && INTENSITY_STYLES[intensityLevel],
+        isInteractive &&
+          modifiers.today &&
+          !modifiers.selected &&
+          'border-2 border-[#6bc0c4] shadow-none',
+        modifiers.outside &&
+          'border-transparent bg-transparent text-[#9ca3af] hover:bg-transparent',
+        modifiers.disabled &&
+          'border-transparent bg-transparent text-[#9ca3af] hover:bg-transparent',
+        modifiers.selected &&
+          'border-[#0f766e] bg-[#0f766e] text-white shadow-[0_0_0_3px_rgba(107,192,196,0.3)] hover:bg-[#0b5f59]',
+        className,
+      )}
+      {...props}
     />
   );
 }
