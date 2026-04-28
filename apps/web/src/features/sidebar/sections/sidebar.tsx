@@ -25,7 +25,8 @@ export const SidebarSection = () => {
 
   const onClikTag = useCallback((tag: string) => {
     setQuery(tag);
-  }, [setQuery]);
+    setSelectedDate(null);
+  }, [setQuery, setSelectedDate]);
 
   return (
     <>
