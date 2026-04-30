@@ -1,28 +1,149 @@
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { CheckboxContext } from '@/components/common/checkbox-context';
 import { Markdown } from '@/components/common/markdown';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
 import { useTailwindScreen } from '@/hooks/useTailwindScreen';
 
+type CheckboxInfo = {
+  index: number;
+  lineIndex: number;
+  indentation: number;
+  checked: boolean;
+  parentIndex: number;
+};
+
+function parseCheckboxes(content: string): CheckboxInfo[] {
+  const lines = content.split('\n');
+  const checkboxes: CheckboxInfo[] = [];
+  const checkboxRegex = /^(\s*)- \[([ x])\]/;
+
+  for (let i = 0; i < lines.length; i++) {
+    const match = lines[i].match(checkboxRegex);
+    if (!match) continue;
+
+    const indentation = match[1].length;
+    const checked = match[2] === 'x';
+    const index = checkboxes.length;
+
+    // Nearest preceding checkbox with strictly less indentation is the parent
+    let parentIndex = -1;
+    for (let j = checkboxes.length - 1; j >= 0; j--) {
+      if (checkboxes[j].indentation < indentation) {
+        parentIndex = checkboxes[j].index;
+        break;
+      }
+    }
+
+    checkboxes.push({ index, lineIndex: i, indentation, checked, parentIndex });
+  }
+
+  return checkboxes;
+}
+
+function collectDescendants(targetIndex: number, checkboxes: CheckboxInfo[]): number[] {
+  const result: number[] = [targetIndex];
+  const queue = [targetIndex];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const cb of checkboxes) {
+      if (cb.parentIndex === current) {
+        result.push(cb.index);
+        queue.push(cb.index);
+      }
+    }
+  }
+
+  return result;
+}
+
+function applyCheckboxToggles(
+  content: string,
+  indicesToToggle: number[],
+  checkboxes: CheckboxInfo[],
+  newState: boolean,
+): string {
+  const lines = content.split('\n');
+  const indexSet = new Set(indicesToToggle);
+
+  for (const cb of checkboxes) {
+    if (!indexSet.has(cb.index)) continue;
+    lines[cb.lineIndex] = newState
+      ? lines[cb.lineIndex].replace(/- \[ \]/, '- [x]')
+      : lines[cb.lineIndex].replace(/- \[x\]/, '- [ ]');
+  }
+
+  return lines.join('\n');
+}
+
 type NoteViewDialogProps = {
   content: string;
   onEdit: () => void;
   onOpenChange: (open: boolean) => void;
+  onSave?: (content: string) => void;
   open: boolean;
 };
 
-export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteViewDialogProps) => {
+export const NoteViewDialog = ({
+  content,
+  onEdit,
+  onOpenChange,
+  onSave,
+  open,
+}: NoteViewDialogProps) => {
   const screen = useTailwindScreen();
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const checkboxMeta = useMemo(() => parseCheckboxes(content), [content]);
+  const checkboxContextValue = useMemo(() => ({ enabled: !!onSave }), [onSave]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const inputs = containerRef.current.querySelectorAll('input[type="checkbox"]');
+    inputs.forEach((input, i) => {
+      const meta = checkboxMeta[i];
+      if (!meta) return;
+      input.setAttribute('data-checkbox-index', String(meta.index));
+      input.setAttribute('data-parent-index', String(meta.parentIndex));
+    });
+  }, [content, checkboxMeta]);
+
+  const handleContainerClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName !== 'INPUT' || (target as HTMLInputElement).type !== 'checkbox') return;
+
+      e.preventDefault();
+
+      const allInputs = containerRef.current?.querySelectorAll('input[type="checkbox"]');
+      if (!allInputs) return;
+
+      const clickedIndex = Array.from(allInputs).indexOf(target as HTMLInputElement);
+      if (clickedIndex === -1 || !checkboxMeta[clickedIndex]) return;
+
+      const cb = checkboxMeta[clickedIndex];
+      const newState = !cb.checked;
+      const toToggle = collectDescendants(clickedIndex, checkboxMeta);
+      onSave?.(applyCheckboxToggles(content, toToggle, checkboxMeta, newState));
+    },
+    [content, checkboxMeta, onSave],
+  );
 
   const preview = (
-    <div
-      aria-label='Preview note'
-      className='p-6 h-full wrap-anywhere'
-      onDoubleClick={onEdit}
-      role='document'
-    >
-      <Markdown content={content} emptyMessage='This note is empty.' />
-    </div>
+    <CheckboxContext.Provider value={checkboxContextValue}>
+      <div
+        ref={containerRef}
+        aria-label='Preview note'
+        className='p-6 h-full wrap-anywhere'
+        onClickCapture={handleContainerClick}
+        onDoubleClick={onEdit}
+        role='document'
+      >
+        <Markdown content={content} emptyMessage='This note is empty.' />
+      </div>
+    </CheckboxContext.Provider>
   );
 
   if (isDesktop) {

@@ -1,6 +1,7 @@
 import type { Element } from 'hast';
 import { type ReactNode, isValidElement, useLayoutEffect, useRef } from 'react';
 import type { JSX } from 'react';
+import { MarkdownCheckboxInput } from '@/components/common/markdown-checkbox-input';
 
 const LIST_STYLES = ['disc', 'circle', 'square'];
 
@@ -48,7 +49,8 @@ export const MarkdownListItem = ({
   // burying the input one level deep (e.g. [input, "", strong] as a single array child)
   const flatChildren = Array.isArray(renderChildren) ? renderChildren.flat() : [];
   const isCheckboxItem = flatChildren.some(
-    (child) => isValidElement(child) && child.type === 'input',
+    (child) =>
+      isValidElement(child) && (child.type === 'input' || child.type === MarkdownCheckboxInput),
   );
 
   if (isCheckboxItem) {

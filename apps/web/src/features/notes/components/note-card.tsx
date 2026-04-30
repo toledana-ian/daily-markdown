@@ -76,6 +76,7 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
           if (open) openPreview();
           else closePreview();
         }}
+        onSave={onSave}
         open={mode === 'view'}
       />
       <NoteEditorDialog
