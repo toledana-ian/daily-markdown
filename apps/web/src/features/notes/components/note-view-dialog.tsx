@@ -76,26 +76,74 @@ function applyCheckboxToggles(
 
   return lines.join('\n');
 }
+
 type NoteViewDialogProps = {
   content: string;
   onEdit: () => void;
   onOpenChange: (open: boolean) => void;
+  onSave?: (content: string) => void;
   open: boolean;
 };
 
-export const NoteViewDialog = ({ content, onEdit, onOpenChange, open }: NoteViewDialogProps) => {
+export const NoteViewDialog = ({
+  content,
+  onEdit,
+  onOpenChange,
+  onSave,
+  open,
+}: NoteViewDialogProps) => {
   const screen = useTailwindScreen();
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const checkboxMeta = useMemo(() => parseCheckboxes(content), [content]);
+  const checkboxContextValue = useMemo(() => ({ enabled: !!onSave }), [onSave]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const inputs = containerRef.current.querySelectorAll('input[type="checkbox"]');
+    inputs.forEach((input, i) => {
+      const meta = checkboxMeta[i];
+      if (!meta) return;
+      input.setAttribute('data-checkbox-index', String(meta.index));
+      input.setAttribute('data-parent-index', String(meta.parentIndex));
+    });
+  }, [content, checkboxMeta]);
+
+  const handleContainerClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName !== 'INPUT' || (target as HTMLInputElement).type !== 'checkbox') return;
+
+      e.preventDefault();
+
+      const allInputs = containerRef.current?.querySelectorAll('input[type="checkbox"]');
+      if (!allInputs) return;
+
+      const clickedIndex = Array.from(allInputs).indexOf(target as HTMLInputElement);
+      if (clickedIndex === -1 || !checkboxMeta[clickedIndex]) return;
+
+      const cb = checkboxMeta[clickedIndex];
+      const newState = !cb.checked;
+      const toToggle = collectDescendants(clickedIndex, checkboxMeta);
+      onSave?.(applyCheckboxToggles(content, toToggle, checkboxMeta, newState));
+    },
+    [content, checkboxMeta, onSave],
+  );
 
   const preview = (
-    <div
-      aria-label='Preview note'
-      className='p-6 h-full wrap-anywhere'
-      onDoubleClick={onEdit}
-      role='document'
-    >
-      <Markdown content={content} emptyMessage='This note is empty.' />
-    </div>
+    <CheckboxContext.Provider value={checkboxContextValue}>
+      <div
+        ref={containerRef}
+        aria-label='Preview note'
+        className='p-6 h-full wrap-anywhere'
+        onClickCapture={handleContainerClick}
+        onDoubleClick={onEdit}
+        role='document'
+      >
+        <Markdown content={content} emptyMessage='This note is empty.' />
+      </div>
+    </CheckboxContext.Provider>
   );
 
   if (isDesktop) {
