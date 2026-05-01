@@ -19,18 +19,18 @@ export const SidebarSection = () => {
     queryFn: () => loadNoteCountsByDate(displayedDate, query),
   });
 
+  const handleSetQuery = useCallback((value: string) => {
+    setQuery(value);
+    if (value) setSelectedDate(null);
+  }, [setQuery, setSelectedDate]);
+
   const onClikTag = useCallback((tag: string) => {
-    setQuery(tag);
-  }, [setQuery]);
+    handleSetQuery(tag);
+  }, [handleSetQuery]);
 
   useEffect(() => {
     loadTags().then();
   }, [loadTags]);
-
-  useEffect(() => {
-    if (!query) return;
-    setSelectedDate(null);
-  }, [query, setSelectedDate]);
 
   return (
     <>
@@ -42,7 +42,7 @@ export const SidebarSection = () => {
         setDisplayedDate={setDisplayedDate}
         noteCountsByDate={noteCountsByDate}
         query={query}
-        setQuery={setQuery}
+        setQuery={handleSetQuery}
         tags={tags}
         onClickTag={onClikTag}
       />
