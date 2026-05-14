@@ -1,6 +1,29 @@
 # daily-markdown
 
-A daily markdown journaling app — write your notes in Markdown, organized by day.
+A daily Markdown journaling app.
+
+I created this app because my notes in Google Keep and Apple Notes started feeling too cluttered. I constantly create new notes for random ideas, GitHub PR drafts, quick restaurant lists, temporary checklists, and development snippets; and eventually everything becomes hard to organize.
+
+This app solves that by organizing notes by day while keeping the full flexibility of Markdown.
+
+Built with developers in mind, it includes powerful editor features commonly found in code editors:
+- Multi-line editing
+- Find & replace
+- Regex search
+- Keyboard-first workflows
+
+It also supports quick slash commands like:
+- `/table`
+- `/link`
+- `/warning`
+
+to instantly generate Markdown templates while writing.
+
+You can drag and drop files directly into the editor, and they’ll automatically upload (up to 10MB per file).
+
+Tags are created automatically using `#TagName`, making it easy to organize and quickly find related notes from the sidebar.
+
+And because everything is written in pure Markdown, you can copy content directly into GitHub, PR descriptions, documentation, or README files with the same formatting preserved.
 
 **Try it out: [daily-md.christiantoledana.com](https://daily-md.christiantoledana.com/)**
 
