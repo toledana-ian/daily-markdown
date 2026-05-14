@@ -8,7 +8,7 @@ export const DEFAULT_MAX_FILE_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
 type StorageBucketClient = {
   upload: (
     path: string,
-    file: File,
+    file: File | Blob,
     options: {
       cacheControl: string;
       contentType: string;
@@ -71,16 +71,6 @@ const escapeSvgText = (value: string) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-
-const encodeSvgDataUrl = (svg: string) => {
-  if (typeof globalThis.btoa === 'function') {
-    const utf8Bytes = new TextEncoder().encode(svg);
-    const binary = Array.from(utf8Bytes, (byte) => String.fromCharCode(byte)).join('');
-    return `data:image/svg+xml;base64,${globalThis.btoa(binary)}`;
-  }
-
-  return `data:image/svg+xml;base64,${Buffer.from(svg, 'utf-8').toString('base64')}`;
-};
 
 const getFileIconLabel = (extension: string) => extension.slice(0, 4).toUpperCase() || 'FILE';
 
@@ -169,7 +159,7 @@ const estimateSvgTextWidth = (value: string, fontSize: number, letterSpacing = 0
   return averageCharacterWidth * fontSize * 1.05 + trackingWidth;
 };
 
-const createFileThumbnailDataUrl = (label: string, extension: string) => {
+const createFileThumbnailSvg = (label: string, extension: string) => {
   const rawTitle = label.trim() || 'Attachment';
   const title = escapeSvgText(rawTitle);
   const fileTypeLabel = getFileIconLabel(extension);
@@ -186,21 +176,17 @@ const createFileThumbnailDataUrl = (label: string, extension: string) => {
   );
   const cardWidth = Math.max(cardMinWidth, Math.ceil(textStartX + contentWidth + rightPadding));
   const innerCardWidth = cardWidth - outerPadding * 2;
-  const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${cardWidth}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}" role="img" aria-label="${title}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${cardWidth}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}" role="img" aria-label="${title}">
   <rect x="${outerPadding}" y="${outerPadding}" width="${innerCardWidth}" height="120" rx="16" fill="#e2e8f0"/>
   ${iconSvg}
   <text x="${textStartX}" y="50" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#475569" letter-spacing="1.4">${fileTypeLabel}</text>
   <text x="${textStartX}" y="76" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#0f172a">${title}</text>
   <text x="${textStartX}" y="100" font-family="Arial, sans-serif" font-size="14" fill="#64748b">Open attachment</text>
-</svg>`.trim();
-
-  return encodeSvgDataUrl(svg);
+</svg>`;
 };
 
-export const createFileMarkdown = (label: string, url: string, extension: string) => {
-  const thumbnail = createFileThumbnailDataUrl(label, extension);
-  return `[![${extension.toUpperCase() || 'FILE'} file](${thumbnail})](${url})`;
+export const createFileMarkdown = (url: string, extension: string, thumbnailUrl?: string) => {
+  return `[![${extension.toUpperCase() || 'FILE'} file](${thumbnailUrl})](${url})`;
 };
 
 export const createUploadingImageMarkdown = (alt: string, token: string) =>
@@ -212,7 +198,7 @@ export const createUploadingFileMarkdown = (label: string, token: string, file: 
   }
 
   const extension = getFileExtension(file.name);
-  return createFileMarkdown(`Uploading ${label}`, `uploading://${token}`, extension);
+  return `[![${extension.toUpperCase() || 'FILE'}](Preparing preview...)](Uploading ${label}...)`;
 };
 
 export const replaceImagePlaceholder = (
@@ -248,12 +234,37 @@ export const uploadNoteFile = async ({
     data: { publicUrl },
   } = storage.getPublicUrl(path);
 
+  let thumbnailUrl: string | undefined;
+  if (!isImageFile(file)) {
+    const svgContent = createFileThumbnailSvg(alt, extension);
+    const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const thumbnailPath = `${userId}/${formatTimestamp(now())}-${randomId()}-${safeBaseName}-thumbnail.svg`;
+    const { error: thumbnailError } = await storage.upload(thumbnailPath, svgBlob, {
+      cacheControl: '3600',
+      contentType: 'image/svg+xml',
+      upsert: false,
+    });
+    if (!thumbnailError) {
+      thumbnailUrl = storage.getPublicUrl(thumbnailPath).data.publicUrl;
+    }else {
+      throw new Error('Failed to upload.');
+    }
+  }
+
+  if (isImageFile(file)){
+    return {
+      alt,
+      isImage: true,
+      markdown: createImageMarkdown(alt, publicUrl),
+      path,
+      publicUrl,
+    };
+  }
+
   return {
     alt,
-    isImage: isImageFile(file),
-    markdown: isImageFile(file)
-      ? createImageMarkdown(alt, publicUrl)
-      : createFileMarkdown(alt, publicUrl, extension),
+    isImage: false,
+    markdown: createFileMarkdown(publicUrl, extension, thumbnailUrl),
     path,
     publicUrl,
   };
