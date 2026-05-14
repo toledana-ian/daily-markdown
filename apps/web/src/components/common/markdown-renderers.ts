@@ -7,6 +7,7 @@ import { MarkdownCheckboxInput } from '@/components/common/markdown-checkbox-inp
 import { MarkdownImage } from '@/components/common/markdown-image';
 import { MarkdownListItem } from '@/components/common/markdown-list-item';
 import { MarkdownParagraph } from '@/components/common/markdown-paragraph';
+import { MarkdownLink } from '@/components/common/markdown-link.tsx';
 
 export const markdownPlugins: NonNullable<StreamdownProps['plugins']> = {
   cjk,
@@ -20,4 +21,5 @@ export const markdownComponents = {
   input: MarkdownCheckboxInput,
   li: MarkdownListItem,
   p: MarkdownParagraph,
+  a: MarkdownLink
 } satisfies NonNullable<StreamdownProps['components']>;
