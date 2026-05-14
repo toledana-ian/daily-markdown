@@ -4,7 +4,9 @@ A daily Markdown journaling app.
 
 I created this app because my notes in Google Keep and Apple Notes started feeling too cluttered. I constantly create new notes for random ideas, GitHub PR drafts, quick restaurant lists, temporary checklists, and development snippets; and eventually everything becomes hard to organize.
 
-This app solves that by organizing notes by day while keeping the full flexibility of Markdown.
+This app solves that by organizing notes by day, where only today’s notes are shown by default. Every day feels like a fresh blank canvas where you can freely write as much as you want without seeing yesterday’s clutter.
+
+When you want to revisit older notes, you can simply click a date from the calendar sidebar to instantly view everything you wrote on that day.
 
 Built with developers in mind, it includes powerful editor features commonly found in code editors:
 - Multi-line editing
