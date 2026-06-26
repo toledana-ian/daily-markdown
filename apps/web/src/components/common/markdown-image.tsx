@@ -106,7 +106,7 @@ export const MarkdownImage = ({
     <div className={cn('group relative my-4 inline-block')} data-streamdown='image-wrapper'>
       <img
         alt={alt}
-        className={cn('max-w-full rounded-lg', showFallback && 'hidden', className)}
+        className={cn('max-h-175 max-w-full rounded-lg object-contain', showFallback && 'hidden', className)}
         data-streamdown='image'
         onError={handleError}
         onLoad={handleLoad}
