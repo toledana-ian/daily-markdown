@@ -2,7 +2,7 @@ import { SearchNote } from '@/features/search/components/search-note.tsx';
 import { NotesCalendar } from '@/features/calendar/components/notes-calendar.tsx';
 import { cn } from '@/lib/utils.ts';
 import type { NoteCountByDate } from '@/features/calendar/hooks/useCalendar.ts';
-import { TagListSection } from '@/features/tags/sections/tag-list.tsx';
+import { QuickSearchSection } from '@/features/quick-search/sections/quick-search-section.tsx';
 
 interface SidebarContentProps {
   selectedDate: Date | null;
@@ -11,8 +11,11 @@ interface SidebarContentProps {
   noteCountsByDate: NoteCountByDate[];
   query: string;
   setQuery: (query: string) => void;
-  tags: string[];
-  onClickTag?: (tag: string) => void;
+  onClearSearch?: () => void;
+  quickSearchItems: string[];
+  onClickQuickSearchItem: (value: string) => void;
+  onAddQuickSearchItem: (value: string) => void;
+  onRemoveQuickSearchItem: (value: string) => void;
 }
 
 const SidebarContent = (props: SidebarContentProps) => {
@@ -23,15 +26,18 @@ const SidebarContent = (props: SidebarContentProps) => {
     noteCountsByDate,
     query,
     setQuery,
-    tags,
-    onClickTag,
+    onClearSearch,
+    quickSearchItems,
+    onClickQuickSearchItem,
+    onAddQuickSearchItem,
+    onRemoveQuickSearchItem,
   } = props;
 
   return (
     <div className='bg-sidebar w-72 flex h-full flex-col text-sidebar-foreground'>
       <nav aria-label='App sidebar' className='flex flex-1 flex-col p-4'>
         <div className='space-y-4'>
-          <SearchNote query={query} setQuery={setQuery} />
+          <SearchNote query={query} setQuery={setQuery} onClear={onClearSearch} />
 
           <NotesCalendar
             selected={selectedDate}
@@ -40,7 +46,12 @@ const SidebarContent = (props: SidebarContentProps) => {
             onMonthChange={setDisplayedDate}
           />
 
-          <TagListSection tags={tags} onClick={onClickTag} />
+          <QuickSearchSection
+            items={quickSearchItems}
+            onClickItem={onClickQuickSearchItem}
+            onAddItem={onAddQuickSearchItem}
+            onRemoveItem={onRemoveQuickSearchItem}
+          />
         </div>
       </nav>
     </div>
@@ -62,8 +73,11 @@ export const Sidebar = (props: SidebarProps) => {
     noteCountsByDate,
     query,
     setQuery,
-    tags,
-    onClickTag,
+    onClearSearch,
+    quickSearchItems,
+    onClickQuickSearchItem,
+    onAddQuickSearchItem,
+    onRemoveQuickSearchItem,
   } = props;
 
   return (
@@ -81,8 +95,11 @@ export const Sidebar = (props: SidebarProps) => {
           noteCountsByDate={noteCountsByDate}
           query={query}
           setQuery={setQuery}
-          tags={tags}
-          onClickTag={onClickTag}
+          onClearSearch={onClearSearch}
+          quickSearchItems={quickSearchItems}
+          onClickQuickSearchItem={onClickQuickSearchItem}
+          onAddQuickSearchItem={onAddQuickSearchItem}
+          onRemoveQuickSearchItem={onRemoveQuickSearchItem}
         />
       </aside>
 
@@ -108,8 +125,11 @@ export const Sidebar = (props: SidebarProps) => {
             noteCountsByDate={noteCountsByDate}
             query={query}
             setQuery={setQuery}
-            tags={tags}
-            onClickTag={onClickTag}
+            onClearSearch={onClearSearch}
+            quickSearchItems={quickSearchItems}
+            onClickQuickSearchItem={onClickQuickSearchItem}
+            onAddQuickSearchItem={onAddQuickSearchItem}
+            onRemoveQuickSearchItem={onRemoveQuickSearchItem}
           />
         </div>
         <div
