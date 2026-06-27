@@ -14,7 +14,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "knip": "knip",
-    "db:generate": "drizzle-kit generate",
+    "db:generate": "bash -c 'if [ -z \"$1\" ]; then echo \"Usage: bun run db:generate <name>\"; exit 1; fi; drizzle-kit generate --name \"$1\"' --",
     "db:migrate": "drizzle-kit migrate",
     "deploy": "bun run build && bunx wrangler deploy"
   },
