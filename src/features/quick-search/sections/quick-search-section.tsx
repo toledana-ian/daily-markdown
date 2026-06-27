@@ -43,15 +43,22 @@ const QuickSearchItem = (props: QuickSearchItemProps) => {
   const y = useMotionValue(0);
   const boxShadow = useRaisedShadow(y);
   const dragControls = useDragControls();
+  const [isDragging, setIsDragging] = useState(false);
 
   return (
     <Reorder.Item
       value={item}
-      style={{ boxShadow, y }}
+      style={{ boxShadow, y, zIndex: isDragging ? 10 : 0, position: 'relative' }}
       dragControls={dragControls}
       dragListener={false}
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
+      onDragStart={() => {
+        setIsDragging(true);
+        onDragStart();
+      }}
+      onDragEnd={() => {
+        setIsDragging(false);
+        onDragEnd();
+      }}
       className='flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-sidebar-accent group list-none bg-sidebar'
     >
       <RiDraggable
