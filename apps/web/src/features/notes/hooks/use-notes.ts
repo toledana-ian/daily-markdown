@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
-import { extractTagsFromContent } from '@/features/tags/utils/tags.ts';
 import { useNotesStore } from '@/features/notes/store/notes.ts';
 import { endOfDay, isToday, startOfDay } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
@@ -124,58 +123,6 @@ export const useNotes = () => {
   useEffect(()=>{userIdRef.current = session?.user?.id ?? null;}, [session?.user?.id])
 
   //========== Callbacks ==========//
-  const updateTags = useCallback(async (userId:string, noteId: string, content: string) => {
-    await supabase.from('note_tags').delete().eq('note_id', noteId);
-
-    const extractedTags = extractTagsFromContent(content);
-    if (extractedTags.length===0) return;
-
-    let tags: { id: string; name: string }[] = [];
-
-    //load existing tags
-    const { data: existingTags, error: existingTagsError } = await supabase
-      .from('tags')
-      .select('id, name')
-      .in('name', extractedTags);
-
-    if (existingTagsError) {
-      setError(existingTagsError.message);
-      throw existingTagsError;
-    }
-
-    tags = [...tags, ...(existingTags ?? [])];
-
-    //check for missing tags and
-    const missingTags = extractedTags.filter((tag) => !tags.some((t) => t.name === tag));
-    if (missingTags.length !== 0){
-      const { data: insertedTags, error: insertedTagsError } = await supabase
-        .from('tags')
-        .insert(missingTags.map((name) => ({ name })))
-        .select('id, name');
-
-      if (insertedTagsError) {
-        setError(insertedTagsError.message);
-        throw insertedTagsError;
-      }
-
-      tags = [...tags, ...(insertedTags ?? [])];
-    }
-
-
-    const { error: noteTagsError } = await supabase.from('note_tags').insert(
-      tags.map((tag) => ({
-        note_id: noteId,
-        tag_id: tag.id,
-        user_id: userId,
-      })),
-    );
-
-    if (noteTagsError) {
-      setError(noteTagsError.message);
-      throw noteTagsError;
-    }
-  }, [setError]);
-
   const loadNotes = useCallback(async (filter?: NotesFilter & PaginationOptions) => {
     const normalizedFilter = normalizeFilter(filter);
     const page = filter?.page ?? 0;
@@ -252,10 +199,8 @@ export const useNotes = () => {
 
     setNotes([mapNote(data), ...notesRef.current]);
 
-    await updateTags(userId, data.id, content);
-
     return data.id;
-  }, [setError, setNotes, updateTags]);
+  }, [setError, setNotes]);
 
   const updateNote = useCallback(async (id: string, content: string) => {
     const userId = userIdRef.current;
@@ -281,9 +226,7 @@ export const useNotes = () => {
         updated_at: new Date().toISOString(),
       })
       .eq('id', id);
-
-    await updateTags(userId, id, content);
-  }, [setError, setNotes, updateTags]);
+  }, [setError, setNotes]);
 
   const deleteNote = useCallback(async (id: string) => {
     const newNotes = notesRef.current.filter((note) => note.id !== id);

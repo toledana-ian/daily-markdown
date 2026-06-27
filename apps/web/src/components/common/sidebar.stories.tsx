@@ -30,7 +30,10 @@ export const Default: Story = {
     noteCountsByDate: [],
     query: '',
     setQuery: () => {},
-    tags: [],
+    quickSearchItems: [],
+    onClickQuickSearchItem: () => {},
+    onAddQuickSearchItem: () => {},
+    onRemoveQuickSearchItem: () => {},
   },
 };
 
@@ -44,6 +47,9 @@ export const Hidden: Story = {
     noteCountsByDate: [],
     query: '',
     setQuery: () => {},
-    tags: [],
+    quickSearchItems: [],
+    onClickQuickSearchItem: () => {},
+    onAddQuickSearchItem: () => {},
+    onRemoveQuickSearchItem: () => {},
   },
 };

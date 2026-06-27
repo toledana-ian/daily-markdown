@@ -4,7 +4,7 @@ import { useCalendar } from '@/features/calendar/hooks/useCalendar.ts';
 import { useSearch } from '@/features/search/hooks/useSearch.ts';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { useTags } from '@/features/tags/hooks/use-tags.ts';
+import { useQuickSearchItems } from '@/features/quick-search/hooks/use-quick-search-items.ts';
 import { useCallback, useEffect } from 'react';
 
 export const SidebarSection = () => {
@@ -12,7 +12,7 @@ export const SidebarSection = () => {
   const { selectedDate, displayedDate, setSelectedDate, setDisplayedDate, loadNoteCountsByDate } =
     useCalendar();
   const { query, setQuery } = useSearch();
-  const {tags, loadTags} = useTags();
+  const { items, loadItems, addItem, removeItem } = useQuickSearchItems();
 
   const { data: noteCountsByDate = [] } = useQuery({
     queryKey: ['note-counts-by-date', format(displayedDate, 'yyyy-MM'), query.trim()],
@@ -24,13 +24,17 @@ export const SidebarSection = () => {
     if (value) setSelectedDate(null);
   }, [setQuery, setSelectedDate]);
 
-  const onClikTag = useCallback((tag: string) => {
-    handleSetQuery(tag);
+  const handleClearSearch = useCallback(() => {
+    setSelectedDate(new Date());
+  }, [setSelectedDate]);
+
+  const onClickQuickSearchItem = useCallback((value: string) => {
+    handleSetQuery(value);
   }, [handleSetQuery]);
 
   useEffect(() => {
-    loadTags().then();
-  }, [loadTags]);
+    loadItems().then();
+  }, [loadItems]);
 
   return (
     <>
@@ -43,8 +47,11 @@ export const SidebarSection = () => {
         noteCountsByDate={noteCountsByDate}
         query={query}
         setQuery={handleSetQuery}
-        tags={tags}
-        onClickTag={onClikTag}
+        onClearSearch={handleClearSearch}
+        quickSearchItems={items}
+        onClickQuickSearchItem={onClickQuickSearchItem}
+        onAddQuickSearchItem={addItem}
+        onRemoveQuickSearchItem={removeItem}
       />
     </>
   );
