@@ -36,9 +36,59 @@ function rehypeStripUnknownElements() {
   };
 }
 
+// Leading task marker inside a table cell, e.g. `- [ ] 1` or `[x] done`.
+// GFM only turns `- [ ]` into a checkbox inside list items, so table cells keep
+// the raw text. This matches that leading marker so we can render a checkbox.
+const TABLE_CELL_CHECKBOX_REGEX = /^(\s*(?:- )?)\[([ xX])\](\s?)/;
+
+type HastNode = {
+  type: string;
+  tagName?: string;
+  value?: string;
+  properties?: Record<string, unknown>;
+  children?: HastNode[];
+};
+
+// Convert leading `- [ ]` / `[x]` markers inside table cells into checkbox
+// inputs so they render like GFM task-list items. The produced input mirrors
+// GFM's output (`<input type="checkbox" disabled>`); interactivity is layered
+// on by the input renderer via checkbox context.
+function rehypeTableCellCheckbox() {
+  return (tree: Parameters<typeof visit>[0]) => {
+    visit(tree, 'element', (node: HastNode) => {
+      if (node.tagName !== 'td' && node.tagName !== 'th') return;
+      const children = node.children;
+      if (!children || children.length === 0) return;
+
+      const first = children[0];
+      if (first.type !== 'text' || typeof first.value !== 'string') return;
+
+      const match = first.value.match(TABLE_CELL_CHECKBOX_REGEX);
+      if (!match) return;
+
+      const checked = match[2].toLowerCase() === 'x';
+      const remainder = first.value.slice(match[0].length);
+
+      const input: HastNode = {
+        type: 'element',
+        tagName: 'input',
+        properties: { type: 'checkbox', disabled: true, checked },
+        children: [],
+      };
+
+      const replacement: HastNode[] = [input];
+      if (remainder) {
+        replacement.push({ type: 'text', value: remainder });
+      }
+      children.splice(0, 1, ...replacement);
+    });
+  };
+}
+
 const markdownRehypePlugins: NonNullable<StreamdownProps['rehypePlugins']> = [
   rehypeRaw,
   [rehypeGithubAlerts, {}],
+  rehypeTableCellCheckbox,
   rehypeStripUnknownElements,
 ];
 
