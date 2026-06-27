@@ -1,1 +1,0 @@
-// Hono RPC contracts

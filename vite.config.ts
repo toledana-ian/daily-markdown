@@ -71,11 +71,6 @@ export default defineConfig({
       },
     }),
   ],
-  server: {
-    proxy: {
-      '/api': 'http://localhost:8787',
-    },
-  },
   resolve: {
     alias: {
       '@': path.resolve(dirname, './src'),

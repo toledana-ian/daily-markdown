@@ -12,11 +12,9 @@ export default defineConfig([
     '**/dist',
     '**/node_modules',
     '**/routeTree.gen.ts',
-    '**/.wrangler/**',
     '**/storybook-static/**',
   ]),
 
-  // Base TS rules for all packages
   {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, tseslint.configs.recommended],
@@ -25,28 +23,11 @@ export default defineConfig([
     },
   },
 
-  // Web app — React + browser globals
   {
-    files: ['apps/web/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite],
     languageOptions: {
       globals: globals.browser,
-    },
-  },
-
-  // API — Worker/Node globals
-  {
-    files: ['apps/api/**/*.ts'],
-    languageOptions: {
-      globals: { ...globals.node },
-    },
-  },
-
-  // Shared package
-  {
-    files: ['packages/shared/**/*.ts'],
-    languageOptions: {
-      globals: {},
     },
   },
 

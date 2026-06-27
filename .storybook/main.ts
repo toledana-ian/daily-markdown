@@ -10,12 +10,5 @@ const config: StorybookConfig = {
     '@storybook/addon-onboarding',
   ],
   framework: '@storybook/react-vite',
-  viteFinal: (config) => {
-    config.server ??= {};
-    config.server.proxy = {
-      '/api': 'http://localhost:8787',
-    };
-    return config;
-  },
 };
 export default config;
