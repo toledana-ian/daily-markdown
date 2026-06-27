@@ -9,7 +9,7 @@ export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
   return (
     <div
       aria-label='Open note'
-      className='flex max-h-96 cursor-pointer flex-col overflow-y-auto wrap-anywhere rounded-sm bg-white p-4 shadow-sm outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
+      className='flex h-96 cursor-pointer flex-col overflow-hidden hover:overflow-auto wrap-anywhere rounded-sm bg-white p-4 shadow-sm outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
       onClick={onClick}
       role='button'
       tabIndex={0}
