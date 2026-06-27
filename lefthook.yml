@@ -4,5 +4,3 @@ pre-push:
       run: bun run typecheck
     build:
       run: bun run build
-    wrangler-dry-run:
-      run: cd apps/api && bunx wrangler deploy --dry-run

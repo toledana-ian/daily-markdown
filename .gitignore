@@ -10,8 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-storybook-static
-apps/web/src/routeTree.gen.ts
+src/routeTree.gen.ts
 *.local
 
 # Editor directories and files
@@ -25,12 +24,6 @@ apps/web/src/routeTree.gen.ts
 *.sln
 *.sw?
 .tanstack/tmp
-
-# wrangler files
-.wrangler
-.dev.vars*
-!.dev.vars.example
-!.env.example
 
 # Supabase
 supabase/.branches
