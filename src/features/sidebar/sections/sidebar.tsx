@@ -12,25 +12,31 @@ export const SidebarSection = () => {
   const { selectedDate, displayedDate, setSelectedDate, setDisplayedDate, loadNoteCountsByDate } =
     useCalendar();
   const { query, setQuery } = useSearch();
-  const { items, loadItems, addItem, removeItem } = useQuickSearchItems();
+  const { items, loadItems, addItem, removeItem, reorderItems } = useQuickSearchItems();
 
   const { data: noteCountsByDate = [] } = useQuery({
     queryKey: ['note-counts-by-date', format(displayedDate, 'yyyy-MM'), query.trim()],
     queryFn: () => loadNoteCountsByDate(displayedDate, query),
   });
 
-  const handleSetQuery = useCallback((value: string) => {
-    setQuery(value);
-    if (value) setSelectedDate(null);
-  }, [setQuery, setSelectedDate]);
+  const handleSetQuery = useCallback(
+    (value: string) => {
+      setQuery(value);
+      if (value) setSelectedDate(null);
+    },
+    [setQuery, setSelectedDate],
+  );
 
   const handleClearSearch = useCallback(() => {
     setSelectedDate(new Date());
   }, [setSelectedDate]);
 
-  const onClickQuickSearchItem = useCallback((value: string) => {
-    handleSetQuery(value);
-  }, [handleSetQuery]);
+  const onClickQuickSearchItem = useCallback(
+    (value: string) => {
+      handleSetQuery(value);
+    },
+    [handleSetQuery],
+  );
 
   useEffect(() => {
     loadItems().then();
@@ -52,6 +58,7 @@ export const SidebarSection = () => {
         onClickQuickSearchItem={onClickQuickSearchItem}
         onAddQuickSearchItem={addItem}
         onRemoveQuickSearchItem={removeItem}
+        onReorderQuickSearchItems={reorderItems}
       />
     </>
   );

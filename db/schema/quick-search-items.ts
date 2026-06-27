@@ -1,5 +1,13 @@
 import { sql } from 'drizzle-orm';
-import { pgPolicy, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import {
+  integer,
+  pgPolicy,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { authenticatedRole } from 'drizzle-orm/supabase';
 
 export const quickSearchItems = pgTable(
@@ -8,6 +16,7 @@ export const quickSearchItems = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     userId: uuid('user_id').notNull(),
     value: text('value').notNull(),
+    sortOrder: integer('sort_order').default(0).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
@@ -29,6 +38,13 @@ export const quickSearchItems = pgTable(
       for: 'delete',
       to: authenticatedRole,
       using: sql`(select auth.uid()) = ${t.userId}`,
+    }),
+
+    pgPolicy('quick_search_items_update_own', {
+      for: 'update',
+      to: authenticatedRole,
+      using: sql`(select auth.uid()) = ${t.userId}`,
+      withCheck: sql`(select auth.uid()) = ${t.userId}`,
     }),
   ],
 );

@@ -25,13 +25,23 @@ interface QuickSearchSectionProps {
   onClickItem: (value: string) => void;
   onAddItem: (value: string) => void;
   onRemoveItem: (value: string) => void;
+  onReorderItems: (items: string[]) => void;
 }
 
+const moveItem = (items: string[], fromIndex: number, toIndex: number) => {
+  const nextItems = [...items];
+  const [movedItem] = nextItems.splice(fromIndex, 1);
+  nextItems.splice(toIndex, 0, movedItem);
+  return nextItems;
+};
+
 export const QuickSearchSection = (props: QuickSearchSectionProps) => {
-  const { items, onClickItem, onAddItem, onRemoveItem } = props;
+  const { items, onClickItem, onAddItem, onRemoveItem, onReorderItems } = props;
   const [addOpen, setAddOpen] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<string | null>(null);
 
   const handleConfirmAdd = () => {
     const trimmed = newItem.trim();
@@ -46,6 +56,22 @@ export const QuickSearchSection = (props: QuickSearchSectionProps) => {
       onRemoveItem(removeTarget);
       setRemoveTarget(null);
     }
+  };
+
+  const handleDrop = (targetItem: string) => {
+    if (!draggedItem || draggedItem === targetItem) {
+      setDraggedItem(null);
+      setDragOverItem(null);
+      return;
+    }
+
+    const fromIndex = items.indexOf(draggedItem);
+    const toIndex = items.indexOf(targetItem);
+    if (fromIndex === -1 || toIndex === -1) return;
+
+    onReorderItems(moveItem(items, fromIndex, toIndex));
+    setDraggedItem(null);
+    setDragOverItem(null);
   };
 
   return (
@@ -66,8 +92,38 @@ export const QuickSearchSection = (props: QuickSearchSectionProps) => {
         {items.map((item) => (
           <div
             key={item}
-            className='flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-sidebar-accent group'
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.effectAllowed = 'move';
+              e.dataTransfer.setData('text/plain', item);
+              setDraggedItem(item);
+            }}
+            onDragEnd={() => {
+              setDraggedItem(null);
+              setDragOverItem(null);
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+              setDragOverItem(item);
+            }}
+            onDragLeave={() => {
+              if (dragOverItem === item) setDragOverItem(null);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              handleDrop(item);
+            }}
+            className={`flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-sidebar-accent group ${
+              draggedItem === item ? 'opacity-50' : ''
+            } ${dragOverItem === item && draggedItem !== item ? 'bg-sidebar-accent' : ''}`}
           >
+            <span
+              aria-hidden='true'
+              className='mr-1 cursor-grab select-none text-muted-foreground opacity-0 group-hover:opacity-100 group-active:cursor-grabbing'
+            >
+              ⋮⋮
+            </span>
             <button
               type='button'
               className='flex-1 text-left text-sm text-sidebar-foreground truncate'

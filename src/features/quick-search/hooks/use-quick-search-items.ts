@@ -25,6 +25,7 @@ export const useQuickSearchItems = () => {
     const { data, error: fetchError } = await supabase
       .from('quick_search_items')
       .select('value')
+      .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
     if (fetchError) {
@@ -37,41 +38,90 @@ export const useQuickSearchItems = () => {
     setIsLoading(false);
   }, [session?.user?.id, setError, setIsLoading, setItems]);
 
-  const addItem = useCallback(async (value: string) => {
-    const userId = session?.user?.id;
-    const trimmed = value.trim();
-    if (!userId || !trimmed) return;
+  const addItem = useCallback(
+    async (value: string) => {
+      const userId = session?.user?.id;
+      const trimmed = value.trim();
+      if (!userId || !trimmed) return;
 
-    setItems([...items, trimmed]);
+      const previousItems = items;
+      setItems([...items, trimmed]);
 
-    const { error: insertError } = await supabase
-      .from('quick_search_items')
-      .insert({ user_id: userId, value: trimmed });
+      const { error: insertError } = await supabase
+        .from('quick_search_items')
+        .insert({ user_id: userId, value: trimmed, sort_order: items.length });
 
-    if (insertError) {
-      setItems(items.filter((i) => i !== trimmed));
-      toast.error('Failed to add quick search item');
-    }
-  }, [session?.user?.id, items, setItems]);
+      if (insertError) {
+        setItems(previousItems);
+        toast.error('Failed to add quick search item');
+      }
+    },
+    [session?.user?.id, items, setItems],
+  );
 
-  const removeItem = useCallback(async (value: string) => {
-    const userId = session?.user?.id;
-    if (!userId) return;
+  const removeItem = useCallback(
+    async (value: string) => {
+      const userId = session?.user?.id;
+      if (!userId) return;
 
-    const previousItems = items;
-    setItems(items.filter((item) => item !== value));
+      const previousItems = items;
+      const nextItems = items.filter((item) => item !== value);
+      setItems(nextItems);
 
-    const { error: deleteError } = await supabase
-      .from('quick_search_items')
-      .delete()
-      .eq('value', value)
-      .eq('user_id', userId);
+      const { error: deleteError } = await supabase
+        .from('quick_search_items')
+        .delete()
+        .eq('value', value)
+        .eq('user_id', userId);
 
-    if (deleteError) {
-      setItems(previousItems);
-      toast.error('Failed to remove quick search item');
-    }
-  }, [session?.user?.id, items, setItems]);
+      if (deleteError) {
+        setItems(previousItems);
+        toast.error('Failed to remove quick search item');
+        return;
+      }
+
+      const updateResults = await Promise.all(
+        nextItems.map((item, sortOrder) =>
+          supabase
+            .from('quick_search_items')
+            .update({ sort_order: sortOrder })
+            .eq('value', item)
+            .eq('user_id', userId),
+        ),
+      );
+
+      if (updateResults.some(({ error }) => error)) {
+        toast.error('Removed quick search item, but failed to update sorting order');
+      }
+    },
+    [session?.user?.id, items, setItems],
+  );
+
+  const reorderItems = useCallback(
+    async (nextItems: string[]) => {
+      const userId = session?.user?.id;
+      if (!userId) return;
+
+      const previousItems = items;
+      setItems(nextItems);
+
+      const updateResults = await Promise.all(
+        nextItems.map((item, sortOrder) =>
+          supabase
+            .from('quick_search_items')
+            .update({ sort_order: sortOrder })
+            .eq('value', item)
+            .eq('user_id', userId),
+        ),
+      );
+
+      if (updateResults.some(({ error }) => error)) {
+        setItems(previousItems);
+        toast.error('Failed to update quick search order');
+      }
+    },
+    [session?.user?.id, items, setItems],
+  );
 
   return {
     items,
@@ -80,5 +130,6 @@ export const useQuickSearchItems = () => {
     loadItems,
     addItem,
     removeItem,
+    reorderItems,
   };
 };

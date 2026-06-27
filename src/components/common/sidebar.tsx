@@ -16,6 +16,7 @@ interface SidebarContentProps {
   onClickQuickSearchItem: (value: string) => void;
   onAddQuickSearchItem: (value: string) => void;
   onRemoveQuickSearchItem: (value: string) => void;
+  onReorderQuickSearchItems: (items: string[]) => void;
 }
 
 const SidebarContent = (props: SidebarContentProps) => {
@@ -31,6 +32,7 @@ const SidebarContent = (props: SidebarContentProps) => {
     onClickQuickSearchItem,
     onAddQuickSearchItem,
     onRemoveQuickSearchItem,
+    onReorderQuickSearchItems,
   } = props;
 
   return (
@@ -51,6 +53,7 @@ const SidebarContent = (props: SidebarContentProps) => {
             onClickItem={onClickQuickSearchItem}
             onAddItem={onAddQuickSearchItem}
             onRemoveItem={onRemoveQuickSearchItem}
+            onReorderItems={onReorderQuickSearchItems}
           />
         </div>
       </nav>
@@ -78,6 +81,7 @@ export const Sidebar = (props: SidebarProps) => {
     onClickQuickSearchItem,
     onAddQuickSearchItem,
     onRemoveQuickSearchItem,
+    onReorderQuickSearchItems,
   } = props;
 
   return (
@@ -100,6 +104,7 @@ export const Sidebar = (props: SidebarProps) => {
           onClickQuickSearchItem={onClickQuickSearchItem}
           onAddQuickSearchItem={onAddQuickSearchItem}
           onRemoveQuickSearchItem={onRemoveQuickSearchItem}
+          onReorderQuickSearchItems={onReorderQuickSearchItems}
         />
       </aside>
 
@@ -130,6 +135,7 @@ export const Sidebar = (props: SidebarProps) => {
             onClickQuickSearchItem={onClickQuickSearchItem}
             onAddQuickSearchItem={onAddQuickSearchItem}
             onRemoveQuickSearchItem={onRemoveQuickSearchItem}
+            onReorderQuickSearchItems={onReorderQuickSearchItems}
           />
         </div>
         <div
