@@ -1,5 +1,10 @@
 {
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
   "name": "daily-markdown",
-  "pages_build_output_dir": "./dist",
-  "compatibility_date": "2026-06-28"
+  "compatibility_date": "2026-06-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
 }
