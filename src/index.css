@@ -4,11 +4,11 @@
 @import '@fontsource-variable/jetbrains-mono';
 @import '@fontsource-variable/roboto';
 
-@source '../../../node_modules/streamdown/dist/*.js';
-@source '../../../node_modules/@streamdown/code/dist/*.js';
-@source '../../../node_modules/@streamdown/cjk/dist/*.js';
-@source '../../../node_modules/@streamdown/math/dist/*.js';
-@source '../../../node_modules/@streamdown/mermaid/dist/*.js';
+@source '../node_modules/streamdown/dist/*.js';
+@source '../node_modules/@streamdown/code/dist/*.js';
+@source '../node_modules/@streamdown/cjk/dist/*.js';
+@source '../node_modules/@streamdown/math/dist/*.js';
+@source '../node_modules/@streamdown/mermaid/dist/*.js';
 @source inline('h-[90vh]');
 
 @custom-variant dark (&:is(.dark *));
