@@ -157,6 +157,16 @@
   }
 }
 
+.markdownnote-editor-container [data-streamdown='code-block-body'] {
+  overflow-x: visible;
+}
+
+.markdownnote-editor-container [data-streamdown='code-block-body'] pre,
+.markdownnote-editor-container [data-streamdown='code-block-body'] code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
 
 .cm-editor.cm-focused {
   outline: none !important;
