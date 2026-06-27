@@ -159,6 +159,7 @@
 
 .markdownnote-editor-container [data-streamdown='code-block-body'] {
   overflow-x: visible;
+  padding: 0.5rem 0.5rem 0.5rem 0;
 }
 
 .markdownnote-editor-container [data-streamdown='code-block-body'] pre,
@@ -168,7 +169,6 @@
   word-break: break-word;
 }
 
-/* Hanging indent: wrapped lines align after the line-number gutter (w-6 + mr-4 = 2.5rem) */
 .markdownnote-editor-container [data-streamdown='code-block-body'] code > span {
   padding-left: 2.5rem;
   text-indent: -2.5rem;
