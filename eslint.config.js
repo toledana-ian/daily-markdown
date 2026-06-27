@@ -1,4 +1,3 @@
-import storybook from 'eslint-plugin-storybook';
 import js from '@eslint/js';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -12,7 +11,6 @@ export default defineConfig([
     '**/dist',
     '**/node_modules',
     '**/routeTree.gen.ts',
-    '**/storybook-static/**',
   ]),
 
   {
@@ -32,5 +30,4 @@ export default defineConfig([
   },
 
   prettierConfig,
-  ...storybook.configs['flat/recommended'],
 ]);
