@@ -157,6 +157,22 @@
   }
 }
 
+.markdownnote-editor-container [data-streamdown='code-block-body'] {
+  overflow-x: visible;
+  padding: 0.5rem 0.5rem 0.5rem 0;
+}
+
+.markdownnote-editor-container [data-streamdown='code-block-body'] pre,
+.markdownnote-editor-container [data-streamdown='code-block-body'] code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.markdownnote-editor-container [data-streamdown='code-block-body'] code > span {
+  padding-left: 2.5rem;
+  text-indent: -2.5rem;
+}
 
 .cm-editor.cm-focused {
   outline: none !important;
