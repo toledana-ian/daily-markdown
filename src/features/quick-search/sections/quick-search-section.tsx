@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { RiAddLine, RiCloseLine } from '@remixicon/react';
+import { useEffect, useRef, useState } from 'react';
+import { Reorder, useDragControls, useMotionValue } from 'motion/react';
+import { RiAddLine, RiCloseLine, RiDraggable } from '@remixicon/react';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -19,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog.tsx';
+import { useRaisedShadow } from '@/hooks/use-raised-shadow.ts';
 
 interface QuickSearchSectionProps {
   items: string[];
@@ -28,11 +30,51 @@ interface QuickSearchSectionProps {
   onReorderItems: (items: string[]) => void;
 }
 
-const moveItem = (items: string[], fromIndex: number, toIndex: number) => {
-  const nextItems = [...items];
-  const [movedItem] = nextItems.splice(fromIndex, 1);
-  nextItems.splice(toIndex, 0, movedItem);
-  return nextItems;
+interface QuickSearchItemProps {
+  item: string;
+  onClickItem: (value: string) => void;
+  onSetRemoveTarget: (value: string) => void;
+  onDragStart: () => void;
+  onDragEnd: () => void;
+}
+
+const QuickSearchItem = (props: QuickSearchItemProps) => {
+  const { item, onClickItem, onSetRemoveTarget, onDragStart, onDragEnd } = props;
+  const y = useMotionValue(0);
+  const boxShadow = useRaisedShadow(y);
+  const dragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={item}
+      style={{ boxShadow, y }}
+      dragControls={dragControls}
+      dragListener={false}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      className='flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-sidebar-accent group list-none bg-sidebar'
+    >
+      <RiDraggable
+        className='size-3.5 mr-1 shrink-0 cursor-grab select-none text-muted-foreground opacity-0 group-hover:opacity-100 active:cursor-grabbing'
+        onPointerDown={(e) => dragControls.start(e)}
+      />
+      <button
+        type='button'
+        className='flex-1 text-left text-sm text-sidebar-foreground truncate'
+        onClick={() => onClickItem(item)}
+      >
+        {item}
+      </button>
+      <button
+        type='button'
+        aria-label={`Remove ${item}`}
+        onClick={() => onSetRemoveTarget(item)}
+        className='opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground ml-1 shrink-0'
+      >
+        <RiCloseLine className='size-3.5' />
+      </button>
+    </Reorder.Item>
+  );
 };
 
 export const QuickSearchSection = (props: QuickSearchSectionProps) => {
@@ -40,8 +82,16 @@ export const QuickSearchSection = (props: QuickSearchSectionProps) => {
   const [addOpen, setAddOpen] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
-  const [draggedItem, setDraggedItem] = useState<string | null>(null);
-  const [dragOverItem, setDragOverItem] = useState<string | null>(null);
+  const [localOrder, setLocalOrder] = useState(items);
+  const latestOrderRef = useRef(items);
+  const isDraggingRef = useRef(false);
+
+  useEffect(() => {
+    if (!isDraggingRef.current) {
+      setLocalOrder(items);
+      latestOrderRef.current = items;
+    }
+  }, [items]);
 
   const handleConfirmAdd = () => {
     const trimmed = newItem.trim();
@@ -58,22 +108,6 @@ export const QuickSearchSection = (props: QuickSearchSectionProps) => {
     }
   };
 
-  const handleDrop = (targetItem: string) => {
-    if (!draggedItem || draggedItem === targetItem) {
-      setDraggedItem(null);
-      setDragOverItem(null);
-      return;
-    }
-
-    const fromIndex = items.indexOf(draggedItem);
-    const toIndex = items.indexOf(targetItem);
-    if (fromIndex === -1 || toIndex === -1) return;
-
-    onReorderItems(moveItem(items, fromIndex, toIndex));
-    setDraggedItem(null);
-    setDragOverItem(null);
-  };
-
   return (
     <section className='space-y-1'>
       <div className='flex items-center justify-between px-1'>
@@ -88,60 +122,31 @@ export const QuickSearchSection = (props: QuickSearchSectionProps) => {
         </button>
       </div>
 
-      <div>
-        {items.map((item) => (
-          <div
+      <Reorder.Group
+        axis='y'
+        values={localOrder}
+        onReorder={(newOrder) => {
+          setLocalOrder(newOrder);
+          latestOrderRef.current = newOrder;
+        }}
+        className='space-y-0 list-none p-0 m-0'
+      >
+        {localOrder.map((item) => (
+          <QuickSearchItem
             key={item}
-            draggable
-            onDragStart={(e) => {
-              e.dataTransfer.effectAllowed = 'move';
-              e.dataTransfer.setData('text/plain', item);
-              setDraggedItem(item);
+            item={item}
+            onClickItem={onClickItem}
+            onSetRemoveTarget={setRemoveTarget}
+            onDragStart={() => {
+              isDraggingRef.current = true;
             }}
             onDragEnd={() => {
-              setDraggedItem(null);
-              setDragOverItem(null);
+              isDraggingRef.current = false;
+              onReorderItems(latestOrderRef.current);
             }}
-            onDragOver={(e) => {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = 'move';
-              setDragOverItem(item);
-            }}
-            onDragLeave={() => {
-              if (dragOverItem === item) setDragOverItem(null);
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              handleDrop(item);
-            }}
-            className={`flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-sidebar-accent group ${
-              draggedItem === item ? 'opacity-50' : ''
-            } ${dragOverItem === item && draggedItem !== item ? 'bg-sidebar-accent' : ''}`}
-          >
-            <span
-              aria-hidden='true'
-              className='mr-1 cursor-grab select-none text-muted-foreground opacity-0 group-hover:opacity-100 group-active:cursor-grabbing'
-            >
-              ⋮⋮
-            </span>
-            <button
-              type='button'
-              className='flex-1 text-left text-sm text-sidebar-foreground truncate'
-              onClick={() => onClickItem(item)}
-            >
-              {item}
-            </button>
-            <button
-              type='button'
-              aria-label={`Remove ${item}`}
-              onClick={() => setRemoveTarget(item)}
-              className='opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground ml-1 shrink-0'
-            >
-              <RiCloseLine className='size-3.5' />
-            </button>
-          </div>
+          />
         ))}
-      </div>
+      </Reorder.Group>
 
       <Dialog open={addOpen} onOpenChange={(open) => setAddOpen(open)}>
         <DialogContent showCloseButton={false}>
