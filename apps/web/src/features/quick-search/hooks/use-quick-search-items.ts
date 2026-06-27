@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
 import { useQuickSearchItemsStore } from '@/features/quick-search/store/quick-search-items.ts';
@@ -41,21 +42,24 @@ export const useQuickSearchItems = () => {
     const trimmed = value.trim();
     if (!userId || !trimmed) return;
 
+    setItems([...items, trimmed]);
+
     const { error: insertError } = await supabase
       .from('quick_search_items')
       .insert({ user_id: userId, value: trimmed });
 
     if (insertError) {
-      setError(insertError.message);
-      return;
+      setItems(items.filter((i) => i !== trimmed));
+      toast.error('Failed to add quick search item');
     }
-
-    setItems([...items, trimmed]);
-  }, [session?.user?.id, items, setError, setItems]);
+  }, [session?.user?.id, items, setItems]);
 
   const removeItem = useCallback(async (value: string) => {
     const userId = session?.user?.id;
     if (!userId) return;
+
+    const previousItems = items;
+    setItems(items.filter((item) => item !== value));
 
     const { error: deleteError } = await supabase
       .from('quick_search_items')
@@ -64,12 +68,10 @@ export const useQuickSearchItems = () => {
       .eq('user_id', userId);
 
     if (deleteError) {
-      setError(deleteError.message);
-      return;
+      setItems(previousItems);
+      toast.error('Failed to remove quick search item');
     }
-
-    setItems(items.filter((item) => item !== value));
-  }, [session?.user?.id, items, setError, setItems]);
+  }, [session?.user?.id, items, setItems]);
 
   return {
     items,
