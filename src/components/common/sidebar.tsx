@@ -13,9 +13,11 @@ interface SidebarContentProps {
   setQuery: (query: string) => void;
   onClearSearch?: () => void;
   quickSearchItems: string[];
+  quickSearchItemsLoading?: boolean;
   onClickQuickSearchItem: (value: string) => void;
   onAddQuickSearchItem: (value: string) => void;
   onRemoveQuickSearchItem: (value: string) => void;
+  onReorderQuickSearchItems: (items: string[]) => void;
 }
 
 const SidebarContent = (props: SidebarContentProps) => {
@@ -28,9 +30,11 @@ const SidebarContent = (props: SidebarContentProps) => {
     setQuery,
     onClearSearch,
     quickSearchItems,
+    quickSearchItemsLoading,
     onClickQuickSearchItem,
     onAddQuickSearchItem,
     onRemoveQuickSearchItem,
+    onReorderQuickSearchItems,
   } = props;
 
   return (
@@ -48,9 +52,11 @@ const SidebarContent = (props: SidebarContentProps) => {
 
           <QuickSearchSection
             items={quickSearchItems}
+            isLoading={quickSearchItemsLoading}
             onClickItem={onClickQuickSearchItem}
             onAddItem={onAddQuickSearchItem}
             onRemoveItem={onRemoveQuickSearchItem}
+            onReorderItems={onReorderQuickSearchItems}
           />
         </div>
       </nav>
@@ -75,9 +81,11 @@ export const Sidebar = (props: SidebarProps) => {
     setQuery,
     onClearSearch,
     quickSearchItems,
+    quickSearchItemsLoading,
     onClickQuickSearchItem,
     onAddQuickSearchItem,
     onRemoveQuickSearchItem,
+    onReorderQuickSearchItems,
   } = props;
 
   return (
@@ -97,9 +105,11 @@ export const Sidebar = (props: SidebarProps) => {
           setQuery={setQuery}
           onClearSearch={onClearSearch}
           quickSearchItems={quickSearchItems}
+          quickSearchItemsLoading={quickSearchItemsLoading}
           onClickQuickSearchItem={onClickQuickSearchItem}
           onAddQuickSearchItem={onAddQuickSearchItem}
           onRemoveQuickSearchItem={onRemoveQuickSearchItem}
+          onReorderQuickSearchItems={onReorderQuickSearchItems}
         />
       </aside>
 
@@ -127,9 +137,11 @@ export const Sidebar = (props: SidebarProps) => {
             setQuery={setQuery}
             onClearSearch={onClearSearch}
             quickSearchItems={quickSearchItems}
+            quickSearchItemsLoading={quickSearchItemsLoading}
             onClickQuickSearchItem={onClickQuickSearchItem}
             onAddQuickSearchItem={onAddQuickSearchItem}
             onRemoveQuickSearchItem={onRemoveQuickSearchItem}
+            onReorderQuickSearchItems={onReorderQuickSearchItems}
           />
         </div>
         <div
