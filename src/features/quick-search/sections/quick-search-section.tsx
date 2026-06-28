@@ -20,7 +20,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog.tsx';
-import { useRaisedShadow } from '@/hooks/use-raised-shadow.ts';
 
 interface QuickSearchSectionProps {
   items: string[];
@@ -41,16 +40,17 @@ interface QuickSearchItemProps {
 const QuickSearchItem = (props: QuickSearchItemProps) => {
   const { item, onClickItem, onSetRemoveTarget, onDragStart, onDragEnd } = props;
   const y = useMotionValue(0);
-  const boxShadow = useRaisedShadow(y);
   const dragControls = useDragControls();
   const [isDragging, setIsDragging] = useState(false);
 
   return (
     <Reorder.Item
       value={item}
-      style={{ boxShadow, y, zIndex: isDragging ? 10 : 0, position: 'relative' }}
+      style={{ y, zIndex: isDragging ? 10 : 0, position: 'relative' }}
       dragControls={dragControls}
       dragListener={false}
+      transition={{ type: 'spring', stiffness: 1200, damping: 80, mass: 0.3 }}
+      dragTransition={{ bounceStiffness: 1000, bounceDamping: 100 }}
       onDragStart={() => {
         setIsDragging(true);
         onDragStart();
