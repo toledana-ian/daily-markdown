@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Reorder, useDragControls, useMotionValue } from 'motion/react';
 import { RiAddLine, RiCloseLine, RiDraggable } from '@remixicon/react';
+import { Spinner } from '@/components/ui/spinner.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -23,6 +24,7 @@ import {
 
 interface QuickSearchSectionProps {
   items: string[];
+  isLoading?: boolean;
   onClickItem: (value: string) => void;
   onAddItem: (value: string) => void;
   onRemoveItem: (value: string) => void;
@@ -85,7 +87,7 @@ const QuickSearchItem = (props: QuickSearchItemProps) => {
 };
 
 export const QuickSearchSection = (props: QuickSearchSectionProps) => {
-  const { items, onClickItem, onAddItem, onRemoveItem, onReorderItems } = props;
+  const { items, isLoading, onClickItem, onAddItem, onRemoveItem, onReorderItems } = props;
   const [addOpen, setAddOpen] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
@@ -129,31 +131,38 @@ export const QuickSearchSection = (props: QuickSearchSectionProps) => {
         </button>
       </div>
 
-      <Reorder.Group
-        axis='y'
-        values={localOrder}
-        onReorder={(newOrder) => {
-          setLocalOrder(newOrder);
-          latestOrderRef.current = newOrder;
-        }}
-        className='space-y-0 list-none p-0 m-0'
-      >
-        {localOrder.map((item) => (
-          <QuickSearchItem
-            key={item}
-            item={item}
-            onClickItem={onClickItem}
-            onSetRemoveTarget={setRemoveTarget}
-            onDragStart={() => {
-              isDraggingRef.current = true;
-            }}
-            onDragEnd={() => {
-              isDraggingRef.current = false;
-              onReorderItems(latestOrderRef.current);
-            }}
-          />
-        ))}
-      </Reorder.Group>
+      {isLoading ? (
+        <p className='text-sm text-muted-foreground flex gap-1 px-1 mt-3'>
+          <Spinner className='my-auto' />
+          Loading quick search items...
+        </p>
+      ) : (
+        <Reorder.Group
+          axis='y'
+          values={localOrder}
+          onReorder={(newOrder) => {
+            setLocalOrder(newOrder);
+            latestOrderRef.current = newOrder;
+          }}
+          className='space-y-0 list-none p-0 m-0'
+        >
+          {localOrder.map((item) => (
+            <QuickSearchItem
+              key={item}
+              item={item}
+              onClickItem={onClickItem}
+              onSetRemoveTarget={setRemoveTarget}
+              onDragStart={() => {
+                isDraggingRef.current = true;
+              }}
+              onDragEnd={() => {
+                isDraggingRef.current = false;
+                onReorderItems(latestOrderRef.current);
+              }}
+            />
+          ))}
+        </Reorder.Group>
+      )}
 
       <Dialog open={addOpen} onOpenChange={(open) => setAddOpen(open)}>
         <DialogContent showCloseButton={false}>

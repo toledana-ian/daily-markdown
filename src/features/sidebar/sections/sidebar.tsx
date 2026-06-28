@@ -12,7 +12,7 @@ export const SidebarSection = () => {
   const { selectedDate, displayedDate, setSelectedDate, setDisplayedDate, loadNoteCountsByDate } =
     useCalendar();
   const { query, setQuery } = useSearch();
-  const { items, loadItems, addItem, removeItem, reorderItems } = useQuickSearchItems();
+  const { items, isLoading: quickSearchItemsLoading, loadItems, addItem, removeItem, reorderItems } = useQuickSearchItems();
 
   const { data: noteCountsByDate = [] } = useQuery({
     queryKey: ['note-counts-by-date', format(displayedDate, 'yyyy-MM'), query.trim()],
@@ -55,6 +55,7 @@ export const SidebarSection = () => {
         setQuery={handleSetQuery}
         onClearSearch={handleClearSearch}
         quickSearchItems={items}
+        quickSearchItemsLoading={quickSearchItemsLoading}
         onClickQuickSearchItem={onClickQuickSearchItem}
         onAddQuickSearchItem={addItem}
         onRemoveQuickSearchItem={removeItem}
