@@ -46,6 +46,28 @@
   --sidebar-accent-foreground: oklch(0.228 0.013 107.4);
   --sidebar-border: oklch(0.93 0.007 106.5);
   --sidebar-ring: oklch(0.737 0.021 106.9);
+
+  --calendar-accent: #6bc0c4;
+  --calendar-outside-foreground: #9ca3af;
+  --calendar-selected: #0f766e;
+  --calendar-selected-hover: #0b5f59;
+  --calendar-selected-shadow: 0 0 0 3px rgba(107, 192, 196, 0.3);
+
+  --calendar-intensity-0-hover: rgba(107, 192, 196, 0.15);
+  --calendar-intensity-1: #e6f7f8;
+  --calendar-intensity-1-foreground: #0f4f52;
+  --calendar-intensity-1-hover: #d8f1f2;
+  --calendar-intensity-2: #bfeaec;
+  --calendar-intensity-2-foreground: #0c4447;
+  --calendar-intensity-2-hover: #acdfe2;
+  --calendar-intensity-3: #8fd9dd;
+  --calendar-intensity-3-foreground: #08393c;
+  --calendar-intensity-3-hover: #7fcfd4;
+  --calendar-intensity-4: #4fc4c9;
+  --calendar-intensity-5: #2aa6ab;
+  --calendar-intensity-5-hover: #24979b;
+
+  --editor-mark: #fff8c5;
 }
 
 .dark {
@@ -80,6 +102,8 @@
   --sidebar-accent-foreground: #f9fafc;
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.58 0.031 107.3);
+
+  --editor-mark: rgba(210, 153, 34, 0.4);
 }
 
 @theme inline {
@@ -115,6 +139,28 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+
+  --color-calendar-accent: var(--calendar-accent);
+  --color-calendar-outside-foreground: var(--calendar-outside-foreground);
+  --color-calendar-selected: var(--calendar-selected);
+  --color-calendar-selected-hover: var(--calendar-selected-hover);
+  --color-calendar-intensity-0-hover: var(--calendar-intensity-0-hover);
+  --color-calendar-intensity-1: var(--calendar-intensity-1);
+  --color-calendar-intensity-1-foreground: var(--calendar-intensity-1-foreground);
+  --color-calendar-intensity-1-hover: var(--calendar-intensity-1-hover);
+  --color-calendar-intensity-2: var(--calendar-intensity-2);
+  --color-calendar-intensity-2-foreground: var(--calendar-intensity-2-foreground);
+  --color-calendar-intensity-2-hover: var(--calendar-intensity-2-hover);
+  --color-calendar-intensity-3: var(--calendar-intensity-3);
+  --color-calendar-intensity-3-foreground: var(--calendar-intensity-3-foreground);
+  --color-calendar-intensity-3-hover: var(--calendar-intensity-3-hover);
+  --color-calendar-intensity-4: var(--calendar-intensity-4);
+  --color-calendar-intensity-5: var(--calendar-intensity-5);
+  --color-calendar-intensity-5-hover: var(--calendar-intensity-5-hover);
+  --color-editor-mark: var(--editor-mark);
+
+  --shadow-calendar-selected: var(--calendar-selected-shadow);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -146,14 +192,10 @@
 
   /* GitHub-style highlight */
   .markdownnote-editor-container mark {
-    background-color: #fff8c5;
+    background-color: var(--color-editor-mark);
     color: inherit;
     border-radius: 2px;
     padding: 0 2px;
-  }
-
-  .dark .markdownnote-editor-container mark {
-    background-color: rgba(210, 153, 34, 0.4);
   }
 }
 
