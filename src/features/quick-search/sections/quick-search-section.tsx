@@ -59,10 +59,10 @@ const QuickSearchItem = (props: QuickSearchItemProps) => {
         setIsDragging(false);
         onDragEnd();
       }}
-      className='flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-sidebar-accent group list-none bg-sidebar'
+      className='flex items-center justify-between rounded-md pl-0 pr-1 py-1.5 hover:bg-sidebar-accent group list-none bg-sidebar'
     >
       <RiDraggable
-        className='size-3.5 mr-1 shrink-0 cursor-grab select-none text-muted-foreground opacity-0 group-hover:opacity-100 active:cursor-grabbing'
+        className='size-3.5 mr-1 shrink-0 cursor-grab select-none text-muted-foreground active:cursor-grabbing'
         onPointerDown={(e) => dragControls.start(e)}
       />
       <button
