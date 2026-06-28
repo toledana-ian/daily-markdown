@@ -137,7 +137,7 @@ export const QuickSearchSection = (props: QuickSearchSectionProps) => {
           Loading...
         </p>
       ) : localOrder.length === 0 ? (
-        <p className='text-sm text-muted-foreground px-1'>No quick search items.</p>
+        <p className='text-sm text-muted-foreground px-1 mt-3'>No quick search items.</p>
       ) : (
         <Reorder.Group
           axis='y'
