@@ -42,6 +42,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "heic2any": "^0.0.4",
     "katex": "^0.16.40",
     "motion": "^12.42.0",
     "react": "^19.2.0",
