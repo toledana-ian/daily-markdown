@@ -61,7 +61,7 @@ const QuickSearchItem = (props: QuickSearchItemProps) => {
         setIsDragging(false);
         onDragEnd();
       }}
-      className='flex items-center justify-between rounded-md pl-0 pr-1 py-1.5 hover:bg-[#e6f7f8] group list-none bg-sidebar'
+      className='flex items-center justify-between  rounded-xs px-0 py-1.5 hover:bg-gray-200 group list-none bg-sidebar'
     >
       <RiDraggable
         className='size-3.5 mr-1 shrink-0 cursor-grab select-none touch-none text-muted-foreground active:cursor-grabbing'
@@ -78,7 +78,7 @@ const QuickSearchItem = (props: QuickSearchItemProps) => {
         type='button'
         aria-label={`Remove ${item}`}
         onClick={() => onSetRemoveTarget(item)}
-        className='opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground ml-1 shrink-0'
+        className='opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground ml-1 shrink-0 mr-1'
       >
         <RiCloseLine className='size-3.5' />
       </button>
