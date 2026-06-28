@@ -134,8 +134,10 @@ export const QuickSearchSection = (props: QuickSearchSectionProps) => {
       {isLoading ? (
         <p className='text-sm text-muted-foreground flex gap-1 px-1 mt-3'>
           <Spinner className='my-auto' />
-          Loading quick search items...
+          Loading...
         </p>
+      ) : localOrder.length === 0 ? (
+        <p className='text-sm text-muted-foreground px-1'>No quick search items.</p>
       ) : (
         <Reorder.Group
           axis='y'
