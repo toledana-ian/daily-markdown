@@ -14,7 +14,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "knip": "knip",
-    "db:generate": "drizzle-kit generate",
+    "db:generate": "bash -c 'if [ -z \"$1\" ]; then echo \"Usage: bun run db:generate <name>\"; exit 1; fi; drizzle-kit generate --name \"$1\"' --",
     "db:migrate": "drizzle-kit migrate",
     "deploy": "bun run build && bunx wrangler deploy"
   },
@@ -43,6 +43,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "katex": "^0.16.40",
+    "motion": "^12.42.0",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.0",

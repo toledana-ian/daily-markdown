@@ -57,6 +57,13 @@
       "when": 1782535492086,
       "tag": "0007_quick_search_items",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782584695897,
+      "tag": "0008_quick_search_sort_order",
+      "breakpoints": true
     }
   ]
 }
