@@ -44,6 +44,10 @@ export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
   }, [updateThumb]);
 
   const onScroll = useCallback(() => {
+    const container = containerRef.current;
+    if (container) {
+      setIsScrollable(container.scrollHeight > container.clientHeight + 1);
+    }
     scheduleThumbUpdate();
     setIsScrolling(true);
 
