@@ -190,6 +190,45 @@
     @apply rounded-full;
   }
 
+  .note-card-preview-scroll {
+    -ms-overflow-style: none; /* IE/Edge legacy */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .note-card-preview-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .note-card-preview-scroll-indicator {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    right: 2px;
+    width: 6px;
+    pointer-events: none;
+    transition: opacity 150ms ease;
+    z-index: 10;
+  }
+
+  .note-card-preview-scroll-thumb {
+    width: 100%;
+    height: 0;
+    border-radius: 9999px;
+    background-color: rgba(0, 0, 0, 0.2);
+    will-change: transform, height;
+  }
+
+  .dark .note-card-preview-scroll-thumb {
+    background-color: rgba(255, 255, 255, 0.28);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .note-card-preview-scroll-indicator {
+      transition: none;
+    }
+  }
+
   /* GitHub-style highlight */
   .markdownnote-editor-container mark {
     background-color: var(--color-editor-mark);
