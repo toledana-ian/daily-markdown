@@ -8,6 +8,7 @@ type NoteCardPreviewProps = {
 
 export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const indicatorRef = useRef<HTMLDivElement | null>(null);
   const thumbRef = useRef<HTMLDivElement | null>(null);
   const hideTimerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -22,8 +23,7 @@ export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
     const { scrollTop, scrollHeight, clientHeight } = container;
     const maxScrollTop = Math.max(0, scrollHeight - clientHeight);
 
-    // A little inner padding so the indicator doesn't touch the card edges.
-    const trackHeight = Math.max(0, clientHeight - 16);
+    const trackHeight = Math.max(0, indicatorRef.current?.clientHeight ?? 0);
     const minThumbHeight = 28;
     const desiredThumbHeight =
       maxScrollTop === 0 ? trackHeight : (clientHeight / scrollHeight) * trackHeight;
@@ -103,7 +103,7 @@ export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
         <Markdown content={content} emptyMessage='This note is empty.' />
       </div>
 
-      <div className='note-card-preview-scroll-indicator' aria-hidden='true'>
+      <div className='note-card-preview-scroll-indicator' aria-hidden='true' ref={indicatorRef}>
         <div ref={thumbRef} className='note-card-preview-scroll-thumb' />
       </div>
     </div>
