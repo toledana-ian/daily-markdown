@@ -88,7 +88,10 @@ export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
   useEffect(() => {
     return () => {
       if (hideTimerRef.current != null) window.clearTimeout(hideTimerRef.current);
-      if (rafRef.current != null) window.cancelAnimationFrame(rafRef.current);
+      if (rafRef.current != null) {
+        window.cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
     };
   }, []);
 
