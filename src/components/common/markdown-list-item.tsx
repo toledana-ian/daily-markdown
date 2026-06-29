@@ -5,6 +5,9 @@ import { MarkdownCheckboxInput } from '@/components/common/markdown-checkbox-inp
 
 const LIST_STYLES = ['disc', 'circle', 'square'];
 
+const isEmptyNewlineText = (child: ReactNode): boolean =>
+  typeof child === 'string' && child.includes('\n') && child.trim() === '';
+
 const isNestedList = (child: ReactNode): boolean => {
   if (!isValidElement(child)) return false;
   const node = (child.props as { node?: Element }).node;
@@ -36,12 +39,16 @@ export const MarkdownListItem = ({
   if (children && Array.isArray(children)) {
     const childArray = children as ReactNode[];
     renderChildren = childArray
-      .filter((child) => child !== '\n')
-      .map((child: ReactNode) => {
+      .filter((child) => !isEmptyNewlineText(child))
+      .flatMap((child: ReactNode) => {
         if (isValidElement(child) && (child.props as { node?: Element }).node?.tagName === 'p') {
-          return (child.props as { children?: ReactNode }).children;
+          const unwrapped = (child.props as { children?: ReactNode }).children;
+          if (Array.isArray(unwrapped)) {
+            return unwrapped.filter((nestedChild) => !isEmptyNewlineText(nestedChild));
+          }
+          return isEmptyNewlineText(unwrapped) ? [] : [unwrapped];
         }
-        return child;
+        return [child];
       });
   }
 
@@ -65,5 +72,9 @@ export const MarkdownListItem = ({
     );
   }
 
-  return <li ref={liRef} {...props}>{renderChildren}</li>;
+  return (
+    <li ref={liRef} {...props}>
+      {renderChildren}
+    </li>
+  );
 };
