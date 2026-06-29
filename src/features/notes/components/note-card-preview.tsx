@@ -23,7 +23,10 @@ export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
     const { scrollTop, scrollHeight, clientHeight } = container;
     const maxScrollTop = Math.max(0, scrollHeight - clientHeight);
 
-    const trackHeight = Math.max(0, indicatorRef.current?.clientHeight ?? 0);
+    const trackHeight =
+      indicatorRef.current?.clientHeight ||
+      Math.max(0, (containerRef.current?.clientHeight ?? 0) - 16);
+    if (trackHeight === 0) return;
     const minThumbHeight = 28;
     const desiredThumbHeight =
       maxScrollTop === 0 ? trackHeight : (clientHeight / scrollHeight) * trackHeight;
@@ -93,8 +96,6 @@ export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
     <div
       aria-label='Open note'
       className='note-card-preview group relative flex h-96 cursor-pointer flex-col overflow-hidden rounded-sm bg-white shadow-sm outline-0 transition hover:-translate-y-0.5 hover:shadow-md'
-      data-scrolling={isScrolling ? 'true' : 'false'}
-      data-scrollable={isScrollable ? 'true' : 'false'}
       onClick={onClick}
       role='button'
       tabIndex={0}
@@ -107,7 +108,12 @@ export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
         <Markdown content={content} emptyMessage='This note is empty.' />
       </div>
 
-      <div className='note-card-preview-scroll-indicator' aria-hidden='true' ref={indicatorRef}>
+      <div
+        className='note-card-preview-scroll-indicator'
+        aria-hidden='true'
+        ref={indicatorRef}
+        style={{ opacity: isScrollable && isScrolling ? 1 : 0 }}
+      >
         <div ref={thumbRef} className='note-card-preview-scroll-thumb' />
       </div>
     </div>
