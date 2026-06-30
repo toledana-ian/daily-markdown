@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { format } from 'date-fns';
+import { format, startOfDay, startOfMonth } from 'date-fns';
 import type { DayButton } from 'react-day-picker';
 
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
@@ -64,6 +64,7 @@ export function NotesCalendar(props: NotesCalendarProps) {
     selected,
     month,
     defaultMonth,
+    disabled,
     ...calendarProps
   } = props;
   const isControlled = Object.prototype.hasOwnProperty.call(props, 'selected');
@@ -72,6 +73,15 @@ export function NotesCalendar(props: NotesCalendarProps) {
   );
 
   const resolvedSelected = isControlled ? selected : internalSelected;
+  const today = startOfDay(new Date());
+  const currentMonth = startOfMonth(today);
+  const resolvedDisabled = React.useMemo(() => {
+    const disableFutureDates = { after: today };
+    if (!disabled) return disableFutureDates;
+    return Array.isArray(disabled)
+      ? [...disabled, disableFutureDates]
+      : [disabled, disableFutureDates];
+  }, [disabled, today]);
 
   const handleSelect = React.useCallback(
     (date: Date | undefined) => {
@@ -91,6 +101,8 @@ export function NotesCalendar(props: NotesCalendarProps) {
       onSelect={handleSelect}
       month={month}
       defaultMonth={defaultMonth ?? resolvedSelected ?? new Date()}
+      disabled={resolvedDisabled}
+      toMonth={currentMonth}
       onDayClick={onDayClick}
       className='bg-transparent'
       components={{
