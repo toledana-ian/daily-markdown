@@ -54,7 +54,7 @@ const sanitizeSegment = (value: string) =>
 
 const getFileExtension = (fileName: string) => {
   const parts = fileName.split('.');
-  return parts.length > 1 ? parts.at(-1)?.toLowerCase() ?? 'png' : 'png';
+  return parts.length > 1 ? (parts.at(-1)?.toLowerCase() ?? 'png') : 'png';
 };
 
 const getAltText = (fileName: string) => {
@@ -62,7 +62,61 @@ const getAltText = (fileName: string) => {
   return baseName || 'Image';
 };
 
-const isImageFile = (file: File) => file.type.startsWith('image/');
+const isHeicLikeFile = (file: File) => {
+  const extension = getFileExtension(file.name);
+  if (extension === 'heic' || extension === 'heif') {
+    return true;
+  }
+
+  const type = file.type.toLowerCase();
+  return (
+    type === 'image/heic' ||
+    type === 'image/heif' ||
+    type === 'image/heic-sequence' ||
+    type === 'image/heif-sequence'
+  );
+};
+
+const isImageFile = (file: File) => file.type.startsWith('image/') || isHeicLikeFile(file);
+
+type Heic2Any = (options: {
+  blob: Blob;
+  toType: string;
+  quality?: number;
+}) => Promise<Blob | Blob[]>;
+
+const convertHeicToJpegIfNeeded = async (file: File) => {
+  if (!isHeicLikeFile(file)) {
+    return file;
+  }
+
+  let heic2any: Heic2Any;
+  try {
+    const module = (await import('heic2any')) as unknown as { default?: Heic2Any };
+    heic2any = module.default as Heic2Any;
+  } catch (error) {
+    throw new Error('HEIC conversion is unavailable in this browser.', { cause: error });
+  }
+
+  let jpegBlob: Blob;
+  try {
+    const output = await heic2any({
+      blob: file,
+      toType: 'image/jpeg',
+      quality: 0.92,
+    });
+
+    jpegBlob = Array.isArray(output) ? output[0] : output;
+  } catch (error) {
+    throw new Error('Failed to convert HEIC image to JPEG.', { cause: error });
+  }
+
+  const baseName = file.name.replace(/\.[^.]+$/, '').trim() || 'image';
+  return new File([jpegBlob], `${baseName}.jpg`, {
+    type: 'image/jpeg',
+    lastModified: file.lastModified,
+  });
+};
 
 const escapeSvgText = (value: string) =>
   value
@@ -148,7 +202,7 @@ const estimateSvgTextWidth = (value: string, fontSize: number, letterSpacing = 0
       return total + 0.62;
     }
 
-    if ('ijlI1|.,:;!\'` '.includes(character)) {
+    if ("ijlI1|.,:;!'` ".includes(character)) {
       return total + 0.32;
     }
 
@@ -216,13 +270,14 @@ export const uploadNoteFile = async ({
   userId,
 }: UploadNoteImageParams): Promise<UploadNoteFileResult> => {
   const alt = getAltText(file.name);
-  const extension = getFileExtension(file.name);
+  const uploadFile = await convertHeicToJpegIfNeeded(file);
+  const extension = getFileExtension(uploadFile.name);
   const safeBaseName = sanitizeSegment(alt) || 'file';
   const path = `${userId}/${formatTimestamp(now())}-${randomId()}-${safeBaseName}.${extension}`;
   const storage = supabase.storage.from(bucket);
-  const { error } = await storage.upload(path, file, {
+  const { error } = await storage.upload(path, uploadFile, {
     cacheControl: '3600',
-    contentType: file.type || 'application/octet-stream',
+    contentType: uploadFile.type || 'application/octet-stream',
     upsert: false,
   });
 
@@ -235,7 +290,7 @@ export const uploadNoteFile = async ({
   } = storage.getPublicUrl(path);
 
   let thumbnailUrl: string | undefined;
-  if (!isImageFile(file)) {
+  if (!isImageFile(uploadFile)) {
     const svgContent = createFileThumbnailSvg(alt, extension);
     const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
     const thumbnailPath = `${userId}/${formatTimestamp(now())}-${randomId()}-${safeBaseName}-thumbnail.svg`;
@@ -246,12 +301,12 @@ export const uploadNoteFile = async ({
     });
     if (!thumbnailError) {
       thumbnailUrl = storage.getPublicUrl(thumbnailPath).data.publicUrl;
-    }else {
+    } else {
       throw new Error('Failed to upload.');
     }
   }
 
-  if (isImageFile(file)){
+  if (isImageFile(uploadFile)) {
     return {
       alt,
       isImage: true,
