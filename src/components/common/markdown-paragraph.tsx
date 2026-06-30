@@ -24,5 +24,9 @@ export const MarkdownParagraph = ({
     return <div {...props}>{children}</div>;
   }
 
-  return <p {...props} style={{marginBottom: 4}}>{children}</p>;
+  return (
+    <p {...props} style={{ marginBottom: 4, ...props.style }}>
+      {children}
+    </p>
+  );
 };
