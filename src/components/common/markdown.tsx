@@ -2,6 +2,8 @@ import 'katex/dist/katex.min.css';
 import 'rehype-github-alerts/styling/css/index.css';
 import { rehypeGithubAlerts } from 'rehype-github-alerts';
 import rehypeRaw from 'rehype-raw';
+import remarkBreaks from 'remark-breaks';
+import remarkGfm from 'remark-gfm';
 import 'streamdown/styles.css';
 import { Streamdown, type StreamdownProps } from 'streamdown';
 import { visit } from 'unist-util-visit';
@@ -9,6 +11,7 @@ import { markdownComponents, markdownPlugins } from '@/components/common/markdow
 import { cn } from '@/lib/utils';
 
 // Known valid HTML element tag names
+// prettier-ignore
 const KNOWN_HTML_TAGS = new Set([
   'a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base',
   'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption',
@@ -27,14 +30,47 @@ const KNOWN_HTML_TAGS = new Set([
 
 function rehypeStripUnknownElements() {
   return (tree: Parameters<typeof visit>[0]) => {
-    visit(tree, 'element', (node: { type: string; tagName: string; children: unknown[] }, index, parent) => {
-      if (!KNOWN_HTML_TAGS.has(node.tagName) && parent && typeof index === 'number') {
-        (parent as { children: unknown[] }).children.splice(index, 1, ...node.children);
-        return index;
+    visit(
+      tree,
+      'element',
+      (node: { type: string; tagName: string; children: unknown[] }, index, parent) => {
+        if (!KNOWN_HTML_TAGS.has(node.tagName) && parent && typeof index === 'number') {
+          (parent as { children: unknown[] }).children.splice(index, 1, ...node.children);
+          return index;
+        }
+      },
+    );
+  };
+}
+
+type MarkdownCodeNode = {
+  meta?: string | null;
+  data?: {
+    hProperties?: Record<string, unknown>;
+  };
+};
+
+function remarkCodeMeta() {
+  return (tree: Parameters<typeof visit>[0]) => {
+    visit(tree, 'code', (node: MarkdownCodeNode) => {
+      if (!node.meta) {
+        return;
       }
+
+      node.data ??= {};
+      node.data.hProperties = {
+        ...node.data.hProperties,
+        metastring: node.meta,
+      };
     });
   };
 }
+
+const markdownRemarkPlugins: NonNullable<StreamdownProps['remarkPlugins']> = [
+  [remarkGfm, {}],
+  remarkCodeMeta,
+  remarkBreaks,
+];
 
 const markdownRehypePlugins: NonNullable<StreamdownProps['rehypePlugins']> = [
   rehypeRaw,
@@ -62,6 +98,7 @@ export const Markdown = ({ className, content, emptyMessage }: MarkdownProps) =>
       components={markdownComponents}
       mode='static'
       plugins={markdownPlugins}
+      remarkPlugins={markdownRemarkPlugins}
       rehypePlugins={markdownRehypePlugins}
       linkSafety={{ enabled: false }}
       children={content}
