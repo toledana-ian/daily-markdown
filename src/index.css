@@ -51,7 +51,7 @@
   --calendar-outside-foreground: #9ca3af;
   --calendar-disabled-foreground: color-mix(
     in oklch,
-    var(--calendar-outside-foreground) 70%,
+    var(--calendar-outside-foreground) 95%,
     var(--background)
   );
   --calendar-selected: #0f766e;
