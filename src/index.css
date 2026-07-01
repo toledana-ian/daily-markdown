@@ -49,6 +49,11 @@
 
   --calendar-accent: #6bc0c4;
   --calendar-outside-foreground: #9ca3af;
+  --calendar-disabled-foreground: color-mix(
+    in oklch,
+    var(--calendar-outside-foreground) 70%,
+    var(--background)
+  );
   --calendar-selected: #0f766e;
   --calendar-selected-hover: #0b5f59;
   --calendar-selected-shadow: 0 0 0 3px rgba(107, 192, 196, 0.3);
@@ -142,6 +147,7 @@
 
   --color-calendar-accent: var(--calendar-accent);
   --color-calendar-outside-foreground: var(--calendar-outside-foreground);
+  --color-calendar-disabled-foreground: var(--calendar-disabled-foreground);
   --color-calendar-selected: var(--calendar-selected);
   --color-calendar-selected-hover: var(--calendar-selected-hover);
   --color-calendar-intensity-0-hover: var(--calendar-intensity-0-hover);
