@@ -111,6 +111,10 @@ export function NotesCalendar(props: NotesCalendarProps) {
         ),
       }}
       {...calendarProps}
+      classNames={{
+        disabled: 'text-calendar-disabled-foreground',
+        ...calendarProps.classNames,
+      }}
     />
   );
 }
@@ -145,7 +149,7 @@ function NotesCalendarDayButton({
         modifiers.outside &&
           'border-transparent bg-transparent text-calendar-outside-foreground hover:bg-transparent',
         modifiers.disabled &&
-          'border-transparent bg-transparent text-calendar-outside-foreground hover:bg-transparent',
+          'border-transparent bg-transparent text-calendar-disabled-foreground hover:bg-transparent',
         modifiers.selected &&
           'border-calendar-selected bg-calendar-selected text-white shadow-calendar-selected hover:bg-calendar-selected-hover',
         className,
