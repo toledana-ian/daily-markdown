@@ -1,8 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CheckboxContext } from '@/components/common/checkbox-context';
 import { Markdown } from '@/components/common/markdown';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
+import {
+  findContentEditableTableSpans,
+  replaceContentEditableTableAtIndex,
+  serializeContentEditableTable,
+} from '@/features/notes/lib/note-view-dialog-tables';
 import { useTailwindScreen } from '@/hooks/useTailwindScreen';
 
 type CheckboxInfo = {
@@ -94,7 +99,13 @@ export const NoteViewDialog = ({
 }: NoteViewDialogProps) => {
   const screen = useTailwindScreen();
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [previewContainer, setPreviewContainer] = useState<HTMLDivElement | null>(null);
+
+  const setContainerRef = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    setPreviewContainer(node);
+  }, []);
 
   const checkboxMeta = useMemo(() => parseCheckboxes(content), [content]);
   const checkboxContextValue = useMemo(() => ({ enabled: !!onSave }), [onSave]);
@@ -109,6 +120,50 @@ export const NoteViewDialog = ({
       input.setAttribute('data-parent-index', String(meta.parentIndex));
     });
   }, [content, checkboxMeta]);
+
+  useEffect(() => {
+    if (!onSave || !open || !previewContainer) return;
+
+    const container = previewContainer;
+    const dirtyTables = new WeakSet<HTMLTableElement>();
+
+    const handleInput = (event: Event) => {
+      const table = (event.target as HTMLElement).closest('table[contenteditable="true"]');
+      if (!table || !container.contains(table)) return;
+      dirtyTables.add(table as HTMLTableElement);
+    };
+
+    const handleFocusOut = (event: FocusEvent) => {
+      const table = (event.target as HTMLElement).closest('table[contenteditable="true"]');
+      if (!table || !container.contains(table)) return;
+
+      const relatedTarget = event.relatedTarget as Node | null;
+      if (relatedTarget && table.contains(relatedTarget)) return;
+      if (!dirtyTables.has(table as HTMLTableElement)) return;
+
+      dirtyTables.delete(table as HTMLTableElement);
+      const tables = container.querySelectorAll('table[contenteditable="true"]');
+      const index = Array.from(tables).indexOf(table);
+      if (index === -1) return;
+
+      const originalTableHtml = findContentEditableTableSpans(content)[index]?.html;
+      if (!originalTableHtml) return;
+
+      const serialized = serializeContentEditableTable(table as HTMLTableElement, originalTableHtml);
+      const updated = replaceContentEditableTableAtIndex(content, index, serialized);
+      if (updated !== content) {
+        onSave(updated);
+      }
+    };
+
+    container.addEventListener('input', handleInput);
+    container.addEventListener('focusout', handleFocusOut);
+
+    return () => {
+      container.removeEventListener('input', handleInput);
+      container.removeEventListener('focusout', handleFocusOut);
+    };
+  }, [content, onSave, open, previewContainer]);
 
   const handleContainerClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -134,7 +189,7 @@ export const NoteViewDialog = ({
   const preview = (
     <CheckboxContext.Provider value={checkboxContextValue}>
       <div
-        ref={containerRef}
+        ref={setContainerRef}
         aria-label='Preview note'
         className='p-6 h-full wrap-anywhere'
         onClickCapture={handleContainerClick}
