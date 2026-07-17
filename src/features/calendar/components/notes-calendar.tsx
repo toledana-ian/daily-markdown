@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { format } from 'date-fns';
+import { format, startOfDay, startOfMonth } from 'date-fns';
 import type { DayButton } from 'react-day-picker';
 
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
@@ -25,12 +25,12 @@ interface NotesCalendarProps extends Omit<
 }
 
 const INTENSITY_STYLES: Record<number, string> = {
-  0: 'text-foreground hover:border-[#6bc0c4] hover:bg-[rgba(107,192,196,0.15)]',
-  1: 'bg-[#e6f7f8] text-[#0f4f52] hover:bg-[#d8f1f2]',
-  2: 'bg-[#bfeaec] text-[#0c4447] hover:bg-[#acdfe2]',
-  3: 'bg-[#8fd9dd] text-[#08393c] hover:bg-[#7fcfd4]',
-  4: 'bg-[#4fc4c9] text-white hover:bg-[#white] hover:text-white',
-  5: 'bg-[#2aa6ab] text-white hover:bg-[#24979b] hover:text-white',
+  0: 'text-foreground hover:border-calendar-accent hover:bg-calendar-intensity-0-hover',
+  1: 'bg-calendar-intensity-1 text-calendar-intensity-1-foreground hover:bg-calendar-intensity-1-hover',
+  2: 'bg-calendar-intensity-2 text-calendar-intensity-2-foreground hover:bg-calendar-intensity-2-hover',
+  3: 'bg-calendar-intensity-3 text-calendar-intensity-3-foreground hover:bg-calendar-intensity-3-hover',
+  4: 'bg-calendar-intensity-4 text-white hover:bg-calendar-intensity-4 hover:text-white',
+  5: 'bg-calendar-intensity-5 text-white hover:bg-calendar-intensity-5-hover hover:text-white',
 };
 
 //========== Helper Functions  ==========//
@@ -64,6 +64,7 @@ export function NotesCalendar(props: NotesCalendarProps) {
     selected,
     month,
     defaultMonth,
+    disabled,
     ...calendarProps
   } = props;
   const isControlled = Object.prototype.hasOwnProperty.call(props, 'selected');
@@ -72,6 +73,15 @@ export function NotesCalendar(props: NotesCalendarProps) {
   );
 
   const resolvedSelected = isControlled ? selected : internalSelected;
+  const today = startOfDay(new Date());
+  const currentMonth = startOfMonth(today);
+  const resolvedDisabled = React.useMemo(() => {
+    const disableFutureDates = { after: today };
+    if (!disabled) return disableFutureDates;
+    return Array.isArray(disabled)
+      ? [...disabled, disableFutureDates]
+      : [disabled, disableFutureDates];
+  }, [disabled, today]);
 
   const handleSelect = React.useCallback(
     (date: Date | undefined) => {
@@ -84,13 +94,15 @@ export function NotesCalendar(props: NotesCalendarProps) {
     [isControlled, onSelect],
   );
 
-  return(
+  return (
     <Calendar
       mode='single'
       selected={resolvedSelected ?? undefined}
       onSelect={handleSelect}
       month={month}
       defaultMonth={defaultMonth ?? resolvedSelected ?? new Date()}
+      disabled={resolvedDisabled}
+      toMonth={currentMonth}
       onDayClick={onDayClick}
       className='bg-transparent'
       components={{
@@ -99,6 +111,10 @@ export function NotesCalendar(props: NotesCalendarProps) {
         ),
       }}
       {...calendarProps}
+      classNames={{
+        disabled: 'text-calendar-disabled-foreground',
+        ...calendarProps.classNames,
+      }}
     />
   );
 }
@@ -129,13 +145,13 @@ function NotesCalendarDayButton({
         isInteractive &&
           modifiers.today &&
           !modifiers.selected &&
-          'border-2 border-[#6bc0c4] shadow-none',
+          'border-2 border-calendar-accent shadow-none',
         modifiers.outside &&
-          'border-transparent bg-transparent text-[#9ca3af] hover:bg-transparent',
+          'border-transparent bg-transparent text-calendar-outside-foreground hover:bg-transparent',
         modifiers.disabled &&
-          'border-transparent bg-transparent text-[#9ca3af] hover:bg-transparent',
+          'border-transparent bg-transparent text-calendar-disabled-foreground hover:bg-transparent',
         modifiers.selected &&
-          'border-[#0f766e] bg-[#0f766e] text-white shadow-[0_0_0_3px_rgba(107,192,196,0.3)] hover:bg-[#0b5f59]',
+          'border-calendar-selected bg-calendar-selected text-white shadow-calendar-selected hover:bg-calendar-selected-hover',
         className,
       )}
       {...props}

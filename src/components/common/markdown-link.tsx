@@ -7,5 +7,5 @@ export const MarkdownLink = ({
   node,
   ...props
 }: JSX.IntrinsicElements['a'] & { node?: Element }) => {
-  return <a {...props} target={'_blank'} className={'flex w-fit underline text-primary'}>{children}</a>;
+  return <a {...props} target={'_blank'} className={'inline-flex w-fit underline text-primary'}>{children}</a>;
 };
