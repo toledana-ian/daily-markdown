@@ -212,6 +212,11 @@ export const NoteViewDialog = ({
       container.removeEventListener('input', handleInput);
       container.removeEventListener('focusout', handleFocusOut);
       window.clearInterval(autosaveId);
+
+      // Flush any edit that hasn't hit the 5s autosave yet — this cleanup
+      // also runs when `open` flips to false (dialog closing) or on unmount,
+      // so in-progress table edits aren't lost without an explicit blur.
+      dirtyTables.forEach(commitTable);
     };
   }, [displayContent, onSave, open, previewContainer]);
 

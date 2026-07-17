@@ -130,6 +130,48 @@ describe('NoteViewDialog', () => {
     expect(table).toHaveAttribute('contenteditable', 'true');
   });
 
+  it('flushes a dirty table edit when the dialog closes, without blur or the autosave timer', async () => {
+    const onSave = vi.fn();
+    const content = [
+      'Intro',
+      '<table contenteditable="true"><tr><td>Cell</td></tr></table>',
+      'Outro',
+    ].join('\n');
+
+    const { rerender } = render(
+      <NoteViewDialog
+        content={content}
+        onEdit={vi.fn()}
+        onOpenChange={vi.fn()}
+        onSave={onSave}
+        open
+      />,
+    );
+
+    const cell = await screen.findByText('Cell');
+    cell.textContent = 'Updated';
+    fireEvent.input(cell, { bubbles: true });
+
+    expect(onSave).not.toHaveBeenCalled();
+
+    rerender(
+      <NoteViewDialog
+        content={content}
+        onEdit={vi.fn()}
+        onOpenChange={vi.fn()}
+        onSave={onSave}
+        open={false}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledTimes(1);
+    });
+
+    const saved = onSave.mock.calls[0]?.[0] as string;
+    expect(saved).toContain('Updated');
+  });
+
   it('does not save blur on non-contenteditable tables', async () => {
     const onSave = vi.fn();
     const content = '<table><tr><td>Static</td></tr></table>';
