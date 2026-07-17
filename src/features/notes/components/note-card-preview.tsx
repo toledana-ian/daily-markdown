@@ -104,11 +104,17 @@ export const NoteCardPreview = ({ content, onClick }: NoteCardPreviewProps) => {
       tabIndex={0}
     >
       <div
-        className='note-card-preview-scroll flex-1 overflow-auto wrap-anywhere p-4'
+        className='note-card-preview-scroll relative flex-1 overflow-auto wrap-anywhere p-4'
         onScroll={onScroll}
         ref={containerRef}
       >
-        <Markdown content={content} emptyMessage='This note is empty.' />
+        <div className='pointer-events-none'>
+          <Markdown content={content} emptyMessage='This note is empty.' />
+        </div>
+        <div
+          aria-hidden='true'
+          className='note-card-preview-interaction-shield absolute inset-0 z-[1] cursor-pointer touch-pan-y'
+        />
       </div>
 
       <div
