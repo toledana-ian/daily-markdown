@@ -154,14 +154,17 @@ export const NoteViewDialog = ({
 
     // The `contenteditable` attribute is deferred to `data-content-editable` by
     // markdown.tsx to avoid React's contentEditable/children warning; apply it
-    // to the real DOM here so the browser makes these tables editable. This
-    // effect keys off `displayContent` (what Markdown actually renders) rather
-    // than `content`, since `content` can change without a remount while a
-    // table is focused (see the autosave buffering above) — depending on
-    // `content` here would miss re-applying the attribute to the fresh table
-    // node once a remount does happen, leaving it non-editable after blur.
-    const editableTables = container.querySelectorAll('table[data-content-editable="true"]');
-    editableTables.forEach((table) => table.setAttribute('contenteditable', 'true'));
+    // to the real DOM here so the browser makes these elements editable again.
+    // Not just the outer table — authored/pasted table HTML can carry
+    // `contenteditable="true"` on nested `tr`/`td` elements too, and those get
+    // the same deferral treatment, so every marked element is re-applied here.
+    // This effect keys off `displayContent` (what Markdown actually renders)
+    // rather than `content`, since `content` can change without a remount
+    // while a table is focused (see the autosave buffering above) — depending
+    // on `content` here would miss re-applying the attribute to fresh nodes
+    // once a remount does happen, leaving them non-editable after blur.
+    const editableElements = container.querySelectorAll('[data-content-editable="true"]');
+    editableElements.forEach((element) => element.setAttribute('contenteditable', 'true'));
 
     const dirtyTables = new Set<HTMLTableElement>();
 

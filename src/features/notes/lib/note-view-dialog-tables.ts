@@ -84,10 +84,18 @@ export function replaceContentEditableTableAtIndex(
 }
 
 function stripStreamdownDecorations(root: Element): void {
-  const elements = [root, ...Array.from(root.querySelectorAll('[data-streamdown]'))];
-  for (const element of elements) {
+  const decorated = new Set([
+    root,
+    ...root.querySelectorAll('[data-streamdown]'),
+    ...root.querySelectorAll('[data-content-editable]'),
+  ]);
+  for (const element of decorated) {
     element.removeAttribute('data-streamdown');
     element.removeAttribute('class');
+    // `data-content-editable` is markdown.tsx's marker for deferring
+    // `contenteditable` to a real DOM attribute (see rehypeDeferContentEditable);
+    // it must not leak into the saved markdown as its own HTML attribute.
+    element.removeAttribute('data-content-editable');
   }
 }
 

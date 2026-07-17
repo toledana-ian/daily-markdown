@@ -61,6 +61,41 @@ describe('NoteViewDialog', () => {
     expect(saved).toContain('Outro');
   });
 
+  it('does not warn or leak markers when table cells also carry contenteditable', async () => {
+    const errorSpy = vi.spyOn(console, 'error');
+    const onSave = vi.fn();
+    const content = [
+      'Intro',
+      '<table contenteditable="true"><tr><td contenteditable="true">Cell</td></tr></table>',
+      'Outro',
+    ].join('\n');
+
+    render(
+      <NoteViewDialog
+        content={content}
+        onEdit={vi.fn()}
+        onOpenChange={vi.fn()}
+        onSave={onSave}
+        open
+      />,
+    );
+
+    const cell = await screen.findByText('Cell');
+    expect(errorSpy).not.toHaveBeenCalled();
+
+    cell.textContent = 'Updated';
+    fireEvent.input(cell, { bubbles: true });
+    fireEvent.focusOut(cell, { relatedTarget: document.body, bubbles: true });
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledTimes(1);
+    });
+
+    const saved = onSave.mock.calls[0]?.[0] as string;
+    expect(saved).not.toContain('data-content-editable');
+    expect(saved).toContain('<td contenteditable="true">Updated</td>');
+  });
+
   it('autosaves dirty table edits every 5 seconds without requiring blur', async () => {
     const onSave = vi.fn();
     const content = [
