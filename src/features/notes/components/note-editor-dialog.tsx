@@ -26,7 +26,10 @@ import {
   uploadNoteFile,
   validateFileUploadSize,
 } from '@/features/notes/lib/note-editor-file-upload.ts';
-import { toggleMarkdownWrap, toggleMarkdownWrapAsymmetric } from '@/features/notes/lib/note-editor-markdown-shortcuts.ts';
+import {
+  toggleMarkdownWrap,
+  toggleMarkdownWrapAsymmetric,
+} from '@/features/notes/lib/note-editor-markdown-shortcuts.ts';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -48,6 +51,24 @@ type CommandItem = {
 };
 
 const CURSOR_MARKER = '{{cursor}}';
+
+type EditorTextChange = {
+  from: number;
+  to: number;
+  insert: string;
+};
+
+const mapPosThroughChange = (pos: number, change: EditorTextChange) => {
+  if (pos <= change.from) {
+    return pos;
+  }
+
+  if (pos >= change.to) {
+    return pos + (change.insert.length - (change.to - change.from));
+  }
+
+  return change.from + change.insert.length;
+};
 
 const createCommand = (
   definition: Omit<CommandItem, 'cursorOffset' | 'template'> & { template: string },
@@ -280,6 +301,65 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       contentRef.current = nextContent;
     }, []);
 
+    const applyEditorTextChange = useCallback(
+      (currentView: EditorView, nextContent: string, change: EditorTextChange | null) => {
+        const scrollTopBefore = currentView.scrollDOM.scrollTop;
+        const scrollLeftBefore = currentView.scrollDOM.scrollLeft;
+        const selectionBefore = currentView.state.selection.main;
+
+        if (change) {
+          currentView.dispatch({ changes: change });
+        }
+
+        replaceContent(nextContent);
+
+        requestAnimationFrame(() => {
+          if (!currentView.dom.isConnected) {
+            return;
+          }
+
+          const scrollTopAfter = currentView.scrollDOM.scrollTop;
+          const scrollLeftAfter = currentView.scrollDOM.scrollLeft;
+
+          if (Math.abs(scrollTopAfter - scrollTopBefore) > 8) {
+            currentView.scrollDOM.scrollTop = scrollTopBefore;
+          }
+
+          if (Math.abs(scrollLeftAfter - scrollLeftBefore) > 8) {
+            currentView.scrollDOM.scrollLeft = scrollLeftBefore;
+          }
+
+          const selectionAfter = currentView.state.selection.main;
+          const selectionWasReset =
+            selectionAfter.anchor === 0 &&
+            selectionAfter.head === 0 &&
+            (selectionBefore.anchor !== 0 || selectionBefore.head !== 0);
+
+          if (!selectionWasReset) {
+            return;
+          }
+
+          if (!change) {
+            currentView.dispatch({
+              selection: {
+                anchor: selectionBefore.anchor,
+                head: selectionBefore.head,
+              },
+            });
+            return;
+          }
+
+          currentView.dispatch({
+            selection: {
+              anchor: mapPosThroughChange(selectionBefore.anchor, change),
+              head: mapPosThroughChange(selectionBefore.head, change),
+            },
+          });
+        });
+      },
+      [replaceContent],
+    );
+
     const applyMarkdownShortcut = useCallback(
       (currentView: EditorView, marker: string) => {
         const selection = currentView.state.selection.main;
@@ -407,7 +487,9 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         const label = file.name.replace(/\.[^.]+$/, '').trim() || 'File';
         const placeholder = createUploadingFileMarkdown(label, crypto.randomUUID(), file);
         const nextContent =
-          currentContent.slice(0, selection.from) + placeholder + currentContent.slice(selection.to);
+          currentContent.slice(0, selection.from) +
+          placeholder +
+          currentContent.slice(selection.to);
         const nextCursorPosition = selection.from + placeholder.length;
 
         view.dispatch({
@@ -425,30 +507,91 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         setFileUploadCount((count) => count + 1);
 
         try {
+          const activeView = view;
           const result = await uploadNoteFile({
             file,
             supabase,
             userId,
           });
-          const resolvedContent = contentRef.current.includes(placeholder)
-            ? replaceImagePlaceholder(contentRef.current, placeholder, result.markdown)
-            : `${contentRef.current}\n${result.markdown}`;
 
-          replaceContent(resolvedContent);
+          const baseContent =
+            activeView && activeView.dom.isConnected
+              ? activeView.state.doc.toString()
+              : contentRef.current;
+          const placeholderIndex = baseContent.indexOf(placeholder);
+
+          if (!activeView || !activeView.dom.isConnected) {
+            const resolvedContent =
+              placeholderIndex !== -1
+                ? replaceImagePlaceholder(baseContent, placeholder, result.markdown)
+                : `${baseContent}\n${result.markdown}`;
+            replaceContent(resolvedContent);
+            return;
+          }
+
+          if (placeholderIndex !== -1) {
+            const change = {
+              from: placeholderIndex,
+              to: placeholderIndex + placeholder.length,
+              insert: result.markdown,
+            };
+            const resolvedContent = replaceImagePlaceholder(
+              baseContent,
+              placeholder,
+              result.markdown,
+            );
+            applyEditorTextChange(activeView, resolvedContent, change);
+            return;
+          }
+
+          const change = {
+            from: baseContent.length,
+            to: baseContent.length,
+            insert: `\n${result.markdown}`,
+          };
+          const resolvedContent = `${baseContent}\n${result.markdown}`;
+          applyEditorTextChange(activeView, resolvedContent, change);
         } catch (error) {
-          const resolvedContent = contentRef.current.replace(placeholder, '');
-          replaceContent(resolvedContent);
+          const activeView = view;
+          const baseContent =
+            activeView && activeView.dom.isConnected
+              ? activeView.state.doc.toString()
+              : contentRef.current;
+          const placeholderIndex = baseContent.indexOf(placeholder);
+
+          if (!activeView || !activeView.dom.isConnected) {
+            const resolvedContent =
+              placeholderIndex !== -1 ? baseContent.replace(placeholder, '') : baseContent;
+            replaceContent(resolvedContent);
+            setFileUploadError(error instanceof Error ? error.message : failureMessage);
+            return;
+          }
+
+          if (placeholderIndex === -1) {
+            setFileUploadError(error instanceof Error ? error.message : failureMessage);
+            return;
+          }
+
+          const change = {
+            from: placeholderIndex,
+            to: placeholderIndex + placeholder.length,
+            insert: '',
+          };
+          const resolvedContent = baseContent.replace(placeholder, '');
+          applyEditorTextChange(activeView, resolvedContent, change);
           setFileUploadError(error instanceof Error ? error.message : failureMessage);
         } finally {
           setFileUploadCount((count) => Math.max(0, count - 1));
         }
       },
-      [closeSlashCommands, replaceContent, session?.user?.id, view],
+      [applyEditorTextChange, closeSlashCommands, replaceContent, session?.user?.id, view],
     );
 
     const handleEditorPaste = useCallback(
       async (event: React.ClipboardEvent<HTMLDivElement>) => {
-        const fileItem = Array.from(event.clipboardData?.items ?? []).find((item) => item.kind === 'file');
+        const fileItem = Array.from(event.clipboardData?.items ?? []).find(
+          (item) => item.kind === 'file',
+        );
         const file = fileItem?.getAsFile();
 
         if (!file) {
@@ -462,7 +605,9 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
     );
 
     const handleEditorDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-      const hasFile = Array.from(event.dataTransfer?.items ?? []).some((item) => item.kind === 'file');
+      const hasFile = Array.from(event.dataTransfer?.items ?? []).some(
+        (item) => item.kind === 'file',
+      );
 
       if (!hasFile) {
         return;
@@ -474,7 +619,9 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
 
     const handleEditorDrop = useCallback(
       async (event: React.DragEvent<HTMLDivElement>) => {
-        const fileItem = Array.from(event.dataTransfer?.items ?? []).find((item) => item.kind === 'file');
+        const fileItem = Array.from(event.dataTransfer?.items ?? []).find(
+          (item) => item.kind === 'file',
+        );
         const file = fileItem?.getAsFile() ?? Array.from(event.dataTransfer?.files ?? [])[0];
 
         if (!file) {
