@@ -82,6 +82,8 @@ function applyCheckboxToggles(
   return lines.join('\n');
 }
 
+const TABLE_AUTOSAVE_INTERVAL_MS = 5000;
+
 type NoteViewDialogProps = {
   content: string;
   onEdit: () => void;
@@ -110,6 +112,25 @@ export const NoteViewDialog = ({
   const checkboxMeta = useMemo(() => parseCheckboxes(content), [content]);
   const checkboxContextValue = useMemo(() => ({ enabled: !!onSave }), [onSave]);
 
+  // `Markdown` remounts whenever its `content` changes (see markdown.tsx), which
+  // would drop focus/caret position out of a table mid-edit. While a table is
+  // focused we keep rendering the last-synced content so autosaves persist in
+  // the background without disturbing the live DOM the user is typing into;
+  // once focus leaves the table we resync to pick up the committed edits.
+  const [displayContent, setDisplayContent] = useState(content);
+
+  useEffect(() => {
+    const active = document.activeElement;
+    const isEditingTable =
+      !!previewContainer &&
+      !!active &&
+      previewContainer.contains(active) &&
+      !!(active as HTMLElement).closest('table[contenteditable="true"]');
+
+    if (isEditingTable) return;
+    setDisplayContent(content);
+  }, [content, previewContainer]);
+
   useEffect(() => {
     if (!containerRef.current) return;
     const inputs = containerRef.current.querySelectorAll('input[type="checkbox"]');
@@ -132,7 +153,27 @@ export const NoteViewDialog = ({
     const editableTables = container.querySelectorAll('table[data-content-editable="true"]');
     editableTables.forEach((table) => table.setAttribute('contenteditable', 'true'));
 
-    const dirtyTables = new WeakSet<HTMLTableElement>();
+    const dirtyTables = new Set<HTMLTableElement>();
+    let latestContent = content;
+
+    const commitTable = (table: HTMLTableElement) => {
+      if (!dirtyTables.has(table)) return;
+      dirtyTables.delete(table);
+
+      const tables = container.querySelectorAll('table[contenteditable="true"]');
+      const index = Array.from(tables).indexOf(table);
+      if (index === -1) return;
+
+      const originalTableHtml = findContentEditableTableSpans(latestContent)[index]?.html;
+      if (!originalTableHtml) return;
+
+      const serialized = serializeContentEditableTable(table, originalTableHtml);
+      const updated = replaceContentEditableTableAtIndex(latestContent, index, serialized);
+      if (updated === latestContent) return;
+
+      latestContent = updated;
+      onSave(updated);
+    };
 
     const handleInput = (event: Event) => {
       const table = (event.target as HTMLElement).closest('table[contenteditable="true"]');
@@ -146,22 +187,13 @@ export const NoteViewDialog = ({
 
       const relatedTarget = event.relatedTarget as Node | null;
       if (relatedTarget && table.contains(relatedTarget)) return;
-      if (!dirtyTables.has(table as HTMLTableElement)) return;
 
-      dirtyTables.delete(table as HTMLTableElement);
-      const tables = container.querySelectorAll('table[contenteditable="true"]');
-      const index = Array.from(tables).indexOf(table);
-      if (index === -1) return;
-
-      const originalTableHtml = findContentEditableTableSpans(content)[index]?.html;
-      if (!originalTableHtml) return;
-
-      const serialized = serializeContentEditableTable(table as HTMLTableElement, originalTableHtml);
-      const updated = replaceContentEditableTableAtIndex(content, index, serialized);
-      if (updated !== content) {
-        onSave(updated);
-      }
+      commitTable(table as HTMLTableElement);
     };
+
+    const autosaveId = window.setInterval(() => {
+      dirtyTables.forEach(commitTable);
+    }, TABLE_AUTOSAVE_INTERVAL_MS);
 
     container.addEventListener('input', handleInput);
     container.addEventListener('focusout', handleFocusOut);
@@ -169,6 +201,7 @@ export const NoteViewDialog = ({
     return () => {
       container.removeEventListener('input', handleInput);
       container.removeEventListener('focusout', handleFocusOut);
+      window.clearInterval(autosaveId);
     };
   }, [content, onSave, open, previewContainer]);
 
@@ -203,7 +236,7 @@ export const NoteViewDialog = ({
         onDoubleClick={onEdit}
         role='document'
       >
-        <Markdown content={content} emptyMessage='This note is empty.' />
+        <Markdown content={displayContent} emptyMessage='This note is empty.' />
       </div>
     </CheckboxContext.Provider>
   );

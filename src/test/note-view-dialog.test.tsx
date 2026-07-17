@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
 
@@ -42,6 +42,53 @@ describe('NoteViewDialog', () => {
     expect(saved).toContain('Updated');
     expect(saved).toContain('Intro');
     expect(saved).toContain('Outro');
+  });
+
+  it('autosaves dirty table edits every 5 seconds without requiring blur', async () => {
+    const onSave = vi.fn();
+    const content = [
+      'Intro',
+      '<table contenteditable="true"><tr><td>Cell</td></tr></table>',
+      'Outro',
+    ].join('\n');
+
+    vi.useFakeTimers();
+    try {
+      render(
+        <NoteViewDialog
+          content={content}
+          onEdit={vi.fn()}
+          onOpenChange={vi.fn()}
+          onSave={onSave}
+          open
+        />,
+      );
+
+      const cell = screen.getByText('Cell');
+      const table = cell.closest('table')!;
+
+      // Let the dialog's own open-transition auto-focus settle before the
+      // user (simulated) clicks into the table, so it doesn't compete with
+      // our assertion on where focus ends up after the autosave interval.
+      await act(() => vi.advanceTimersByTimeAsync(300));
+      table.focus();
+
+      cell.textContent = 'Updated';
+      fireEvent.input(cell, { bubbles: true });
+
+      expect(onSave).not.toHaveBeenCalled();
+
+      await act(() => vi.advanceTimersByTimeAsync(5000));
+
+      expect(onSave).toHaveBeenCalledTimes(1);
+      const saved = onSave.mock.calls[0]?.[0] as string;
+      expect(saved).toContain('Updated');
+
+      // The autosave must not remount the preview and steal focus mid-edit.
+      expect(document.activeElement).toBe(table);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('does not save blur on non-contenteditable tables', async () => {
