@@ -28,6 +28,33 @@ const KNOWN_HTML_TAGS = new Set([
   'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr',
 ]);
 
+// React warns when a component is both `contentEditable` and renders
+// React-managed children ("A component is `contentEditable` and contains
+// `children` managed by React"). Editable tables here are deliberately
+// handed off to the browser and synced back on blur (see note-view-dialog),
+// so the attribute is deferred to a data marker and applied imperatively
+// after mount instead of being rendered as a React prop. This isn't limited
+// to the outer `table` tag: authored/pasted table HTML (or the browser's own
+// editing behavior) can leave `contenteditable="true"` on nested `tr`/`td`
+// elements too, and each of those would trigger the same warning if left as
+// a React prop, so every element is checked, not just tables.
+function rehypeDeferContentEditable() {
+  return (tree: Parameters<typeof visit>[0]) => {
+    visit(
+      tree,
+      'element',
+      (node: { tagName: string; properties?: Record<string, unknown> }) => {
+        if (!node.properties) return;
+
+        const { contentEditable, ...rest } = node.properties;
+        if (contentEditable !== true && contentEditable !== 'true') return;
+
+        node.properties = { ...rest, dataContentEditable: 'true' };
+      },
+    );
+  };
+}
+
 function rehypeStripUnknownElements() {
   return (tree: Parameters<typeof visit>[0]) => {
     visit(
@@ -74,6 +101,7 @@ const markdownRemarkPlugins: NonNullable<StreamdownProps['remarkPlugins']> = [
 
 const markdownRehypePlugins: NonNullable<StreamdownProps['rehypePlugins']> = [
   rehypeRaw,
+  rehypeDeferContentEditable,
   [rehypeGithubAlerts, {}],
   rehypeStripUnknownElements,
 ];

@@ -1,8 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CheckboxContext } from '@/components/common/checkbox-context';
 import { Markdown } from '@/components/common/markdown';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
+import {
+  findContentEditableTableSpans,
+  replaceContentEditableTableAtIndex,
+  serializeContentEditableTable,
+} from '@/features/notes/lib/note-view-dialog-tables';
 import { useTailwindScreen } from '@/hooks/useTailwindScreen';
 
 type CheckboxInfo = {
@@ -77,6 +82,8 @@ function applyCheckboxToggles(
   return lines.join('\n');
 }
 
+const TABLE_AUTOSAVE_INTERVAL_MS = 5000;
+
 type NoteViewDialogProps = {
   content: string;
   onEdit: () => void;
@@ -94,10 +101,40 @@ export const NoteViewDialog = ({
 }: NoteViewDialogProps) => {
   const screen = useTailwindScreen();
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [previewContainer, setPreviewContainer] = useState<HTMLDivElement | null>(null);
+
+  const setContainerRef = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    setPreviewContainer(node);
+  }, []);
 
   const checkboxMeta = useMemo(() => parseCheckboxes(content), [content]);
   const checkboxContextValue = useMemo(() => ({ enabled: !!onSave }), [onSave]);
+
+  // `Markdown` remounts whenever its `content` changes (see markdown.tsx), which
+  // would drop focus/caret position out of a table mid-edit. While a table is
+  // focused we keep rendering the last-synced content so autosaves persist in
+  // the background without disturbing the live DOM the user is typing into;
+  // once focus leaves the table we resync to pick up the committed edits.
+  const [displayContent, setDisplayContent] = useState(content);
+
+  const contentRef = useRef(content);
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
+  useEffect(() => {
+    const active = document.activeElement;
+    const isEditingTable =
+      !!previewContainer &&
+      !!active &&
+      previewContainer.contains(active) &&
+      !!(active as HTMLElement).closest('table[contenteditable="true"]');
+
+    if (isEditingTable) return;
+    setDisplayContent(content);
+  }, [content, previewContainer]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -109,6 +146,82 @@ export const NoteViewDialog = ({
       input.setAttribute('data-parent-index', String(meta.parentIndex));
     });
   }, [content, checkboxMeta]);
+
+  useEffect(() => {
+    if (!onSave || !open || !previewContainer) return;
+
+    const container = previewContainer;
+
+    // The `contenteditable` attribute is deferred to `data-content-editable` by
+    // markdown.tsx to avoid React's contentEditable/children warning; apply it
+    // to the real DOM here so the browser makes these elements editable again.
+    // Not just the outer table — authored/pasted table HTML can carry
+    // `contenteditable="true"` on nested `tr`/`td` elements too, and those get
+    // the same deferral treatment, so every marked element is re-applied here.
+    // This effect keys off `displayContent` (what Markdown actually renders)
+    // rather than `content`, since `content` can change without a remount
+    // while a table is focused (see the autosave buffering above) — depending
+    // on `content` here would miss re-applying the attribute to fresh nodes
+    // once a remount does happen, leaving them non-editable after blur.
+    const editableElements = container.querySelectorAll('[data-content-editable="true"]');
+    editableElements.forEach((element) => element.setAttribute('contenteditable', 'true'));
+
+    const dirtyTables = new Set<HTMLTableElement>();
+
+    const commitTable = (table: HTMLTableElement) => {
+      if (!dirtyTables.has(table)) return;
+      dirtyTables.delete(table);
+
+      const tables = container.querySelectorAll('table[contenteditable="true"]');
+      const index = Array.from(tables).indexOf(table);
+      if (index === -1) return;
+
+      const latestContent = contentRef.current;
+      const originalTableHtml = findContentEditableTableSpans(latestContent)[index]?.html;
+      if (!originalTableHtml) return;
+
+      const serialized = serializeContentEditableTable(table, originalTableHtml);
+      const updated = replaceContentEditableTableAtIndex(latestContent, index, serialized);
+      if (updated === latestContent) return;
+
+      contentRef.current = updated;
+      onSave(updated);
+    };
+
+    const handleInput = (event: Event) => {
+      const table = (event.target as HTMLElement).closest('table[contenteditable="true"]');
+      if (!table || !container.contains(table)) return;
+      dirtyTables.add(table as HTMLTableElement);
+    };
+
+    const handleFocusOut = (event: FocusEvent) => {
+      const table = (event.target as HTMLElement).closest('table[contenteditable="true"]');
+      if (!table || !container.contains(table)) return;
+
+      const relatedTarget = event.relatedTarget as Node | null;
+      if (relatedTarget && table.contains(relatedTarget)) return;
+
+      commitTable(table as HTMLTableElement);
+    };
+
+    const autosaveId = window.setInterval(() => {
+      dirtyTables.forEach(commitTable);
+    }, TABLE_AUTOSAVE_INTERVAL_MS);
+
+    container.addEventListener('input', handleInput);
+    container.addEventListener('focusout', handleFocusOut);
+
+    return () => {
+      container.removeEventListener('input', handleInput);
+      container.removeEventListener('focusout', handleFocusOut);
+      window.clearInterval(autosaveId);
+
+      // Flush any edit that hasn't hit the 5s autosave yet — this cleanup
+      // also runs when `open` flips to false (dialog closing) or on unmount,
+      // so in-progress table edits aren't lost without an explicit blur.
+      dirtyTables.forEach(commitTable);
+    };
+  }, [displayContent, onSave, open, previewContainer]);
 
   const handleContainerClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -134,14 +247,14 @@ export const NoteViewDialog = ({
   const preview = (
     <CheckboxContext.Provider value={checkboxContextValue}>
       <div
-        ref={containerRef}
+        ref={setContainerRef}
         aria-label='Preview note'
         className='p-6 h-full wrap-anywhere'
         onClickCapture={handleContainerClick}
         onDoubleClick={onEdit}
         role='document'
       >
-        <Markdown content={content} emptyMessage='This note is empty.' />
+        <Markdown content={displayContent} emptyMessage='This note is empty.' />
       </div>
     </CheckboxContext.Provider>
   );
