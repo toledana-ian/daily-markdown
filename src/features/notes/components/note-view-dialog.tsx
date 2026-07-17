@@ -119,6 +119,11 @@ export const NoteViewDialog = ({
   // once focus leaves the table we resync to pick up the committed edits.
   const [displayContent, setDisplayContent] = useState(content);
 
+  const contentRef = useRef(content);
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
   useEffect(() => {
     const active = document.activeElement;
     const isEditingTable =
@@ -149,12 +154,16 @@ export const NoteViewDialog = ({
 
     // The `contenteditable` attribute is deferred to `data-content-editable` by
     // markdown.tsx to avoid React's contentEditable/children warning; apply it
-    // to the real DOM here so the browser makes these tables editable.
+    // to the real DOM here so the browser makes these tables editable. This
+    // effect keys off `displayContent` (what Markdown actually renders) rather
+    // than `content`, since `content` can change without a remount while a
+    // table is focused (see the autosave buffering above) — depending on
+    // `content` here would miss re-applying the attribute to the fresh table
+    // node once a remount does happen, leaving it non-editable after blur.
     const editableTables = container.querySelectorAll('table[data-content-editable="true"]');
     editableTables.forEach((table) => table.setAttribute('contenteditable', 'true'));
 
     const dirtyTables = new Set<HTMLTableElement>();
-    let latestContent = content;
 
     const commitTable = (table: HTMLTableElement) => {
       if (!dirtyTables.has(table)) return;
@@ -164,6 +173,7 @@ export const NoteViewDialog = ({
       const index = Array.from(tables).indexOf(table);
       if (index === -1) return;
 
+      const latestContent = contentRef.current;
       const originalTableHtml = findContentEditableTableSpans(latestContent)[index]?.html;
       if (!originalTableHtml) return;
 
@@ -171,7 +181,7 @@ export const NoteViewDialog = ({
       const updated = replaceContentEditableTableAtIndex(latestContent, index, serialized);
       if (updated === latestContent) return;
 
-      latestContent = updated;
+      contentRef.current = updated;
       onSave(updated);
     };
 
@@ -203,7 +213,7 @@ export const NoteViewDialog = ({
       container.removeEventListener('focusout', handleFocusOut);
       window.clearInterval(autosaveId);
     };
-  }, [content, onSave, open, previewContainer]);
+  }, [displayContent, onSave, open, previewContainer]);
 
   const handleContainerClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {

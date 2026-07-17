@@ -1,6 +1,23 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
+
+// Mirrors real usage: the parent owns `content` and feeds `onSave` results
+// back down as a new `content` prop, which is what actually triggers the
+// remount that the note-view-dialog has to stay contenteditable through.
+function StatefulNoteViewDialog({ initialContent }: { initialContent: string }) {
+  const [content, setContent] = useState(initialContent);
+  return (
+    <NoteViewDialog
+      content={content}
+      onEdit={vi.fn()}
+      onOpenChange={vi.fn()}
+      onSave={setContent}
+      open
+    />
+  );
+}
 
 vi.mock('@/hooks/useTailwindScreen', () => ({
   useTailwindScreen: () => 'lg',
@@ -89,6 +106,28 @@ describe('NoteViewDialog', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('stays contenteditable after blur commits the edit and remounts the table', async () => {
+    const content = [
+      'Intro',
+      '<table contenteditable="true"><tr><td>Cell</td></tr></table>',
+      'Outro',
+    ].join('\n');
+
+    render(<StatefulNoteViewDialog initialContent={content} />);
+
+    const cell = await screen.findByText('Cell');
+    cell.textContent = 'Updated';
+    fireEvent.input(cell, { bubbles: true });
+    fireEvent.focusOut(cell, { relatedTarget: document.body, bubbles: true });
+
+    await waitFor(() => {
+      expect(screen.getByText('Updated')).toBeInTheDocument();
+    });
+
+    const table = screen.getByText('Updated').closest('table');
+    expect(table).toHaveAttribute('contenteditable', 'true');
   });
 
   it('does not save blur on non-contenteditable tables', async () => {
