@@ -125,6 +125,13 @@ export const NoteViewDialog = ({
     if (!onSave || !open || !previewContainer) return;
 
     const container = previewContainer;
+
+    // The `contenteditable` attribute is deferred to `data-content-editable` by
+    // markdown.tsx to avoid React's contentEditable/children warning; apply it
+    // to the real DOM here so the browser makes these tables editable.
+    const editableTables = container.querySelectorAll('table[data-content-editable="true"]');
+    editableTables.forEach((table) => table.setAttribute('contenteditable', 'true'));
+
     const dirtyTables = new WeakSet<HTMLTableElement>();
 
     const handleInput = (event: Event) => {

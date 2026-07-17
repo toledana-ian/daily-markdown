@@ -21,5 +21,5 @@ export const markdownComponents = {
   input: MarkdownCheckboxInput,
   li: MarkdownListItem,
   p: MarkdownParagraph,
-  a: MarkdownLink
+  a: MarkdownLink,
 } satisfies NonNullable<StreamdownProps['components']>;
