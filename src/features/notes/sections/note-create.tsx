@@ -11,10 +11,7 @@ export const NoteCreateSection = () => {
   const noteEditorRef = useRef<NoteEditorDialogRef | null>(null);
 
   const onOpen = useCallback(() => {
-    if (!noteEditorRef.current) return;
-
     noteIdRef.current = null;
-    noteEditorRef.current.loadContent('');
   }, []);
 
   const onClose = useCallback(() => {
