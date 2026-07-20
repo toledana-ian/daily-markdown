@@ -7,6 +7,9 @@ import {
   useRef,
   useState,
 } from 'react';
+import { RiLayoutColumnLine } from '@remixicon/react';
+import { Markdown } from '@/components/common/markdown';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
 import CodeMirror from '@uiw/react-codemirror';
@@ -30,6 +33,9 @@ import {
   toggleMarkdownWrap,
   toggleMarkdownWrapAsymmetric,
 } from '@/features/notes/lib/note-editor-markdown-shortcuts.ts';
+
+export const NOTE_EDITOR_PREVIEW_EMPTY_MESSAGE =
+  'Start writing to see a live preview of your Markdown.';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -201,6 +207,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       left: number;
       top: number;
     } | null>(null);
+    const [previewVisible, setPreviewVisible] = useState(false);
 
     const filteredCommands = useMemo(() => {
       if (!slashQuery) return COMMANDS;
@@ -726,9 +733,51 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       }
     }, [open, handleSave]);
 
+    useEffect(() => {
+      if (!open) {
+        setPreviewVisible(false);
+      }
+    }, [open]);
+
+    useEffect(() => {
+      if (!isDesktop) {
+        setPreviewVisible(false);
+      }
+    }, [isDesktop]);
+
+    useEffect(() => {
+      if (!open || !isDesktop) {
+        return;
+      }
+
+      const handlePreviewShortcut = (event: KeyboardEvent) => {
+        if (
+          !(event.metaKey || event.ctrlKey) ||
+          !event.shiftKey ||
+          event.key.toLowerCase() !== 'p'
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+        setPreviewVisible((current) => !current);
+      };
+
+      window.addEventListener('keydown', handlePreviewShortcut);
+
+      return () => {
+        window.removeEventListener('keydown', handlePreviewShortcut);
+      };
+    }, [isDesktop, open]);
+
+    const togglePreview = useCallback(() => {
+      setPreviewVisible((current) => !current);
+    }, []);
+
     const editor = (
       <>
         <div
+          className='h-full min-h-0'
           onDragOverCapture={handleEditorDragOver}
           onDropCapture={handleEditorDrop}
           onKeyDownCapture={handleEditorKeyDown}
@@ -805,14 +854,52 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       return (
         <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogContent
-            className='h-[80vh] max-h-[80vh] w-[calc(100%-4rem)] max-w-5xl overflow-auto rounded-sm p-0 sm:max-w-5xl text-sm'
+            className='flex h-[80vh] max-h-[80vh] w-[calc(100%-4rem)] max-w-5xl flex-col overflow-hidden rounded-sm p-0 sm:max-w-5xl text-sm'
             showCloseButton={false}
           >
             <DialogTitle className='sr-only'>Edit note</DialogTitle>
             <DialogDescription className='sr-only'>
               Edit the note markdown content.
             </DialogDescription>
-            {editor}
+            <div className='flex min-h-0 flex-1 flex-col'>
+              <div
+                aria-label='Note editor tools'
+                className='flex shrink-0 items-center justify-end border-b px-3 py-2'
+                role='toolbar'
+              >
+                <Button
+                  aria-keyshortcuts='Control+Shift+P Meta+Shift+P'
+                  aria-label={
+                    previewVisible ? 'Hide live Markdown preview' : 'Show live Markdown preview'
+                  }
+                  aria-pressed={previewVisible}
+                  onClick={togglePreview}
+                  size='sm'
+                  type='button'
+                  variant={previewVisible ? 'secondary' : 'outline'}
+                >
+                  <RiLayoutColumnLine aria-hidden='true' />
+                  Preview
+                </Button>
+              </div>
+              <div
+                className={cn(
+                  'flex min-h-0 flex-1',
+                  previewVisible && 'grid grid-cols-2 divide-x divide-border',
+                )}
+              >
+                <div className='min-h-0 min-w-0'>{editor}</div>
+                {previewVisible && (
+                  <section
+                    aria-label='Markdown preview'
+                    aria-live='polite'
+                    className='min-h-0 overflow-auto p-4 wrap-anywhere'
+                  >
+                    <Markdown content={content} emptyMessage={NOTE_EDITOR_PREVIEW_EMPTY_MESSAGE} />
+                  </section>
+                )}
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       );
