@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -30,6 +31,11 @@ import {
   toggleMarkdownWrap,
   toggleMarkdownWrapAsymmetric,
 } from '@/features/notes/lib/note-editor-markdown-shortcuts.ts';
+import {
+  getSlashPopupLayout,
+  type SlashPopupAnchor,
+  type SlashPopupLayout,
+} from '@/features/notes/lib/note-editor-slash-popup-position.ts';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -197,10 +203,9 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
     const [slashFrom, setSlashFrom] = useState<number | null>(null);
     const [slashQuery, setSlashQuery] = useState('');
     const [selectedCommandIndex, setSelectedCommandIndex] = useState(0);
-    const [slashPopupPosition, setSlashPopupPosition] = useState<{
-      left: number;
-      top: number;
-    } | null>(null);
+    const [slashAnchor, setSlashAnchor] = useState<SlashPopupAnchor | null>(null);
+    const [slashPopupLayout, setSlashPopupLayout] = useState<SlashPopupLayout | null>(null);
+    const slashPopupRef = useRef<HTMLDivElement | null>(null);
 
     const filteredCommands = useMemo(() => {
       if (!slashQuery) return COMMANDS;
@@ -226,13 +231,28 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         setSelectedCommandIndex(0);
         setSlashQuery(match.query);
         setSlashFrom(line.from + match.from);
-        setSlashPopupPosition(coords ? { left: coords.left, top: coords.bottom } : null);
+
+        if (coords) {
+          const anchor = { left: coords.left, top: coords.top, bottom: coords.bottom };
+          setSlashAnchor(anchor);
+          setSlashPopupLayout(
+            getSlashPopupLayout(
+              anchor,
+              { width: 288, height: 0 },
+              { width: window.innerWidth, height: window.innerHeight },
+            ),
+          );
+        } else {
+          setSlashAnchor(null);
+          setSlashPopupLayout(null);
+        }
       } else {
         setSlashOpen(false);
         setSelectedCommandIndex(0);
         setSlashQuery('');
         setSlashFrom(null);
-        setSlashPopupPosition(null);
+        setSlashAnchor(null);
+        setSlashPopupLayout(null);
       }
     };
 
@@ -241,7 +261,8 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       setSelectedCommandIndex(0);
       setSlashQuery('');
       setSlashFrom(null);
-      setSlashPopupPosition(null);
+      setSlashAnchor(null);
+      setSlashPopupLayout(null);
     }, []);
 
     const loadContent = useCallback(
@@ -705,6 +726,28 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       };
     }, [open, handleSave]);
 
+    useLayoutEffect(() => {
+      if (!slashOpen || !slashAnchor || filteredCommands.length === 0) {
+        return;
+      }
+
+      const popupElement = slashPopupRef.current;
+
+      if (!popupElement) {
+        return;
+      }
+
+      const { offsetWidth, scrollHeight } = popupElement;
+
+      setSlashPopupLayout(
+        getSlashPopupLayout(
+          slashAnchor,
+          { width: offsetWidth, height: scrollHeight },
+          { width: window.innerWidth, height: window.innerHeight },
+        ),
+      );
+    }, [filteredCommands, slashAnchor, slashOpen]);
+
     useEffect(() => {
       if (!fileUploadError) {
         return;
@@ -769,14 +812,17 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
           </div>
         )}
 
-        {slashOpen && filteredCommands.length > 0 && slashPopupPosition && (
+        {slashOpen && filteredCommands.length > 0 && slashAnchor && slashPopupLayout && (
           <div
             aria-label='Slash commands'
-            className='fixed z-50 w-72 rounded-lg border bg-white shadow-lg'
+            className='fixed z-50 w-72 overflow-y-auto rounded-lg border bg-white shadow-lg'
+            ref={slashPopupRef}
             role='listbox'
             style={{
-              left: slashPopupPosition.left,
-              top: slashPopupPosition.top,
+              left: slashPopupLayout.left,
+              maxHeight: slashPopupLayout.maxHeight,
+              maxWidth: slashPopupLayout.maxWidth,
+              top: slashPopupLayout.top,
             }}
           >
             {filteredCommands.map((command, index) => (
