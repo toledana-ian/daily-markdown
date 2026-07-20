@@ -1,5 +1,5 @@
 import { NoteCard } from '@/features/notes/components/note-card.tsx';
-import { useNotes } from '@/features/notes/hooks/use-notes.ts';
+import { useNotes, useNotesAutoRefresh } from '@/features/notes/hooks/use-notes.ts';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { useCallback, useEffect, useRef } from 'react';
 import { useCalendar } from '@/features/calendar/hooks/useCalendar.ts';
@@ -10,6 +10,8 @@ export const NoteListSection = () => {
   const { selectedDate } = useCalendar();
   const { notes, currentPage, isLoading, error, hasMore, updateNote, deleteNote, togglePinNote, loadNotes } =
     useNotes();
+
+  useNotesAutoRefresh({ date: selectedDate, query });
   const loadMoreRef = useRef<HTMLParagraphElement | null>(null);
   const currentPageRef = useRef(currentPage);
 
@@ -47,6 +49,7 @@ export const NoteListSection = () => {
           return (
             <div key={note.id} className='w-full max-w-full  sm:max-w-xs'>
               <NoteCard
+                id={note.id}
                 content={note.content}
                 isPinned={note.isPinned}
                 onDelete={() => deleteNote(note.id).then()}

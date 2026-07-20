@@ -86,6 +86,7 @@ const TABLE_AUTOSAVE_INTERVAL_MS = 5000;
 
 type NoteViewDialogProps = {
   content: string;
+  onDirtyChange?: (dirty: boolean) => void;
   onEdit: () => void;
   onOpenChange: (open: boolean) => void;
   onSave?: (content: string) => void;
@@ -94,6 +95,7 @@ type NoteViewDialogProps = {
 
 export const NoteViewDialog = ({
   content,
+  onDirtyChange,
   onEdit,
   onOpenChange,
   onSave,
@@ -168,6 +170,10 @@ export const NoteViewDialog = ({
 
     const dirtyTables = new Set<HTMLTableElement>();
 
+    const notifyDirtyChange = () => {
+      onDirtyChange?.(dirtyTables.size > 0);
+    };
+
     const commitTable = (table: HTMLTableElement) => {
       if (!dirtyTables.has(table)) return;
       dirtyTables.delete(table);
@@ -186,12 +192,14 @@ export const NoteViewDialog = ({
 
       contentRef.current = updated;
       onSave(updated);
+      notifyDirtyChange();
     };
 
     const handleInput = (event: Event) => {
       const table = (event.target as HTMLElement).closest('table[contenteditable="true"]');
       if (!table || !container.contains(table)) return;
       dirtyTables.add(table as HTMLTableElement);
+      notifyDirtyChange();
     };
 
     const handleFocusOut = (event: FocusEvent) => {
@@ -215,13 +223,14 @@ export const NoteViewDialog = ({
       container.removeEventListener('input', handleInput);
       container.removeEventListener('focusout', handleFocusOut);
       window.clearInterval(autosaveId);
+      onDirtyChange?.(false);
 
       // Flush any edit that hasn't hit the 5s autosave yet — this cleanup
       // also runs when `open` flips to false (dialog closing) or on unmount,
       // so in-progress table edits aren't lost without an explicit blur.
       dirtyTables.forEach(commitTable);
     };
-  }, [displayContent, onSave, open, previewContainer]);
+  }, [displayContent, onDirtyChange, onSave, open, previewContainer]);
 
   const handleContainerClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {

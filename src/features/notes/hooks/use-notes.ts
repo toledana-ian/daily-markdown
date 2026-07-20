@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
 import { useNotesStore } from '@/features/notes/store/notes.ts';
+import { mergeRefreshedNotes, NOTES_REFRESH_INTERVAL_MS } from '@/features/notes/lib/notes-refresh.ts';
 import { endOfDay, isToday, startOfDay } from 'date-fns';
 import { useCallback, useEffect, useRef } from 'react';
 
@@ -108,8 +109,9 @@ export const useNotes = () => {
   const hasMore = useNotesStore((state) => state.hasMore);
 
   //========== Refs ==========//
-  const notesRef = useRef(notes)
+  const notesRef = useRef(notes);
   const userIdRef = useRef<string | null>(null);
+  const isRefreshingRef = useRef(false);
 
   //========== Store Functions==========//
   const setNotes = useNotesStore((state) => state.setNotes);
@@ -117,10 +119,13 @@ export const useNotes = () => {
   const setError = useNotesStore((state) => state.setError);
   const setCurrentPage = useNotesStore((state) => state.setCurrentPage);
   const setHasMore = useNotesStore((state) => state.setHasMore);
+  const clearProtectedNotes = useNotesStore((state) => state.clearProtectedNotes);
+  const protectNote = useNotesStore((state) => state.protectNote);
+  const unprotectNote = useNotesStore((state) => state.unprotectNote);
 
   //========== Effects ==========//
-  useEffect(() => {notesRef.current = notes;}, [notes])
-  useEffect(()=>{userIdRef.current = session?.user?.id ?? null;}, [session?.user?.id])
+  useEffect(() => { notesRef.current = notes; }, [notes]);
+  useEffect(() => { userIdRef.current = session?.user?.id ?? null; }, [session?.user?.id]);
 
   //========== Callbacks ==========//
   const loadNotes = useCallback(async (filter?: NotesFilter & PaginationOptions) => {
@@ -136,6 +141,7 @@ export const useNotes = () => {
 
     if (!append) {
       setNotes([]);
+      clearProtectedNotes();
     }
 
     const dataQuery = applyNotesFilter(
@@ -166,7 +172,46 @@ export const useNotes = () => {
     setIsLoading(false);
     setCurrentPage(page);
     setHasMore(count !== null && totalLoadedNotes < count);
-  }, [setCurrentPage, setError, setHasMore, setIsLoading, setNotes]);
+  }, [clearProtectedNotes, setCurrentPage, setError, setHasMore, setIsLoading, setNotes]);
+
+  const refreshNotes = useCallback(async (filter?: NotesFilter) => {
+    if (isRefreshingRef.current || useNotesStore.getState().isLoading) {
+      return;
+    }
+
+    const normalizedFilter = normalizeFilter(filter);
+    const { currentPage, protectedNoteIds } = useNotesStore.getState();
+    const rangeEnd = (currentPage + 1) * normalizedFilter.limit - 1;
+
+    isRefreshingRef.current = true;
+
+    try {
+      const dataQuery = applyNotesFilter(
+        supabase
+          .from('notes')
+          .select('id, user_id, content, is_pinned, created_at, updated_at', { count: 'exact' })
+          .order('is_pinned', { ascending: true })
+          .order('created_at', { ascending: false })
+          .range(0, rangeEnd),
+        normalizedFilter,
+      );
+
+      const { data, count, error: selectError } = await dataQuery;
+
+      if (selectError) {
+        return;
+      }
+
+      const fetchedNotes = (data ?? []).map(mapNote);
+      const protectedIds = new Set(Object.keys(protectedNoteIds));
+      const mergedNotes = mergeRefreshedNotes(useNotesStore.getState().notes, fetchedNotes, protectedIds);
+
+      setNotes(mergedNotes);
+      setHasMore(count !== null && mergedNotes.length < count);
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }, [setHasMore, setNotes]);
 
   const createNote = useCallback(async (content: string): Promise<string | null> => {
     const userId = userIdRef.current;
@@ -253,9 +298,49 @@ export const useNotes = () => {
     hasMore,
     currentPage,
     loadNotes,
+    refreshNotes,
     createNote,
     updateNote,
     deleteNote,
     togglePinNote,
+    protectNote,
+    unprotectNote,
   };
+};
+
+export const useNotesAutoRefresh = (filter?: NotesFilter) => {
+  const { refreshNotes } = useNotes();
+  const filterRef = useRef(filter);
+  const filterDateMs = filter?.date?.getTime();
+  const filterQuery = filter?.query;
+  const filterLimit = filter?.limit;
+
+  useEffect(() => {
+    filterRef.current = filter;
+  }, [filter]);
+
+  useEffect(() => {
+    const runRefresh = () => {
+      if (document.visibilityState !== 'visible') {
+        return;
+      }
+
+      refreshNotes(filterRef.current).then();
+    };
+
+    const intervalId = window.setInterval(runRefresh, NOTES_REFRESH_INTERVAL_MS);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        runRefresh();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refreshNotes, filterDateMs, filterQuery, filterLimit]);
 };

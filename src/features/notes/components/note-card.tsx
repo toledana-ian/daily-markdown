@@ -9,8 +9,10 @@ import {
   type NoteEditorDialogRef,
 } from '@/features/notes/components/note-editor-dialog';
 import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
+import { useNotesStore } from '@/features/notes/store/notes.ts';
 
 type NoteCardProps = {
+  id: string;
   content: string;
   isPinned?: boolean;
   onDelete?: () => void | Promise<void>;
@@ -18,11 +20,14 @@ type NoteCardProps = {
   onSave?: (data: string) => void | Promise<void>;
 };
 
-export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }: NoteCardProps) => {
+export const NoteCard = ({ id, content, isPinned = false, onDelete, onPin, onSave }: NoteCardProps) => {
   const [mode, setMode] = useState<'closed' | 'view' | 'edit'>('closed');
+  const [isViewDirty, setIsViewDirty] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const prevModeRef = useRef<'closed' | 'view' | 'edit'>(mode);
   const noteEditorRef = useRef<NoteEditorDialogRef | null>(null);
+  const protectNote = useNotesStore((state) => state.protectNote);
+  const unprotectNote = useNotesStore((state) => state.unprotectNote);
 
   const openPreview = () => {
     setMode('view');
@@ -47,9 +52,23 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
   };
 
   useEffect(() => {
-    if (!noteEditorRef.current) return;
+    const shouldProtect = mode === 'edit' || (mode === 'view' && isViewDirty);
+
+    if (!shouldProtect) {
+      return;
+    }
+
+    protectNote(id);
+
+    return () => {
+      unprotectNote(id);
+    };
+  }, [id, isViewDirty, mode, protectNote, unprotectNote]);
+
+  useEffect(() => {
+    if (mode === 'edit' || !noteEditorRef.current) return;
     noteEditorRef.current.loadContent(content);
-  }, [content])
+  }, [content, mode]);
 
   return (
     <>
@@ -71,6 +90,7 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
       </div>
       <NoteViewDialog
         content={content}
+        onDirtyChange={setIsViewDirty}
         onEdit={() => setMode('edit')}
         onOpenChange={(open) => {
           if (open) openPreview();
