@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { RiPushpinFill } from '@remixicon/react';
 import { NoteCardDeleteDialog } from '@/features/notes/components/note-card-delete-dialog';
+import { NoteShareDialog } from '@/features/notes/components/note-share-dialog';
 import { NoteCardMenu } from '@/features/notes/components/note-card-menu';
 import { NoteCardPreview } from '@/features/notes/components/note-card-preview';
 import {
@@ -12,32 +13,41 @@ import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
 
 type NoteCardProps = {
   content: string;
+  noteId: string;
   isPinned?: boolean;
   onDelete?: () => void | Promise<void>;
   onPin?: () => void | Promise<void>;
   onSave?: (data: string) => void | Promise<void>;
 };
 
-export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }: NoteCardProps) => {
+export const NoteCard = ({
+  content,
+  noteId,
+  isPinned = false,
+  onDelete,
+  onPin,
+  onSave,
+}: NoteCardProps) => {
   const [mode, setMode] = useState<'closed' | 'view' | 'edit'>('closed');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const prevModeRef = useRef<'closed' | 'view' | 'edit'>(mode);
   const noteEditorRef = useRef<NoteEditorDialogRef | null>(null);
 
   const openPreview = () => {
     setMode('view');
     prevModeRef.current = 'view';
-  }
+  };
   const closePreview = () => {
     setMode('closed');
     prevModeRef.current = 'closed';
   };
   const openEditor = () => {
     setMode('edit');
-  }
+  };
   const closeEditor = () => {
     setMode(prevModeRef.current);
-  }
+  };
 
   const handleDelete = () => {
     const result = onDelete?.();
@@ -49,7 +59,7 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
   useEffect(() => {
     if (!noteEditorRef.current) return;
     noteEditorRef.current.loadContent(content);
-  }, [content])
+  }, [content]);
 
   return (
     <>
@@ -59,6 +69,7 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
           onDelete={() => setIsDeleteDialogOpen(true)}
           onEdit={openEditor}
           onPin={() => onPin?.()}
+          onShare={() => setIsShareDialogOpen(true)}
           onView={openPreview}
         >
           <NoteCardPreview content={content} onClick={openPreview} />
@@ -93,6 +104,12 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
         onConfirm={handleDelete}
         onOpenChange={setIsDeleteDialogOpen}
         open={isDeleteDialogOpen}
+      />
+      <NoteShareDialog
+        content={content}
+        noteId={noteId}
+        onOpenChange={setIsShareDialogOpen}
+        open={isShareDialogOpen}
       />
     </>
   );

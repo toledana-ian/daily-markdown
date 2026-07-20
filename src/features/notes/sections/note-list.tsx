@@ -8,8 +8,17 @@ import { useSearch } from '@/features/search/hooks/useSearch.ts';
 export const NoteListSection = () => {
   const { query } = useSearch();
   const { selectedDate } = useCalendar();
-  const { notes, currentPage, isLoading, error, hasMore, updateNote, deleteNote, togglePinNote, loadNotes } =
-    useNotes();
+  const {
+    notes,
+    currentPage,
+    isLoading,
+    error,
+    hasMore,
+    updateNote,
+    deleteNote,
+    togglePinNote,
+    loadNotes,
+  } = useNotes();
   const loadMoreRef = useRef<HTMLParagraphElement | null>(null);
   const currentPageRef = useRef(currentPage);
 
@@ -48,6 +57,7 @@ export const NoteListSection = () => {
             <div key={note.id} className='w-full max-w-full  sm:max-w-xs'>
               <NoteCard
                 content={note.content}
+                noteId={note.id}
                 isPinned={note.isPinned}
                 onDelete={() => deleteNote(note.id).then()}
                 onPin={() => togglePinNote(note.id).then()}

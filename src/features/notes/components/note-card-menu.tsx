@@ -1,5 +1,12 @@
 import type { ReactNode } from 'react';
-import { RiDeleteBinLine, RiEditLine, RiEyeLine, RiPushpinFill, RiPushpinLine } from '@remixicon/react';
+import {
+  RiDeleteBinLine,
+  RiEditLine,
+  RiEyeLine,
+  RiPushpinFill,
+  RiPushpinLine,
+  RiShareLine,
+} from '@remixicon/react';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -14,10 +21,19 @@ type NoteCardMenuProps = {
   onDelete: () => void;
   onEdit: () => void;
   onPin: () => void;
+  onShare: () => void;
   onView: () => void;
 };
 
-export const NoteCardMenu = ({ children, isPinned, onDelete, onEdit, onPin, onView }: NoteCardMenuProps) => {
+export const NoteCardMenu = ({
+  children,
+  isPinned,
+  onDelete,
+  onEdit,
+  onPin,
+  onShare,
+  onView,
+}: NoteCardMenuProps) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
@@ -36,9 +52,13 @@ export const NoteCardMenu = ({ children, isPinned, onDelete, onEdit, onPin, onVi
             <div className='flex flex-col'>
               <span>{isPinned ? 'Unpin' : 'Pin'}</span>
               <span className='text-xs text-muted-foreground leading-tight'>
-                {isPinned ? 'Remove from today' : 'Always show on today\'s date'}
+                {isPinned ? 'Remove from today' : "Always show on today's date"}
               </span>
             </div>
+          </ContextMenuItem>
+          <ContextMenuItem onClick={onShare}>
+            <RiShareLine />
+            Share
           </ContextMenuItem>
           <ContextMenuItem onClick={onDelete} variant='destructive'>
             <RiDeleteBinLine />
