@@ -78,6 +78,7 @@
     "@vitest/coverage-v8": "4.0.18",
     "dotenv": "^16.0.0",
     "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.0.1",
