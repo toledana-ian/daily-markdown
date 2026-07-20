@@ -5,6 +5,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu.tsx';
+import { Spinner } from '@/components/ui/spinner.tsx';
+import { useExportNotes } from '@/features/notes/hooks/use-export-notes.ts';
 import { useNavigate } from '@tanstack/react-router';
 
 interface UserAvatarProps {
@@ -13,6 +15,7 @@ interface UserAvatarProps {
 
 export const UserAvatar = ({ profilePicture }: UserAvatarProps) => {
   const navigate = useNavigate();
+  const { exportNotes, isExporting } = useExportNotes();
 
   return (
     <DropdownMenu>
@@ -26,6 +29,23 @@ export const UserAvatar = ({ profilePicture }: UserAvatarProps) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className={'rounded-sm shadow-xl'} align='end'>
         <DropdownMenuItem onClick={() => navigate({ to: '.' })}>Settings</DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={isExporting}
+          aria-busy={isExporting}
+          aria-label={isExporting ? 'Exporting notes' : 'Export notes'}
+          onClick={() => {
+            void exportNotes();
+          }}
+        >
+          {isExporting ? (
+            <>
+              <Spinner className='size-4' aria-hidden='true' />
+              Exporting notes…
+            </>
+          ) : (
+            'Export notes'
+          )}
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             navigate({ to: '/logout' }).then();
