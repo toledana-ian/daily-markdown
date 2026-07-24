@@ -9,6 +9,10 @@ import {
   type NoteEditorDialogRef,
 } from '@/features/notes/components/note-editor-dialog';
 import { NoteViewDialog } from '@/features/notes/components/note-view-dialog';
+import {
+  resolveEditorScrollTopOnOpen,
+  resolveViewScrollTopOnEditorClose,
+} from '@/features/notes/lib/note-card-dialog-scroll';
 
 type NoteCardProps = {
   content: string;
@@ -39,28 +43,28 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
     prevModeRef.current = 'closed';
   };
   const openEditor = () => {
+    const nextEditScrollTop = resolveEditorScrollTopOnOpen(mode, dialogScrollTopRef.current);
+    dialogScrollTopRef.current.edit = nextEditScrollTop;
     setInitialDialogScrollTop((current) => ({
       ...current,
-      edit: dialogScrollTopRef.current.edit,
-    }));
-    setMode('edit');
-  };
-  const openEditorFromPreview = () => {
-    dialogScrollTopRef.current.edit = dialogScrollTopRef.current.view;
-    setInitialDialogScrollTop((current) => ({
-      ...current,
-      edit: dialogScrollTopRef.current.edit,
+      edit: nextEditScrollTop,
     }));
     setMode('edit');
   };
   const closeEditor = () => {
-    if (prevModeRef.current === 'view') {
-      dialogScrollTopRef.current.view = dialogScrollTopRef.current.edit;
+    const nextViewScrollTop = resolveViewScrollTopOnEditorClose(
+      prevModeRef.current,
+      dialogScrollTopRef.current,
+    );
+
+    if (nextViewScrollTop !== null) {
+      dialogScrollTopRef.current.view = nextViewScrollTop;
       setInitialDialogScrollTop((current) => ({
         ...current,
-        view: dialogScrollTopRef.current.view,
+        view: nextViewScrollTop,
       }));
     }
+
     setMode(prevModeRef.current);
   };
 
@@ -96,7 +100,7 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
       </div>
       <NoteViewDialog
         content={content}
-        onEdit={openEditorFromPreview}
+        onEdit={openEditor}
         onOpenChange={(open) => {
           if (open) openPreview();
           else closePreview();

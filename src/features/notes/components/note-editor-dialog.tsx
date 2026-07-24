@@ -30,6 +30,7 @@ import {
   toggleMarkdownWrap,
   toggleMarkdownWrapAsymmetric,
 } from '@/features/notes/lib/note-editor-markdown-shortcuts.ts';
+import { restoreElementScrollTop } from '@/features/notes/lib/restore-element-scroll-top';
 
 type NoteEditorDialogProps = {
   initialContent: string;
@@ -203,6 +204,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       left: number;
       top: number;
     } | null>(null);
+    const hasRestoredScrollRef = useRef(false);
 
     const filteredCommands = useMemo(() => {
       if (!slashQuery) return COMMANDS;
@@ -729,13 +731,17 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
     }, [open, handleSave]);
 
     useEffect(() => {
-      if (!open || !view) return;
+      if (!open) {
+        hasRestoredScrollRef.current = false;
+        return;
+      }
 
-      const animationFrame = window.requestAnimationFrame(() => {
-        view.scrollDOM.scrollTo({ top: scrollTop });
-      });
+      if (!view || hasRestoredScrollRef.current) {
+        return;
+      }
 
-      return () => window.cancelAnimationFrame(animationFrame);
+      hasRestoredScrollRef.current = true;
+      return restoreElementScrollTop(view.scrollDOM, scrollTop);
     }, [open, scrollTop, view]);
 
     useEffect(() => {

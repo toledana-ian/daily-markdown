@@ -8,6 +8,7 @@ import {
   replaceContentEditableTableAtIndex,
   serializeContentEditableTable,
 } from '@/features/notes/lib/note-view-dialog-tables';
+import { restoreElementScrollTop } from '@/features/notes/lib/restore-element-scroll-top';
 import { useTailwindScreen } from '@/hooks/useTailwindScreen';
 
 type CheckboxInfo = {
@@ -106,6 +107,7 @@ export const NoteViewDialog = ({
   const screen = useTailwindScreen();
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const hasRestoredScrollRef = useRef(false);
   const [previewContainer, setPreviewContainer] = useState<HTMLDivElement | null>(null);
 
   const setContainerRef = useCallback((node: HTMLDivElement | null) => {
@@ -114,14 +116,19 @@ export const NoteViewDialog = ({
   }, []);
 
   useEffect(() => {
-    if (!open || !containerRef.current) return;
+    if (!open) {
+      hasRestoredScrollRef.current = false;
+      return;
+    }
 
-    const animationFrame = window.requestAnimationFrame(() => {
-      containerRef.current?.scrollTo({ top: scrollTop });
-    });
+    const container = containerRef.current;
+    if (!container || hasRestoredScrollRef.current) {
+      return;
+    }
 
-    return () => window.cancelAnimationFrame(animationFrame);
-  }, [open, scrollTop]);
+    hasRestoredScrollRef.current = true;
+    return restoreElementScrollTop(container, scrollTop);
+  }, [open, previewContainer, scrollTop]);
 
   const checkboxMeta = useMemo(() => parseCheckboxes(content), [content]);
   const checkboxContextValue = useMemo(() => ({ enabled: !!onSave }), [onSave]);
