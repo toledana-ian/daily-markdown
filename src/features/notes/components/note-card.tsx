@@ -23,21 +23,46 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const prevModeRef = useRef<'closed' | 'view' | 'edit'>(mode);
   const noteEditorRef = useRef<NoteEditorDialogRef | null>(null);
+  const dialogScrollTopRef = useRef({ edit: 0, view: 0 });
+  const [initialDialogScrollTop, setInitialDialogScrollTop] = useState({ edit: 0, view: 0 });
 
   const openPreview = () => {
+    setInitialDialogScrollTop((current) => ({
+      ...current,
+      view: dialogScrollTopRef.current.view,
+    }));
     setMode('view');
     prevModeRef.current = 'view';
-  }
+  };
   const closePreview = () => {
     setMode('closed');
     prevModeRef.current = 'closed';
   };
   const openEditor = () => {
+    setInitialDialogScrollTop((current) => ({
+      ...current,
+      edit: dialogScrollTopRef.current.edit,
+    }));
     setMode('edit');
-  }
+  };
+  const openEditorFromPreview = () => {
+    dialogScrollTopRef.current.edit = dialogScrollTopRef.current.view;
+    setInitialDialogScrollTop((current) => ({
+      ...current,
+      edit: dialogScrollTopRef.current.edit,
+    }));
+    setMode('edit');
+  };
   const closeEditor = () => {
+    if (prevModeRef.current === 'view') {
+      dialogScrollTopRef.current.view = dialogScrollTopRef.current.edit;
+      setInitialDialogScrollTop((current) => ({
+        ...current,
+        view: dialogScrollTopRef.current.view,
+      }));
+    }
     setMode(prevModeRef.current);
-  }
+  };
 
   const handleDelete = () => {
     const result = onDelete?.();
@@ -49,7 +74,7 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
   useEffect(() => {
     if (!noteEditorRef.current) return;
     noteEditorRef.current.loadContent(content);
-  }, [content])
+  }, [content]);
 
   return (
     <>
@@ -71,13 +96,17 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
       </div>
       <NoteViewDialog
         content={content}
-        onEdit={() => setMode('edit')}
+        onEdit={openEditorFromPreview}
         onOpenChange={(open) => {
           if (open) openPreview();
           else closePreview();
         }}
         onSave={onSave}
+        onScrollTopChange={(scrollTop) => {
+          dialogScrollTopRef.current.view = scrollTop;
+        }}
         open={mode === 'view'}
+        scrollTop={initialDialogScrollTop.view}
       />
       <NoteEditorDialog
         initialContent={content}
@@ -87,7 +116,11 @@ export const NoteCard = ({ content, isPinned = false, onDelete, onPin, onSave }:
           else closeEditor();
         }}
         onSave={onSave}
+        onScrollTopChange={(scrollTop) => {
+          dialogScrollTopRef.current.edit = scrollTop;
+        }}
         open={mode === 'edit'}
+        scrollTop={initialDialogScrollTop.edit}
       />
       <NoteCardDeleteDialog
         onConfirm={handleDelete}

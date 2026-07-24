@@ -89,7 +89,9 @@ type NoteViewDialogProps = {
   onEdit: () => void;
   onOpenChange: (open: boolean) => void;
   onSave?: (content: string) => void;
+  onScrollTopChange?: (scrollTop: number) => void;
   open: boolean;
+  scrollTop?: number;
 };
 
 export const NoteViewDialog = ({
@@ -97,7 +99,9 @@ export const NoteViewDialog = ({
   onEdit,
   onOpenChange,
   onSave,
+  onScrollTopChange,
   open,
+  scrollTop = 0,
 }: NoteViewDialogProps) => {
   const screen = useTailwindScreen();
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
@@ -108,6 +112,16 @@ export const NoteViewDialog = ({
     containerRef.current = node;
     setPreviewContainer(node);
   }, []);
+
+  useEffect(() => {
+    if (!open || !containerRef.current) return;
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      containerRef.current?.scrollTo({ top: scrollTop });
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [open, scrollTop]);
 
   const checkboxMeta = useMemo(() => parseCheckboxes(content), [content]);
   const checkboxContextValue = useMemo(() => ({ enabled: !!onSave }), [onSave]);
@@ -249,9 +263,10 @@ export const NoteViewDialog = ({
       <div
         ref={setContainerRef}
         aria-label='Preview note'
-        className='p-6 h-full wrap-anywhere'
+        className='h-full overflow-auto p-6 wrap-anywhere'
         onClickCapture={handleContainerClick}
         onDoubleClick={onEdit}
+        onScroll={(event) => onScrollTopChange?.(event.currentTarget.scrollTop)}
         role='document'
       >
         <Markdown content={displayContent} emptyMessage='This note is empty.' />
@@ -263,7 +278,7 @@ export const NoteViewDialog = ({
     return (
       <Dialog disablePointerDismissal onOpenChange={onOpenChange} open={open}>
         <DialogContent
-          className='max-h-[80vh] w-[calc(100%-4rem)] max-w-5xl overflow-auto rounded-sm p-0 sm:max-w-5xl'
+          className='h-[80vh] max-h-[80vh] w-[calc(100%-4rem)] max-w-5xl overflow-hidden rounded-sm p-0 sm:max-w-5xl'
           showCloseButton={false}
         >
           <DialogTitle className='sr-only'>Preview note</DialogTitle>
@@ -281,7 +296,7 @@ export const NoteViewDialog = ({
       <DrawerContent className='mt-0 gap-0 p-0 before:inset-0 before:rounded-t-[calc(var(--radius-4xl)-0.25rem)]'>
         <DrawerTitle className='sr-only'>Preview note</DrawerTitle>
         <DrawerDescription className='sr-only'>Preview the current note content.</DrawerDescription>
-        <div className='h-full overflow-auto rounded-t-[calc(var(--radius-4xl)-0.25rem)] bg-background'>
+        <div className='h-full overflow-hidden rounded-t-[calc(var(--radius-4xl)-0.25rem)] bg-background'>
           {preview}
         </div>
       </DrawerContent>

@@ -35,7 +35,9 @@ type NoteEditorDialogProps = {
   initialContent: string;
   onOpenChange: (open: boolean) => void;
   onSave?: (data: string) => void | Promise<void>;
+  onScrollTopChange?: (scrollTop: number) => void;
   open: boolean;
+  scrollTop?: number;
 };
 
 export type NoteEditorDialogRef = {
@@ -182,7 +184,7 @@ const getSlashCommandMatch = (textBeforeCursor: string) => {
 };
 
 export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialogProps>(
-  ({ initialContent, onOpenChange, onSave, open }, ref) => {
+  ({ initialContent, onOpenChange, onSave, onScrollTopChange, open, scrollTop = 0 }, ref) => {
     const screen = useTailwindScreen();
     const session = useAuthStore((state) => state.session);
     const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
@@ -726,6 +728,25 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       }
     }, [open, handleSave]);
 
+    useEffect(() => {
+      if (!open || !view) return;
+
+      const animationFrame = window.requestAnimationFrame(() => {
+        view.scrollDOM.scrollTo({ top: scrollTop });
+      });
+
+      return () => window.cancelAnimationFrame(animationFrame);
+    }, [open, scrollTop, view]);
+
+    useEffect(() => {
+      if (!open || !view || !onScrollTopChange) return;
+
+      const handleScroll = () => onScrollTopChange(view.scrollDOM.scrollTop);
+      view.scrollDOM.addEventListener('scroll', handleScroll);
+
+      return () => view.scrollDOM.removeEventListener('scroll', handleScroll);
+    }, [onScrollTopChange, open, view]);
+
     const editor = (
       <>
         <div
@@ -805,7 +826,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       return (
         <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogContent
-            className='h-[80vh] max-h-[80vh] w-[calc(100%-4rem)] max-w-5xl overflow-auto rounded-sm p-0 sm:max-w-5xl text-sm'
+            className='h-[80vh] max-h-[80vh] w-[calc(100%-4rem)] max-w-5xl overflow-hidden rounded-sm p-0 sm:max-w-5xl text-sm'
             showCloseButton={false}
           >
             <DialogTitle className='sr-only'>Edit note</DialogTitle>
@@ -823,7 +844,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         <DrawerContent className='gap-0 p-0 before:inset-0 before:rounded-t-[calc(var(--radius-4xl)-0.25rem)]'>
           <DrawerTitle className='sr-only'>Edit note</DrawerTitle>
           <DrawerDescription className='sr-only'>Edit the note markdown content.</DrawerDescription>
-          <div className='relative h-full overflow-auto rounded-t-[calc(var(--radius-4xl)-0.25rem)] bg-background text-sm'>
+          <div className='relative h-full overflow-hidden rounded-t-[calc(var(--radius-4xl)-0.25rem)] bg-background text-sm'>
             {editor}
           </div>
         </DrawerContent>
