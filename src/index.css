@@ -261,6 +261,15 @@
   text-indent: -2.5rem;
 }
 
+/* Note previews use `wrap-anywhere` (overflow-wrap: anywhere) so long prose
+   can shrink on narrow screens. Tables should keep words intact and wrap
+   only at whitespace instead of inheriting mid-word breaks. */
+.markdownnote-editor-container th,
+.markdownnote-editor-container td {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
 .cm-editor.cm-focused {
   outline: none !important;
 }
