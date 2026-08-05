@@ -1,12 +1,45 @@
 export const NOTE_TEMPLATE_CURSOR_MARKER = '{{cursor}}';
 
-export type NoteTemplateId = 'blank' | 'daily-planning' | 'daily-review' | 'meeting-notes';
+export type NoteTemplateIconKey =
+  | 'file'
+  | 'calendar'
+  | 'calendar-check'
+  | 'team'
+  | 'list'
+  | 'checklist'
+  | 'star'
+  | 'book';
+
+export const NOTE_TEMPLATE_ICON_KEYS: NoteTemplateIconKey[] = [
+  'file',
+  'calendar',
+  'calendar-check',
+  'team',
+  'list',
+  'checklist',
+  'star',
+  'book',
+];
+
+export const DEFAULT_NOTE_TEMPLATE_ICON: NoteTemplateIconKey = 'file';
+
+export const isNoteTemplateIconKey = (value: string): value is NoteTemplateIconKey =>
+  NOTE_TEMPLATE_ICON_KEYS.includes(value as NoteTemplateIconKey);
 
 export type NoteTemplate = {
-  id: NoteTemplateId;
-  label: string;
+  id: string;
+  name: string;
   description: string;
+  icon: NoteTemplateIconKey;
   content: string;
+};
+
+export const BLANK_NOTE_TEMPLATE: NoteTemplate = {
+  id: 'blank',
+  name: 'Blank',
+  description: 'Start with an empty note.',
+  icon: 'file',
+  content: '',
 };
 
 export type ResolvedNoteTemplate = {
@@ -14,7 +47,35 @@ export type ResolvedNoteTemplate = {
   cursorOffset: number;
 };
 
-const withCursor = (content: string) => content.replace(NOTE_TEMPLATE_CURSOR_MARKER, '');
+export type NoteTemplateSelection = { kind: 'blank' } | { kind: 'user'; templateId: string };
+
+export type NoteTemplateRow = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  icon: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type NoteTemplateInput = {
+  name: string;
+  description: string;
+  icon: NoteTemplateIconKey;
+  content: string;
+};
+
+export const mapNoteTemplateRow = (row: NoteTemplateRow): NoteTemplate => ({
+  id: row.id,
+  name: row.name,
+  description: row.description,
+  icon: isNoteTemplateIconKey(row.icon) ? row.icon : DEFAULT_NOTE_TEMPLATE_ICON,
+  content: row.content,
+});
+
+const withCursor = (content: string) => content.replaceAll(NOTE_TEMPLATE_CURSOR_MARKER, '');
 
 const resolveCursorOffset = (content: string): number => {
   const cursorOffset = content.indexOf(NOTE_TEMPLATE_CURSOR_MARKER);
@@ -26,84 +87,7 @@ const resolveCursorOffset = (content: string): number => {
   return cursorOffset;
 };
 
-export const NOTE_TEMPLATES: NoteTemplate[] = [
-  {
-    id: 'blank',
-    label: 'Blank',
-    description: 'Start with an empty note.',
-    content: '',
-  },
-  {
-    id: 'daily-planning',
-    label: 'Daily planning',
-    description: 'Plan priorities, schedule, and focus for today.',
-    content: `# Daily Planning
-
-## Top priorities
-- [ ] ${NOTE_TEMPLATE_CURSOR_MARKER}
-- [ ]
-- [ ]
-
-## Schedule
-| Time | Plan |
-| --- | --- |
-|  |  |
-
-## Notes
-`,
-  },
-  {
-    id: 'daily-review',
-    label: 'Daily review',
-    description: 'Reflect on wins, challenges, and tomorrow.',
-    content: `# Daily Review
-
-## Wins
-- ${NOTE_TEMPLATE_CURSOR_MARKER}
-
-## Challenges
--
-
-## Lessons learned
--
-
-## Tomorrow
-- [ ]
-`,
-  },
-  {
-    id: 'meeting-notes',
-    label: 'Meeting notes',
-    description: 'Capture agenda, discussion, and action items.',
-    content: `# Meeting Notes
-
-**Date:**
-**Attendees:**
-
-## Agenda
-- ${NOTE_TEMPLATE_CURSOR_MARKER}
-
-## Discussion
--
-
-## Action items
-- [ ]
-`,
-  },
-];
-
-export const getNoteTemplateById = (id: NoteTemplateId): NoteTemplate | undefined =>
-  NOTE_TEMPLATES.find((template) => template.id === id);
-
-export const resolveNoteTemplate = (id: NoteTemplateId): ResolvedNoteTemplate => {
-  const template = getNoteTemplateById(id);
-
-  if (!template) {
-    return { content: '', cursorOffset: 0 };
-  }
-
-  return {
-    content: withCursor(template.content),
-    cursorOffset: resolveCursorOffset(template.content),
-  };
-};
+export const resolveNoteTemplateContent = (content: string): ResolvedNoteTemplate => ({
+  content: withCursor(content),
+  cursorOffset: resolveCursorOffset(content),
+});

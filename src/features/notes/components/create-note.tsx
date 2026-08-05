@@ -5,10 +5,11 @@ import {
 } from '@/features/notes/components/note-editor-dialog';
 import { NoteTemplateChooser } from '@/features/notes/components/note-template-chooser';
 import {
-  resolveNoteTemplate,
-  type NoteTemplateId,
-  NOTE_TEMPLATES,
+  BLANK_NOTE_TEMPLATE,
+  resolveNoteTemplateContent,
+  type NoteTemplateSelection,
 } from '@/features/notes/lib/note-templates';
+import { useNoteTemplatesStore } from '@/features/notes/store/note-templates';
 import { RiAddFill } from '@remixicon/react';
 
 type CreateNoteProps = {
@@ -22,7 +23,8 @@ export const CreateNote = forwardRef<NoteEditorDialogRef, CreateNoteProps>(
     const [chooserOpen, setChooserOpen] = useState(false);
     const [editorOpen, setEditorOpen] = useState(false);
     const editorRef = useRef<NoteEditorDialogRef>(null);
-    const pendingTemplateRef = useRef<NoteTemplateId>('blank');
+    const pendingTemplateRef = useRef<NoteTemplateSelection>({ kind: 'blank' });
+    const templates = useNoteTemplatesStore((state) => state.templates);
 
     useImperativeHandle(
       ref,
@@ -43,25 +45,31 @@ export const CreateNote = forwardRef<NoteEditorDialogRef, CreateNoteProps>(
       }
     }, [editorOpen, onClose, onOpen]);
 
-    const openEditorWithTemplate = useCallback((templateId: NoteTemplateId) => {
-      pendingTemplateRef.current = templateId;
+    const openEditorWithTemplate = useCallback((selection: NoteTemplateSelection) => {
+      pendingTemplateRef.current = selection;
       setEditorOpen(true);
     }, []);
 
     const handleEditorOpenChange = useCallback((open: boolean) => {
       setEditorOpen(open);
-      if(!open){
-        pendingTemplateRef.current = NOTE_TEMPLATES[0].id;
+      if (!open) {
+        pendingTemplateRef.current = { kind: 'blank' };
       }
     }, []);
 
     const loadSelectedTemplate = useCallback(() => {
-      const templateId = pendingTemplateRef.current;
-      const { content, cursorOffset } = resolveNoteTemplate(templateId);
-      editorRef.current?.loadContent(content, cursorOffset, {
-        treatAsSaved: templateId === 'blank',
-      });
-    }, []);
+      const selection = pendingTemplateRef.current;
+
+      if (selection.kind === 'blank') {
+        const { content, cursorOffset } = resolveNoteTemplateContent(BLANK_NOTE_TEMPLATE.content);
+        editorRef.current?.loadContent(content, cursorOffset, { treatAsSaved: true });
+        return;
+      }
+
+      const template = templates.find((item) => item.id === selection.templateId);
+      const { content, cursorOffset } = resolveNoteTemplateContent(template?.content ?? '');
+      editorRef.current?.loadContent(content, cursorOffset, { treatAsSaved: false });
+    }, [templates]);
 
     useEffect(() => {
       if (!editorOpen) {
