@@ -19,27 +19,38 @@ export const useNoteTemplates = () => {
   const setIsLoading = useNoteTemplatesStore((state) => state.setIsLoading);
   const setError = useNoteTemplatesStore((state) => state.setError);
 
-  const loadTemplates = useCallback(async () => {
-    const userId = session?.user?.id;
-    if (!userId) return;
+  const loadTemplates = useCallback(
+    async (options?: { silent?: boolean }) => {
+      const userId = session?.user?.id;
+      if (!userId) return;
 
-    setIsLoading(true);
-    setError(null);
+      const silent = options?.silent ?? false;
 
-    const { data, error: fetchError } = await supabase
-      .from('note_templates')
-      .select('id, user_id, name, description, icon, content, created_at, updated_at')
-      .order('created_at', { ascending: true });
+      if (!silent) {
+        setIsLoading(true);
+      }
+      setError(null);
 
-    if (fetchError) {
-      setError(fetchError.message);
-      setIsLoading(false);
-      return;
-    }
+      const { data, error: fetchError } = await supabase
+        .from('note_templates')
+        .select('id, user_id, name, description, icon, content, created_at, updated_at')
+        .order('created_at', { ascending: true });
 
-    setTemplates((data ?? []).map((row: NoteTemplateRow) => mapNoteTemplateRow(row)));
-    setIsLoading(false);
-  }, [session?.user?.id, setError, setIsLoading, setTemplates]);
+      if (fetchError) {
+        setError(fetchError.message);
+        if (!silent) {
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      setTemplates((data ?? []).map((row: NoteTemplateRow) => mapNoteTemplateRow(row)));
+      if (!silent) {
+        setIsLoading(false);
+      }
+    },
+    [session?.user?.id, setError, setIsLoading, setTemplates],
+  );
 
   const createTemplate = useCallback(
     async (input: NoteTemplateInput): Promise<NoteTemplate | null> => {

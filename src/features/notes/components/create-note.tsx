@@ -9,7 +9,7 @@ import {
   resolveNoteTemplateContent,
   type NoteTemplateSelection,
 } from '@/features/notes/lib/note-templates';
-import { useNoteTemplatesStore } from '@/features/notes/store/note-templates';
+import { useNoteTemplates } from '@/features/notes/hooks/use-note-templates';
 import { RiAddFill } from '@remixicon/react';
 
 type CreateNoteProps = {
@@ -24,7 +24,11 @@ export const CreateNote = forwardRef<NoteEditorDialogRef, CreateNoteProps>(
     const [editorOpen, setEditorOpen] = useState(false);
     const editorRef = useRef<NoteEditorDialogRef>(null);
     const pendingTemplateRef = useRef<NoteTemplateSelection>({ kind: 'blank' });
-    const templates = useNoteTemplatesStore((state) => state.templates);
+    const { templates, loadTemplates } = useNoteTemplates();
+
+    useEffect(() => {
+      loadTemplates().then();
+    }, [loadTemplates]);
 
     useImperativeHandle(
       ref,

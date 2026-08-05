@@ -224,7 +224,7 @@ export const NoteTemplateChooser = ({ onOpenChange, onSelect, open }: NoteTempla
       return;
     }
 
-    loadTemplates().then();
+    loadTemplates({ silent: true }).then();
   }, [loadTemplates, open]);
 
   const handleRowSelect = useCallback(
