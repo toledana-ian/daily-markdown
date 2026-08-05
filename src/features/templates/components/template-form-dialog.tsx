@@ -23,36 +23,36 @@ import { Input } from '@/components/ui/input';
 import { useTailwindScreen } from '@/hooks/useTailwindScreen';
 import { cn } from '@/lib/utils';
 import {
-  DEFAULT_NOTE_TEMPLATE_ICON,
-  NOTE_TEMPLATE_ICON_KEYS,
-  type NoteTemplate,
-  type NoteTemplateInput,
-} from '@/features/notes/lib/note-templates';
-import { NOTE_TEMPLATE_ICON_COMPONENTS } from '@/features/notes/lib/note-template-icons';
+  DEFAULT_TEMPLATE_ICON,
+  TEMPLATE_ICON_KEYS,
+  type Template,
+  type TemplateInput,
+} from '@/features/templates/lib/templates';
+import { TEMPLATE_ICON_COMPONENTS } from '@/features/templates/lib/template-icons';
 
-type NoteTemplateFormDialogProps = {
-  initialTemplate?: NoteTemplate | null;
+type TemplateFormDialogProps = {
+  initialTemplate?: Template | null;
   onOpenChange: (open: boolean) => void;
-  onSave: (input: NoteTemplateInput) => void | Promise<void>;
+  onSave: (input: TemplateInput) => void | Promise<void>;
   open: boolean;
 };
 
-const emptyFormState = (): NoteTemplateInput => ({
+const emptyFormState = (): TemplateInput => ({
   name: '',
   description: '',
-  icon: DEFAULT_NOTE_TEMPLATE_ICON,
+  icon: DEFAULT_TEMPLATE_ICON,
   content: '',
 });
 
-export const NoteTemplateFormDialog = ({
+export const TemplateFormDialog = ({
   initialTemplate,
   onOpenChange,
   onSave,
   open,
-}: NoteTemplateFormDialogProps) => {
+}: TemplateFormDialogProps) => {
   const screen = useTailwindScreen();
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
-  const [formState, setFormState] = useState<NoteTemplateInput>(emptyFormState);
+  const [formState, setFormState] = useState<TemplateInput>(emptyFormState);
   const [isSaving, setIsSaving] = useState(false);
   const isEditing = Boolean(initialTemplate);
 
@@ -103,12 +103,12 @@ export const NoteTemplateFormDialog = ({
     <div className='flex min-h-0 flex-1 flex-col gap-4 overflow-hidden'>
       <div className='space-y-4 px-4'>
         <div className='space-y-1.5'>
-          <label className='text-sm font-medium text-foreground' htmlFor='note-template-name'>
+          <label className='text-sm font-medium text-foreground' htmlFor='template-name'>
             Name
           </label>
           <Input
             autoFocus
-            id='note-template-name'
+            id='template-name'
             onChange={(event) => {
               setFormState((current) => ({ ...current, name: event.target.value }));
             }}
@@ -120,12 +120,12 @@ export const NoteTemplateFormDialog = ({
         <div className='space-y-1.5'>
           <label
             className='text-sm font-medium text-foreground'
-            htmlFor='note-template-description'
+            htmlFor='template-description'
           >
             Description
           </label>
           <Input
-            id='note-template-description'
+            id='template-description'
             onChange={(event) => {
               setFormState((current) => ({ ...current, description: event.target.value }));
             }}
@@ -137,8 +137,8 @@ export const NoteTemplateFormDialog = ({
         <div className='space-y-1.5'>
           <span className='text-sm font-medium text-foreground'>Icon</span>
           <div className='flex flex-wrap gap-2'>
-            {NOTE_TEMPLATE_ICON_KEYS.map((iconKey) => {
-              const Icon = NOTE_TEMPLATE_ICON_COMPONENTS[iconKey];
+            {TEMPLATE_ICON_KEYS.map((iconKey) => {
+              const Icon = TEMPLATE_ICON_COMPONENTS[iconKey];
               const isSelected = formState.icon === iconKey;
 
               return (

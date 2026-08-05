@@ -2,22 +2,22 @@ import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase/client.ts';
 import { useAuthStore } from '@/features/auth/store/auth.ts';
-import { useNoteTemplatesStore } from '@/features/notes/store/note-templates.ts';
+import { useTemplatesStore } from '@/features/templates/store/templates.ts';
 import {
-  mapNoteTemplateRow,
-  type NoteTemplate,
-  type NoteTemplateInput,
-  type NoteTemplateRow,
-} from '@/features/notes/lib/note-templates';
+  mapTemplateRow,
+  type Template,
+  type TemplateInput,
+  type TemplateRow,
+} from '@/features/templates/lib/templates';
 
-export const useNoteTemplates = () => {
+export const useTemplates = () => {
   const session = useAuthStore((state) => state.session);
-  const templates = useNoteTemplatesStore((state) => state.templates);
-  const isLoading = useNoteTemplatesStore((state) => state.isLoading);
-  const error = useNoteTemplatesStore((state) => state.error);
-  const setTemplates = useNoteTemplatesStore((state) => state.setTemplates);
-  const setIsLoading = useNoteTemplatesStore((state) => state.setIsLoading);
-  const setError = useNoteTemplatesStore((state) => state.setError);
+  const templates = useTemplatesStore((state) => state.templates);
+  const isLoading = useTemplatesStore((state) => state.isLoading);
+  const error = useTemplatesStore((state) => state.error);
+  const setTemplates = useTemplatesStore((state) => state.setTemplates);
+  const setIsLoading = useTemplatesStore((state) => state.setIsLoading);
+  const setError = useTemplatesStore((state) => state.setError);
 
   const loadTemplates = useCallback(
     async (options?: { silent?: boolean }) => {
@@ -44,7 +44,7 @@ export const useNoteTemplates = () => {
         return;
       }
 
-      setTemplates((data ?? []).map((row: NoteTemplateRow) => mapNoteTemplateRow(row)));
+      setTemplates((data ?? []).map((row: TemplateRow) => mapTemplateRow(row)));
       if (!silent) {
         setIsLoading(false);
       }
@@ -53,13 +53,13 @@ export const useNoteTemplates = () => {
   );
 
   const createTemplate = useCallback(
-    async (input: NoteTemplateInput): Promise<NoteTemplate | null> => {
+    async (input: TemplateInput): Promise<Template | null> => {
       const userId = session?.user?.id;
       if (!userId) return null;
 
       const previousTemplates = templates;
       const optimisticId = crypto.randomUUID();
-      const optimisticTemplate: NoteTemplate = {
+      const optimisticTemplate: Template = {
         id: optimisticId,
         ...input,
       };
@@ -84,7 +84,7 @@ export const useNoteTemplates = () => {
         return null;
       }
 
-      const createdTemplate = mapNoteTemplateRow(data as NoteTemplateRow);
+      const createdTemplate = mapTemplateRow(data as TemplateRow);
       setTemplates(
         [...previousTemplates, optimisticTemplate].map((template) =>
           template.id === optimisticId ? createdTemplate : template,
@@ -96,7 +96,7 @@ export const useNoteTemplates = () => {
   );
 
   const updateTemplate = useCallback(
-    async (id: string, input: NoteTemplateInput): Promise<boolean> => {
+    async (id: string, input: TemplateInput): Promise<boolean> => {
       const userId = session?.user?.id;
       if (!userId) return false;
 

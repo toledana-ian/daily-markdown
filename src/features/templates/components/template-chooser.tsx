@@ -15,24 +15,24 @@ import { Spinner } from '@/components/ui/spinner';
 import { useTailwindScreen } from '@/hooks/useTailwindScreen';
 import { cn } from '@/lib/utils';
 import {
-  BLANK_NOTE_TEMPLATE,
-  type NoteTemplate,
-  type NoteTemplateSelection,
-} from '@/features/notes/lib/note-templates';
-import { NOTE_TEMPLATE_ICON_COMPONENTS } from '@/features/notes/lib/note-template-icons';
-import { NoteTemplateFormDialog } from '@/features/notes/components/note-template-form-dialog';
-import { useNoteTemplates } from '@/features/notes/hooks/use-note-templates';
+  BLANK_TEMPLATE,
+  type Template,
+  type TemplateSelection,
+} from '@/features/templates/lib/templates';
+import { TEMPLATE_ICON_COMPONENTS } from '@/features/templates/lib/template-icons';
+import { TemplateFormDialog } from '@/features/templates/components/template-form-dialog';
+import { useTemplates } from '@/features/templates/hooks/use-templates';
 import { RiAddLine, RiDeleteBinLine, RiPencilLine } from '@remixicon/react';
 
-type NoteTemplateChooserProps = {
+type TemplateChooserProps = {
   onOpenChange: (open: boolean) => void;
-  onSelect: (selection: NoteTemplateSelection) => void;
+  onSelect: (selection: TemplateSelection) => void;
   open: boolean;
 };
 
 type ChooserRow =
-  | { type: 'blank'; template: NoteTemplate }
-  | { type: 'user'; template: NoteTemplate }
+  | { type: 'blank'; template: Template }
+  | { type: 'user'; template: Template }
   | { type: 'add' };
 
 const getRowId = (row: ChooserRow): string => {
@@ -60,7 +60,7 @@ const TemplateOption = ({
   optionRef: (element: HTMLButtonElement | null) => void;
   row: ChooserRow;
 }) => {
-  const Icon = row.type === 'add' ? RiAddLine : NOTE_TEMPLATE_ICON_COMPONENTS[row.template.icon];
+  const Icon = row.type === 'add' ? RiAddLine : TEMPLATE_ICON_COMPONENTS[row.template.icon];
   const label = row.type === 'add' ? 'Add template' : row.template.name;
   const description =
     row.type === 'add' ? 'Create a reusable starting point.' : row.template.description;
@@ -78,7 +78,7 @@ const TemplateOption = ({
         ref={optionRef}
         aria-selected={isSelected}
         className='flex min-w-0 flex-1 items-start gap-3 px-3 py-3 text-left'
-        id={`note-template-option-${getRowId(row)}`}
+        id={`template-option-${getRowId(row)}`}
         onClick={onSelect}
         role='option'
         type='button'
@@ -132,8 +132,8 @@ const TemplateOptions = ({
 }: {
   isLoading: boolean;
   onAdd: () => void;
-  onDelete: (template: NoteTemplate) => void;
-  onEdit: (template: NoteTemplate) => void;
+  onDelete: (template: Template) => void;
+  onEdit: (template: Template) => void;
   onSelect: (row: ChooserRow) => void;
   rows: ChooserRow[];
   selectedIndex: number;
@@ -156,7 +156,7 @@ const TemplateOptions = ({
 
   return (
     <div
-      aria-activedescendant={`note-template-option-${getRowId(rows[selectedIndex]!)}`}
+      aria-activedescendant={`template-option-${getRowId(rows[selectedIndex]!)}`}
       aria-label='Note templates'
       className='flex flex-col gap-1 p-2'
       role='listbox'
@@ -186,20 +186,20 @@ const TemplateOptions = ({
   );
 };
 
-export const NoteTemplateChooser = ({ onOpenChange, onSelect, open }: NoteTemplateChooserProps) => {
+export const TemplateChooser = ({ onOpenChange, onSelect, open }: TemplateChooserProps) => {
   const screen = useTailwindScreen();
   const isDesktop = screen === 'md' || screen === 'lg' || screen === 'xl' || screen === '2xl';
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<NoteTemplate | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<NoteTemplate | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Template | null>(null);
   const keyboardContainerRef = useRef<HTMLDivElement>(null);
   const { templates, isLoading, loadTemplates, createTemplate, updateTemplate, deleteTemplate } =
-    useNoteTemplates();
+    useTemplates();
 
   const rows = useMemo<ChooserRow[]>(
     () => [
-      { type: 'blank', template: BLANK_NOTE_TEMPLATE },
+      { type: 'blank', template: BLANK_TEMPLATE },
       ...templates.map((template) => ({ type: 'user' as const, template })),
       { type: 'add' },
     ],
@@ -348,7 +348,7 @@ export const NoteTemplateChooser = ({ onOpenChange, onSelect, open }: NoteTempla
         </Drawer>
       )}
 
-      <NoteTemplateFormDialog
+      <TemplateFormDialog
         initialTemplate={editingTemplate}
         onOpenChange={setFormOpen}
         onSave={async (input) => {

@@ -1,16 +1,16 @@
 import { create } from 'zustand';
-import type { NoteTemplate } from '@/features/notes/lib/note-templates';
+import type { Template } from '@/features/templates/lib/templates';
 
-interface NoteTemplatesState {
-  templates: NoteTemplate[];
-  setTemplates: (templates: NoteTemplate[]) => void;
+interface TemplatesState {
+  templates: Template[];
+  setTemplates: (templates: Template[]) => void;
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
   error: string | null;
   setError: (error: string | null) => void;
 }
 
-export const useNoteTemplatesStore = create<NoteTemplatesState>((set) => ({
+export const useTemplatesStore = create<TemplatesState>((set) => ({
   templates: [],
   setTemplates: (templates) => set({ templates }),
   isLoading: false,

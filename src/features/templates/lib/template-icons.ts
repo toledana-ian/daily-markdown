@@ -8,9 +8,9 @@ import {
   RiStarLine,
   RiTeamLine,
 } from '@remixicon/react';
-import type { NoteTemplateIconKey } from '@/features/notes/lib/note-templates';
+import type { TemplateIconKey } from '@/features/templates/lib/templates';
 
-export const NOTE_TEMPLATE_ICON_COMPONENTS: Record<NoteTemplateIconKey, typeof RiFileLine> = {
+export const TEMPLATE_ICON_COMPONENTS: Record<TemplateIconKey, typeof RiFileLine> = {
   file: RiFileLine,
   calendar: RiCalendarLine,
   'calendar-check': RiCalendarCheckLine,
