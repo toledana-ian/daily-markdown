@@ -32,6 +32,7 @@ import {
   toggleMarkdownWrapAsymmetric,
 } from '@/features/notes/lib/note-editor-markdown-shortcuts.ts';
 import {
+  getFixedPositioningContainerRect,
   getSlashPopupLayout,
   type SlashPopupAnchor,
   type SlashPopupLayout,
@@ -233,13 +234,21 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
         setSlashFrom(line.from + match.from);
 
         if (coords) {
-          const anchor = { left: coords.left, top: coords.top, bottom: coords.bottom };
+          const containerRect = getFixedPositioningContainerRect(currentView.dom);
+          const anchor = {
+            left: coords.left - (containerRect?.left ?? 0),
+            top: coords.top - (containerRect?.top ?? 0),
+            bottom: coords.bottom - (containerRect?.top ?? 0),
+          };
           setSlashAnchor(anchor);
           setSlashPopupLayout(
             getSlashPopupLayout(
               anchor,
               { width: 288, height: 0 },
-              { width: window.innerWidth, height: window.innerHeight },
+              {
+                width: containerRect?.width ?? window.innerWidth,
+                height: containerRect?.height ?? window.innerHeight,
+              },
             ),
           );
         } else {
@@ -738,12 +747,16 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       }
 
       const { offsetWidth, scrollHeight } = popupElement;
+      const containerRect = getFixedPositioningContainerRect(popupElement);
 
       setSlashPopupLayout(
         getSlashPopupLayout(
           slashAnchor,
           { width: offsetWidth, height: scrollHeight },
-          { width: window.innerWidth, height: window.innerHeight },
+          {
+            width: containerRect?.width ?? window.innerWidth,
+            height: containerRect?.height ?? window.innerHeight,
+          },
         ),
       );
     }, [filteredCommands, slashAnchor, slashOpen]);

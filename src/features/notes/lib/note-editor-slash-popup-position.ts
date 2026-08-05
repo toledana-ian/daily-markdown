@@ -23,6 +23,12 @@ export type SlashPopupLayout = {
 
 export const SLASH_POPUP_VIEWPORT_PADDING = 8;
 
+// Dialog/drawer content's CSS `transform` makes it the containing block for `fixed` descendants, not the viewport.
+export const getFixedPositioningContainerRect = (element: Element | null): DOMRect | null => {
+  const container = element?.closest('[data-slot="dialog-content"], [data-slot="drawer-content"]');
+  return container?.getBoundingClientRect() ?? null;
+};
+
 export const getSlashPopupLayout = (
   anchor: SlashPopupAnchor,
   popupSize: SlashPopupSize,
