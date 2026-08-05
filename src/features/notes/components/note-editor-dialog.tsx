@@ -46,7 +46,11 @@ type NoteEditorDialogProps = {
 };
 
 export type NoteEditorDialogRef = {
-  loadContent: (content: string) => void;
+  loadContent: (
+    content: string,
+    cursorOffset?: number,
+    options?: { treatAsSaved?: boolean },
+  ) => void;
 };
 
 type CommandItem = {
@@ -207,6 +211,7 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
     const [slashAnchor, setSlashAnchor] = useState<SlashPopupAnchor | null>(null);
     const [slashPopupLayout, setSlashPopupLayout] = useState<SlashPopupLayout | null>(null);
     const slashPopupRef = useRef<HTMLDivElement | null>(null);
+    const pendingCursorOffsetRef = useRef<number | null>(null);
 
     const filteredCommands = useMemo(() => {
       if (!slashQuery) return COMMANDS;
@@ -274,14 +279,40 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
       setSlashPopupLayout(null);
     }, []);
 
+    const applyPendingCursor = useCallback((currentView: EditorView) => {
+      const cursorOffset = pendingCursorOffsetRef.current;
+
+      if (cursorOffset === null) {
+        return;
+      }
+
+      pendingCursorOffsetRef.current = null;
+      const boundedOffset = Math.min(cursorOffset, currentView.state.doc.length);
+
+      currentView.dispatch({
+        selection: {
+          anchor: boundedOffset,
+          head: boundedOffset,
+        },
+      });
+      currentView.focus();
+    }, []);
+
     const loadContent = useCallback(
-      (content: string) => {
+      (content: string, cursorOffset?: number, options?: { treatAsSaved?: boolean }) => {
         setContent(content);
         contentRef.current = content;
-        lastSavedContentRef.current = content;
+        if (options?.treatAsSaved !== false) {
+          lastSavedContentRef.current = content;
+        }
+        pendingCursorOffsetRef.current = cursorOffset ?? null;
         closeSlashCommands();
+
+        if (view) {
+          applyPendingCursor(view);
+        }
       },
-      [closeSlashCommands],
+      [applyPendingCursor, closeSlashCommands, view],
     );
 
     useImperativeHandle(
@@ -797,7 +828,10 @@ export const NoteEditorDialog = forwardRef<NoteEditorDialogRef, NoteEditorDialog
             basicSetup={{
               closeBrackets: false,
             }}
-            onCreateEditor={(view) => setView(view)}
+            onCreateEditor={(editorView) => {
+              setView(editorView);
+              applyPendingCursor(editorView);
+            }}
             onChange={handleChange}
             onUpdate={handleEditorUpdate}
             placeholder='Write your note in markdown...'

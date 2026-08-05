@@ -64,6 +64,13 @@
       "when": 1782584695897,
       "tag": "0008_quick_search_sort_order",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783000000000,
+      "tag": "0009_note_templates",
+      "breakpoints": true
     }
   ]
 }
