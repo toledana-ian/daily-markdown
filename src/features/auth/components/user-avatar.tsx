@@ -25,7 +25,7 @@ export const UserAvatar = ({ profilePicture }: UserAvatarProps) => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className={'rounded-sm shadow-xl'} align='end'>
-        <DropdownMenuItem onClick={() => navigate({ to: '.' })}>Settings</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>Settings</DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             navigate({ to: '/logout' }).then();
