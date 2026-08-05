@@ -179,7 +179,7 @@ export const NoteTemplateChooser = ({ onOpenChange, onSelect, open }: NoteTempla
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='max-w-md gap-0 overflow-hidden p-0 sm:max-w-md'>
+        <DialogContent className='max-w-md gap-0 overflow-hidden p-0 sm:max-w-md rounded-sm'>
           <DialogTitle className='px-4 pt-4 text-base font-medium'>New note</DialogTitle>
           <DialogDescription className='sr-only'>
             Select a template to start your note.
