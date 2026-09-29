@@ -244,6 +244,18 @@ export const NoteViewDialog = ({
     [content, checkboxMeta, onSave],
   );
 
+  // Streamdown portals the fullscreen Mermaid view to `document.body`, but
+  // React still bubbles its events through here, so both the inline block and
+  // the fullscreen diagram are matched by their `data-streamdown` markers.
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-streamdown="mermaid-block"], [data-streamdown="mermaid"]')) return;
+      onEdit();
+    },
+    [onEdit],
+  );
+
   const preview = (
     <CheckboxContext.Provider value={checkboxContextValue}>
       <div
@@ -251,7 +263,7 @@ export const NoteViewDialog = ({
         aria-label='Preview note'
         className='p-6 h-full wrap-anywhere'
         onClickCapture={handleContainerClick}
-        onDoubleClick={onEdit}
+        onDoubleClick={handleDoubleClick}
         role='document'
       >
         <Markdown content={displayContent} emptyMessage='This note is empty.' />
