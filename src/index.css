@@ -261,6 +261,19 @@
   text-indent: -2.5rem;
 }
 
+/* Streamdown portals the fullscreen Mermaid view to `body` (outside any
+   `mermaid-block`) and renders the SVG at its natural size; grow it to at
+   least the note view dialog's `max-h-[80vh]`, capped by the overlay's padding.
+   `!important` overrides the inline `max-width` Mermaid sets on the SVG. */
+[data-streamdown='mermaid']:not([data-streamdown='mermaid-block'] *)
+  [aria-label='Mermaid chart']
+  > svg {
+  width: auto;
+  height: 80vh;
+  max-width: 100% !important;
+  max-height: 100%;
+}
+
 .cm-editor.cm-focused {
   outline: none !important;
 }
