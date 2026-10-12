@@ -6,6 +6,7 @@ import type { StreamdownProps } from 'streamdown';
 import { MarkdownCheckboxInput } from '@/components/common/markdown-checkbox-input';
 import { MarkdownImage } from '@/components/common/markdown-image';
 import { MarkdownListItem } from '@/components/common/markdown-list-item';
+import { MarkdownMermaid } from '@/components/common/markdown-mermaid';
 import { MarkdownParagraph } from '@/components/common/markdown-paragraph';
 import { MarkdownLink } from '@/components/common/markdown-link.tsx';
 
@@ -14,6 +15,8 @@ export const markdownPlugins: NonNullable<StreamdownProps['plugins']> = {
   code,
   math,
   mermaid,
+  // Streamdown's built-in Mermaid block always adds a pan/zoom wrapper and chrome.
+  renderers: [{ language: 'mermaid', component: MarkdownMermaid }],
 };
 
 export const markdownComponents = {
