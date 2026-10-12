@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
 import 'streamdown/styles.css';
 import { Streamdown, type StreamdownProps } from 'streamdown';
 import { visit } from 'unist-util-visit';
-import { markdownComponents, markdownPlugins } from '@/components/common/markdown-renderers';
+import { markdownComponents, markdownPlugins } from '@/lib/markdown-renderers.ts';
 import { cn } from '@/lib/utils';
 
 // Known valid HTML element tag names

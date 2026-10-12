@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils.ts';
-import { buttonVariants } from '@/components/ui/button-variants';
+import { buttonVariants } from '@/lib/button-variants.ts';
 import { Link } from '@tanstack/react-router';
 
 export const SignInButton = () => {

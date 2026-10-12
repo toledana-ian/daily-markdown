@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { DayPicker, getDefaultClassNames, type DayButton, type Locale } from 'react-day-picker';
 
-import { buttonVariants } from '@/components/ui/button-variants';
+import { buttonVariants } from '@/lib/button-variants.ts';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiArrowDownSLine } from '@remixicon/react';
