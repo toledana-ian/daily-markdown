@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { cn } from '@/lib/utils.ts';
-import { buttonVariants } from '@/components/ui/button-variants';
+import { buttonVariants } from '@/lib/button-variants.ts';
 import { RiArrowRightLine } from '@remixicon/react';
 
 export const LandingPage = () => {
