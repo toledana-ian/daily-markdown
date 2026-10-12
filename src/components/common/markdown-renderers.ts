@@ -1,7 +1,6 @@
 import { cjk } from '@streamdown/cjk';
 import { code } from '@streamdown/code';
 import { math } from '@streamdown/math';
-import { mermaid } from '@streamdown/mermaid';
 import type { StreamdownProps } from 'streamdown';
 import { MarkdownCheckboxInput } from '@/components/common/markdown-checkbox-input';
 import { MarkdownImage } from '@/components/common/markdown-image';
@@ -14,8 +13,6 @@ export const markdownPlugins: NonNullable<StreamdownProps['plugins']> = {
   cjk,
   code,
   math,
-  mermaid,
-  // Streamdown's built-in Mermaid block always adds a pan/zoom wrapper and chrome.
   renderers: [{ language: 'mermaid', component: MarkdownMermaid }],
 };
 
